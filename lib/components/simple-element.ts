@@ -1,11 +1,13 @@
-import { LitElement, html } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import litLogo from "../assets/lit.svg";
 import tailwindLogo from "../assets/tailwind.svg";
 import viteLogo from "/vite.svg";
 
-import { TW } from "../shared/tailwindMixin";
 import { cva, VariantProps } from "class-variance-authority";
+import { Effect } from "effect";
+import { Box, Html, Renderer } from "effect-boxes";
+import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 
 const TwLitElement = TW(LitElement);
@@ -21,7 +23,7 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-10 px-4 py-2",
-        lg: "h-11 rounded-md px-8",
+        lg: "min-h-11 rounded-md px-8",
       },
     },
     defaultVariants: {
@@ -31,8 +33,9 @@ const buttonVariants = cva(
   }
 );
 
-@customElement("my-element")
-export class MyElement extends TwLitElement {
+@customElement("simple-element")
+export class SimpleElement extends TwLitElement {
+  @property() content = "";
   @property() docsHint = "Click on the Vite and Lit logos to learn more";
   @property({ type: Number }) count = 0;
   @property({ type: String }) variant: VariantProps<
@@ -41,6 +44,42 @@ export class MyElement extends TwLitElement {
   @property({ type: String }) size: VariantProps<
     typeof buttonVariants
   >["size"] = "default";
+
+  // Render effect into the content when count changes
+  updated(changedProperties: Map<string, unknown>) {
+    if (changedProperties.has("count")) {
+      Effect.runPromise(
+        this.generateEffect().pipe(
+          Effect.map((htmlString) => {
+            this.content = htmlString;
+          })
+        )
+      );
+    }
+  }
+
+  // Define the Effect to execute
+  protected generateEffect(): Effect.Effect<string> {
+    const combinedBox = Box.combineAll([
+      Box.text(`Counter:`).pipe(
+        Box.annotate(Html.span({ class: "opacity-50" }))
+      ),
+      Box.text(` ${this.count}`).pipe(
+        Box.annotate(Html.strong({ class: "text-blue-500 px-4" }))
+      ),
+    ]).pipe(
+      Box.annotate(
+        Html.div({
+          class:
+            "p-4 text-lg font-medium text-gray-700 bg-white w-full rounded-lg shadow",
+        })
+      )
+    );
+
+    return Box.render(combinedBox, {}).pipe(
+      Effect.provide(Renderer.HtmlRendererLive)
+    );
+  }
 
   render() {
     return html`
@@ -56,16 +95,29 @@ export class MyElement extends TwLitElement {
             <img src=${tailwindLogo} class="size-14" alt="Tailwind logo" />
           </a>
         </div>
+
         <slot></slot>
-        <div class="px-8">
+        <div class="px-8 flex gap-4">
           <button
             class="${cn(
               buttonVariants({ variant: this.variant, size: this.size })
             )}"
-            @click=${this._onClick}
+            @click=${this._decrement}
             part="button"
           >
-            count is ${this.count}
+            -
+          </button>
+          <!-- Effect-generated content -->
+          ${html`<div .innerHTML=${this.content || ""} />`}
+          
+          <button
+            class="${cn(
+              buttonVariants({ variant: this.variant, size: this.size })
+            )}"
+            @click=${this._increment}
+            part="button"
+          >
+            +
           </button>
         </div>
         <p class="text-gray-400">${this.docsHint}</p>
@@ -73,13 +125,17 @@ export class MyElement extends TwLitElement {
     `;
   }
 
-  private _onClick() {
+  private _increment() {
     this.count++;
+  }
+
+  private _decrement() {
+    this.count--;
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "my-element": MyElement;
+    "simple-element": SimpleElement;
   }
 }

@@ -1,1 +1,1 @@
-export { MyElement } from "./components/my-element";
+export { SimpleElement as MyElement } from "./components/simple-element";
