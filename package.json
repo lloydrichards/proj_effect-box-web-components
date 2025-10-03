@@ -15,12 +15,17 @@
   },
   "scripts": {
     "dev": "vite ",
+    "scratch": "bun run scratchpad",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@effect/platform": "^0.92.1",
+    "@effect/platform-bun": "^0.81.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "effect": "^3.18.1",
+    "effect-boxes": "git+https://github.com/lloydrichards/proj_effect-boxes.git",
     "lit": "^3.2.1",
     "tailwind-merge": "^2.5.4"
   },
