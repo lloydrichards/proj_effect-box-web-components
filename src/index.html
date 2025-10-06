@@ -13,10 +13,24 @@
       :root {
         --destructive: hsl(6 93% 71%);
         --destructive-foreground: hsl(0 0 0%);
+
+        --primary: hsl(222, 84%, 40%);
+        --primary-foreground: hsl(210 40% 98%);
       }
     </style>
-    <simple-element variant="destructive" size="lg">
-      <h3>Vite + Lit + Tailwind</h3>
-    </simple-element>
+    <section>
+      <simple-element variant="destructive" size="lg">
+        <h3>Vite + Lit + Tailwind</h3>
+      </simple-element>
+      <reactive-element size="lg">
+        <h3>Reactive Element with Effect Box</h3>
+      </reactive-element>
+      <atom-counter variant="outlined" size="lg">
+        <h3>Atom Integration with Effect</h3>
+      </atom-counter>
+      <atom-counter variant="secondary" size="lg">
+        <h3>Second Atom Integration with Effect</h3>
+      </atom-counter>
+    </section>
   </body>
 </html>

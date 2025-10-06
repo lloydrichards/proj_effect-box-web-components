@@ -1,8 +1,8 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import litLogo from "../assets/lit.svg";
-import tailwindLogo from "../assets/tailwind.svg";
-import viteLogo from "/vite.svg";
+// import litLogo from "../assets/lit.svg";
+// import tailwindLogo from "../assets/tailwind.svg";
+// import viteLogo from "/vite.svg";
 
 import { cva, VariantProps } from "class-variance-authority";
 import { Effect } from "effect";
@@ -33,8 +33,8 @@ const buttonVariants = cva(
   }
 );
 
-@customElement("simple-element")
-export class SimpleElement extends TwLitElement {
+@customElement("reactive-element")
+export class ReactiveElement extends TwLitElement {
   @property() content = "";
   @property() docsHint = "Click on the Vite and Lit logos to learn more";
   @property({ type: Number }) count = 0;
@@ -84,18 +84,6 @@ export class SimpleElement extends TwLitElement {
   render() {
     return html`
       <div class="flex flex-col justify-center items-center gap-2 w-screen">
-        <div class="flex gap-8">
-          <a href="https://vitejs.dev" target="_blank">
-            <img src=${viteLogo} class="size-14" alt="Vite logo" />
-          </a>
-          <a href="https://lit.dev" target="_blank">
-            <img src=${litLogo} class="size-14" alt="Lit logo" />
-          </a>
-          <a href="https://tailwindcss.com/" target="_blank">
-            <img src=${tailwindLogo} class="size-14" alt="Tailwind logo" />
-          </a>
-        </div>
-
         <slot></slot>
         <div class="px-8 flex gap-4">
           <button
@@ -136,6 +124,6 @@ export class SimpleElement extends TwLitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "simple-element": SimpleElement;
+    "reactive-element": ReactiveElement;
   }
 }
