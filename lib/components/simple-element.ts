@@ -2,6 +2,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import litLogo from "../assets/lit.svg";
 import tailwindLogo from "../assets/tailwind.svg";
+import effectLogo from "../assets/effect_dark.svg";
 import viteLogo from "/vite.svg";
 
 import { cva, VariantProps } from "class-variance-authority";
@@ -93,6 +94,9 @@ export class SimpleElement extends TwLitElement {
           </a>
           <a href="https://tailwindcss.com/" target="_blank">
             <img src=${tailwindLogo} class="size-14" alt="Tailwind logo" />
+          </a>
+          <a href="https://effect.website/" target="_blank">
+            <img src=${effectLogo} class="size-14" alt="Effect logo" />
           </a>
         </div>
 
