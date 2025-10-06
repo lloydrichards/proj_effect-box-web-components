@@ -1,5 +1,6 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Data, Effect } from "effect";
 import { Atom, Result } from "@effect-atom/atom";
 import { cva, VariantProps } from "class-variance-authority";
@@ -10,6 +11,7 @@ import {
 } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
+import { Plus, Minus } from "lucide-static";
 
 // Compose mixins: Tailwind + Atom
 const TwAtomElement = TW(AtomMixin(LitElement));
@@ -48,6 +50,7 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-10 px-4 py-2",
+        icon: "p-6",
         lg: "min-h-11 rounded-md px-8",
       },
     },
@@ -73,7 +76,7 @@ export class AtomCounter extends TwAtomElement {
   >["variant"] = "default";
   @property({ type: String }) size: VariantProps<
     typeof buttonVariants
-  >["size"] = "default";
+  >["size"] = "icon";
 
   render() {
     const isLoading = Result.isWaiting(this.countResult);
@@ -84,13 +87,14 @@ export class AtomCounter extends TwAtomElement {
         <div class="px-8 flex gap-4">
           <button
             class="${cn(
-              buttonVariants({ variant: this.variant, size: this.size })
+              buttonVariants({ variant: this.variant, size: this.size }),
+             "[&_svg]:size-4"
             )}"
             @click=${this._decrement}
             ?disabled=${isLoading}
             part="button"
           >
-            -
+            ${unsafeSVG(Minus)}
           </button>
 
           <div
@@ -117,13 +121,14 @@ export class AtomCounter extends TwAtomElement {
 
           <button
             class="${cn(
-              buttonVariants({ variant: this.variant, size: this.size })
+              buttonVariants({ variant: this.variant, size: this.size }),
+              "[&_svg]:size-4"
             )}"
             @click=${this._increment}
             ?disabled=${isLoading}
             part="button"
           >
-            +
+            ${unsafeSVG(Plus)}
           </button>
         </div>
 

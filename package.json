@@ -28,6 +28,7 @@
     "effect": "^3.18.1",
     "effect-boxes": "git+https://github.com/lloydrichards/proj_effect-boxes.git",
     "lit": "^3.2.1",
+    "lucide-static": "^0.545.0",
     "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {

@@ -1,9 +1,6 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-// import litLogo from "../assets/lit.svg";
-// import tailwindLogo from "../assets/tailwind.svg";
-// import viteLogo from "/vite.svg";
-
+import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 import { cva, VariantProps } from "class-variance-authority";
 import { Effect } from "effect";
 import { Box, Html, Renderer } from "effect-boxes";
@@ -96,7 +93,7 @@ export class ReactiveElement extends TwLitElement {
             -
           </button>
           <!-- Effect-generated content -->
-          ${html`<div .innerHTML=${this.content || ""} />`}
+          ${unsafeHTML(this.content)}
           
           <button
             class="${cn(
