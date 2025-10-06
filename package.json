@@ -20,6 +20,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@effect-atom/atom": "^0.3.0",
     "@effect/platform": "^0.92.1",
     "@effect/platform-bun": "^0.81.1",
     "class-variance-authority": "^0.7.0",
