@@ -1,9 +1,9 @@
-import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import {unsafeHTML} from 'lit/directives/unsafe-html.js';
-import { cva, VariantProps } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 import { Effect } from "effect";
 import { Box, Html, Renderer } from "effect-boxes";
+import { html, LitElement } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 
@@ -27,7 +27,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 @customElement("reactive-element")
@@ -49,8 +49,9 @@ export class ReactiveElement extends TwLitElement {
         this.generateEffect().pipe(
           Effect.map((htmlString) => {
             this.content = htmlString;
-          })
-        )
+            return null;
+          }),
+        ),
       );
     }
   }
@@ -59,22 +60,22 @@ export class ReactiveElement extends TwLitElement {
   protected generateEffect(): Effect.Effect<string> {
     const combinedBox = Box.combineAll([
       Box.text(`Counter:`).pipe(
-        Box.annotate(Html.span({ class: "opacity-50" }))
+        Box.annotate(Html.span({ class: "opacity-50" })),
       ),
       Box.text(` ${this.count}`).pipe(
-        Box.annotate(Html.strong({ class: "text-blue-500 px-4" }))
+        Box.annotate(Html.strong({ class: "text-blue-500 px-4" })),
       ),
     ]).pipe(
       Box.annotate(
         Html.div({
           class:
             "p-4 min-w-48 flex justify-center text-lg font-medium text-gray-700 bg-white w-full rounded-lg shadow",
-        })
-      )
+        }),
+      ),
     );
 
     return Box.render(combinedBox, {}).pipe(
-      Effect.provide(Renderer.HtmlRendererLive)
+      Effect.provide(Renderer.HtmlRendererLive),
     );
   }
 
@@ -85,7 +86,7 @@ export class ReactiveElement extends TwLitElement {
         <div class="px-8 flex gap-4">
           <button
             class="${cn(
-              buttonVariants({ variant: this.variant, size: this.size })
+              buttonVariants({ variant: this.variant, size: this.size }),
             )}"
             @click=${this._decrement}
             part="button"
@@ -97,7 +98,7 @@ export class ReactiveElement extends TwLitElement {
           
           <button
             class="${cn(
-              buttonVariants({ variant: this.variant, size: this.size })
+              buttonVariants({ variant: this.variant, size: this.size }),
             )}"
             @click=${this._increment}
             part="button"

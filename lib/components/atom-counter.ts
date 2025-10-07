@@ -1,17 +1,17 @@
+import { Atom, Result } from "@effect-atom/atom";
+import { cva, type VariantProps } from "class-variance-authority";
+import { Data, Effect } from "effect";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { Data, Effect } from "effect";
-import { Atom, Result } from "@effect-atom/atom";
-import { cva, VariantProps } from "class-variance-authority";
+import { Minus, Plus } from "lucide-static";
 import {
   AtomMixin,
-  resultAtomProperty,
   matchResult,
+  resultAtomProperty,
 } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
-import { Plus, Minus } from "lucide-static";
 
 // Compose mixins: Tailwind + Atom
 const TwAtomElement = TW(AtomMixin(LitElement));
@@ -33,7 +33,7 @@ const countAtom = Atom.fn(
       yield* Effect.log("Counter updated to:", newValue);
       return newValue;
     }),
-  { initialValue: 0 }
+  { initialValue: 0 },
 );
 
 const buttonVariants = cva(
@@ -58,7 +58,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 /**
@@ -88,7 +88,7 @@ export class AtomCounter extends TwAtomElement {
           <button
             class="${cn(
               buttonVariants({ variant: this.variant, size: this.size }),
-             "[&_svg]:size-4"
+              "[&_svg]:size-4",
             )}"
             @click=${this._decrement}
             ?disabled=${isLoading}
@@ -122,7 +122,7 @@ export class AtomCounter extends TwAtomElement {
           <button
             class="${cn(
               buttonVariants({ variant: this.variant, size: this.size }),
-              "[&_svg]:size-4"
+              "[&_svg]:size-4",
             )}"
             @click=${this._increment}
             ?disabled=${isLoading}

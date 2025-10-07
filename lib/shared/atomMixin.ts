@@ -1,13 +1,12 @@
 import { Atom, Registry, Result } from "@effect-atom/atom";
-import type { TemplateResult } from "lit";
-import type { LitElement } from "lit";
-import { globalValue } from "effect/GlobalValue";
-import * as Option from "effect/Option";
-import * as HashMap from "effect/HashMap";
 import * as Array from "effect/Array";
-import * as Chunk from "effect/Chunk";
 import * as Cause from "effect/Cause";
+import * as Chunk from "effect/Chunk";
 import { pipe } from "effect/Function";
+import { globalValue } from "effect/GlobalValue";
+import * as HashMap from "effect/HashMap";
+import * as Option from "effect/Option";
+import type { LitElement, TemplateResult } from "lit";
 
 type Constructor<T = object> = abstract new (...args: any[]) => T;
 
@@ -34,18 +33,18 @@ const globalRegistry: Registry.Registry = globalValue(
       scheduleTask: (f) => queueMicrotask(f),
       timeoutResolution: 1000,
       defaultIdleTTL: 30_000,
-    })
+    }),
 );
 
 export type MatchResultOptions<A, E> = {
   onInitial?: () => TemplateResult | string | null;
   onSuccess: (
     value: A,
-    result: Result.Success<A, E>
+    result: Result.Success<A, E>,
   ) => TemplateResult | string | null;
   onFailure?: (
     error: E,
-    result: Result.Failure<A, E>
+    result: Result.Failure<A, E>,
   ) => TemplateResult | string | null;
   onWaiting?: (result: Result.Result<A, E>) => TemplateResult | string | null;
 };
@@ -100,7 +99,7 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
       const subscribeToAtom = <A>(
         key: string | symbol,
         atom: Atom.Atom<A>,
-        handler: (value: A) => void
+        handler: (value: A) => void,
       ): void => {
         const unsubscribe = registry.subscribe(atom, handler, {
           immediate: true,
@@ -108,7 +107,7 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
         this[ATOM_SUBSCRIPTIONS] = HashMap.set(
           this[ATOM_SUBSCRIPTIONS],
           key,
-          unsubscribe
+          unsubscribe,
         );
       };
 
@@ -122,36 +121,36 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
       pipe(
         Option.fromNullable(ctor[ATOM_PROPERTY_KEYS]),
         Option.map(
-          Array.map(({ key, atom }) => {
+          Array.forEach(({ key, atom }) => {
             subscribeToAtom(key, atom, (value) => {
               updateProperty(key, value);
             });
-          })
-        )
+          }),
+        ),
       );
 
       // Subscribe to writable atoms
       pipe(
         Option.fromNullable(ctor[WRITABLE_ATOM_PROPERTY_KEYS]),
         Option.map(
-          Array.map(({ key, atom }) => {
+          Array.forEach(({ key, atom }) => {
             subscribeToAtom(key, atom, (value) => {
               updateProperty(key, value);
             });
-          })
-        )
+          }),
+        ),
       );
 
       // Subscribe to Result atoms
       pipe(
         Option.fromNullable(ctor[RESULT_ATOM_PROPERTY_KEYS]),
         Option.map(
-          Array.map(({ key, atom }) => {
+          Array.forEach(({ key, atom }) => {
             subscribeToAtom(key, atom, (result) => {
               updateProperty(key, result);
             });
-          })
-        )
+          }),
+        ),
       );
     }
 
@@ -168,24 +167,24 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
         T extends {
           readonly key: string | symbol;
           readonly atom: Atom.Atom<any>;
-        }
+        },
       >(
-        arr: ReadonlyArray<T> | undefined
+        arr: ReadonlyArray<T> | undefined,
       ): Option.Option<Atom.Atom<A>> =>
         pipe(
           Option.fromNullable(arr),
           Option.flatMap((keys) =>
             pipe(
               Array.findFirst(keys, (p) => p.key === key),
-              Option.map((p) => p.atom as Atom.Atom<A>)
-            )
-          )
+              Option.map((p) => p.atom as Atom.Atom<A>),
+            ),
+          ),
         );
 
       return pipe(
         findAtomByKey(ctor[ATOM_PROPERTY_KEYS]),
         Option.orElse(() => findAtomByKey(ctor[WRITABLE_ATOM_PROPERTY_KEYS])),
-        Option.orElse(() => findAtomByKey(ctor[RESULT_ATOM_PROPERTY_KEYS]))
+        Option.orElse(() => findAtomByKey(ctor[RESULT_ATOM_PROPERTY_KEYS])),
       );
     }
 
@@ -193,16 +192,14 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
       return pipe(
         this.getAtom<A>(key),
         Option.filter(Atom.isWritable),
-        Option.map((atom) => {
-          globalRegistry.set(atom, value);
-        })
+        Option.map((atom) => globalRegistry.set(atom, value)),
       );
     }
 
     getAtomValue<A>(key: string | symbol): Option.Option<A> {
       return pipe(
         this.getAtom<A>(key),
-        Option.map((atom) => globalRegistry.get(atom))
+        Option.map((atom) => globalRegistry.get(atom)),
       );
     }
 
@@ -222,18 +219,18 @@ export const atomProperty =
   <T extends object>(
     target: T,
     propertyKey: string | symbol,
-    _descriptor?: PropertyDescriptor
+    _descriptor?: PropertyDescriptor,
   ): void => {
-    const constructor = getAtomMetadata(target.constructor);
-    const currentKeys = constructor[ATOM_PROPERTY_KEYS] ?? [];
+    const ctor = getAtomMetadata(target.constructor);
+    const currentKeys = ctor[ATOM_PROPERTY_KEYS] ?? [];
 
     const exists = pipe(
       Array.findFirst(currentKeys, (k) => k.key === propertyKey),
-      Option.isSome
+      Option.isSome,
     );
 
     if (!exists) {
-      constructor[ATOM_PROPERTY_KEYS] = Array.append(currentKeys, {
+      ctor[ATOM_PROPERTY_KEYS] = Array.append(currentKeys, {
         key: propertyKey,
         atom,
       });
@@ -248,19 +245,19 @@ export const writableAtomProperty =
   <T extends object>(
     target: T,
     propertyKey: string | symbol,
-    _descriptor?: PropertyDescriptor
+    _descriptor?: PropertyDescriptor,
   ): void => {
-    const constructor = getAtomMetadata(target.constructor);
-    const currentKeys = constructor[WRITABLE_ATOM_PROPERTY_KEYS] ?? [];
+    const ctor = getAtomMetadata(target.constructor);
+    const currentKeys = ctor[WRITABLE_ATOM_PROPERTY_KEYS] ?? [];
 
     // Check if already exists
     const exists = pipe(
       Array.findFirst(currentKeys, (k) => k.key === propertyKey),
-      Option.isSome
+      Option.isSome,
     );
 
     if (!exists) {
-      constructor[WRITABLE_ATOM_PROPERTY_KEYS] = Array.append(currentKeys, {
+      ctor[WRITABLE_ATOM_PROPERTY_KEYS] = Array.append(currentKeys, {
         key: propertyKey,
         atom,
       });
@@ -275,19 +272,19 @@ export const resultAtomProperty =
   <T extends object>(
     target: T,
     propertyKey: string | symbol,
-    _descriptor?: PropertyDescriptor
+    _descriptor?: PropertyDescriptor,
   ): void => {
-    const constructor = getAtomMetadata(target.constructor);
-    const currentKeys = constructor[RESULT_ATOM_PROPERTY_KEYS] ?? [];
+    const ctor = getAtomMetadata(target.constructor);
+    const currentKeys = ctor[RESULT_ATOM_PROPERTY_KEYS] ?? [];
 
     // Check if already exists
     const exists = pipe(
       Array.findFirst(currentKeys, (k) => k.key === propertyKey),
-      Option.isSome
+      Option.isSome,
     );
 
     if (!exists) {
-      constructor[RESULT_ATOM_PROPERTY_KEYS] = Array.append(currentKeys, {
+      ctor[RESULT_ATOM_PROPERTY_KEYS] = Array.append(currentKeys, {
         key: propertyKey,
         atom,
       });
@@ -299,25 +296,25 @@ export const resultAtomProperty =
  */
 export const matchResult = <A, E>(
   result: Result.Result<A, E>,
-  options: MatchResultOptions<A, E>
+  options: MatchResultOptions<A, E>,
 ): TemplateResult | string | null =>
   pipe(
     Option.fromNullable(
       Result.isWaiting(result) && options.onWaiting
         ? options.onWaiting(result)
-        : null
+        : null,
     ),
     Option.orElse(() =>
       pipe(
         Option.liftPredicate(result, (r) => Result.isInitial(r)),
-        Option.flatMap(() => Option.fromNullable(options.onInitial?.()))
-      )
+        Option.flatMap(() => Option.fromNullable(options.onInitial?.())),
+      ),
     ),
     Option.orElse(() =>
       pipe(
         Option.liftPredicate(result, (r) => Result.isSuccess(r)),
-        Option.map((r) => options.onSuccess(r.value, r))
-      )
+        Option.map((r) => options.onSuccess(r.value, r)),
+      ),
     ),
     Option.orElse(() =>
       pipe(
@@ -328,13 +325,13 @@ export const matchResult = <A, E>(
             Option.map((handler) => {
               const error = pipe(
                 Chunk.head(Cause.failures(r.cause)),
-                Option.getOrElse(() => r.cause as E)
+                Option.getOrElse(() => r.cause as E),
               );
               return handler(error, r);
-            })
-          )
-        )
-      )
+            }),
+          ),
+        ),
+      ),
     ),
-    Option.getOrNull
+    Option.getOrNull,
   );

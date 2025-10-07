@@ -1,13 +1,13 @@
+import { Atom, type Registry } from "@effect-atom/atom";
+import { cva, type VariantProps } from "class-variance-authority";
+import { Data, Duration, Effect, Fiber, Ref, Stream } from "effect";
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { Data, Effect, Stream, Ref, Duration, Fiber } from "effect";
-import { Atom, Registry } from "@effect-atom/atom";
-import { cva, VariantProps } from "class-variance-authority";
+import { Minus, Pause, Play, TimerReset } from "lucide-static";
 import { AtomMixin, atomProperty } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
-import { Minus, Pause, Play, TimerReset } from "lucide-static";
 
 // Compose mixins: Tailwind + Atom
 const TwAtomElement = TW(AtomMixin(LitElement));
@@ -32,7 +32,7 @@ const counterErrorAtom = Atom.make<CounterLimitError | null>(null);
  */
 const createStreamCounterProgram = (
   initialCount: number,
-  registry: Registry.Registry
+  registry: Registry.Registry,
 ) =>
   Effect.gen(function* () {
     // Create a Ref to store the counter state
@@ -68,7 +68,7 @@ const createStreamCounterProgram = (
             count,
           });
         }
-      })
+      }),
     );
   });
 
@@ -94,7 +94,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 /**
@@ -114,7 +114,8 @@ export class AtomStreamCounter extends TwAtomElement {
   error!: CounterLimitError | null;
 
   @state()
-  private streamFiber: Fiber.RuntimeFiber<void, CounterLimitError> | null = null;
+  private streamFiber: Fiber.RuntimeFiber<void, CounterLimitError> | null =
+    null;
 
   @property() docsHint = "Stream-based counter using Effect Stream + Ref";
   @property({ type: String }) variant: VariantProps<
@@ -149,38 +150,45 @@ export class AtomStreamCounter extends TwAtomElement {
         <div class="px-8 flex gap-4">
           <button
             class="${cn(
-              buttonVariants({ variant: showReset ? "destructive" : this.variant, size: this.size }),
-              "[&_svg]:size-4"
+              buttonVariants({
+                variant: showReset ? "destructive" : this.variant,
+                size: this.size,
+              }),
+              "[&_svg]:size-4",
             )}"
             @click=${showReset ? this._reset : this._togglePause}
             part="button"
             title="${showReset ? "Reset" : this.isPaused ? "Resume" : "Pause"}"
           >
-            ${showReset
-              ? unsafeSVG(TimerReset)
-              : unsafeSVG(this.isPaused ? Play : Pause)}
+            ${
+              showReset
+                ? unsafeSVG(TimerReset)
+                : unsafeSVG(this.isPaused ? Play : Pause)
+            }
           </button>
 
           <div
             class="p-4 min-w-48 flex justify-center text-lg font-medium text-gray-700 bg-white w-full rounded-lg shadow relative"
           >
-            ${this.error
-              ? html`
+            ${
+              this.error
+                ? html`
                   <span class="opacity-50">Counter:</span>
                   <strong class="text-red-500 px-4">${this.error.count}</strong>
                 `
-              : html`
+                : html`
                   <span class="opacity-50">Counter:</span>
                   <strong class="text-blue-500 px-4"
                     >${this.currentCount}</strong
                   >
-                `}
+                `
+            }
           </div>
 
           <button
             class="${cn(
               buttonVariants({ variant: this.variant, size: this.size }),
-              "[&_svg]:size-4"
+              "[&_svg]:size-4",
             )}"
             @click=${this._reduce}
             ?disabled=${this.error !== null}
@@ -217,9 +225,9 @@ export class AtomStreamCounter extends TwAtomElement {
           Effect.sync(() => {
             registry.set(counterErrorAtom, error);
             this.streamFiber = null;
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
 
     this.streamFiber = fiber;
