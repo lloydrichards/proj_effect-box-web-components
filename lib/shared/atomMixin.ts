@@ -16,14 +16,6 @@ declare global {
     readonly key: string | symbol;
     readonly atom: Atom.Atom<A>;
   };
-  export type WritableAtomPropertyKey<R = any, W = R> = {
-    readonly key: string | symbol;
-    readonly atom: Atom.Writable<R, W>;
-  };
-  export type ResultAtomPropertyKey<A = any, E = never> = {
-    readonly key: string | symbol;
-    readonly atom: Atom.Atom<Result.Result<A, E>>;
-  };
 }
 
 const globalRegistry: Registry.Registry = globalValue(
@@ -50,16 +42,10 @@ export type MatchResultOptions<A, E> = {
 };
 
 const ATOM_PROPERTY_KEYS = Symbol("atomPropertyKeys");
-const WRITABLE_ATOM_PROPERTY_KEYS = Symbol("writableAtomPropertyKeys");
-const RESULT_ATOM_PROPERTY_KEYS = Symbol("resultAtomPropertyKeys");
 const ATOM_SUBSCRIPTIONS = Symbol("atomSubscriptions");
 
 type AtomMetadataConstructor = {
   [ATOM_PROPERTY_KEYS]?: ReadonlyArray<AtomPropertyKey<any>>;
-  [WRITABLE_ATOM_PROPERTY_KEYS]?: ReadonlyArray<
-    WritableAtomPropertyKey<any, any>
-  >;
-  [RESULT_ATOM_PROPERTY_KEYS]?: ReadonlyArray<ResultAtomPropertyKey<any, any>>;
 };
 
 export interface IAtomMixin {
@@ -69,8 +55,7 @@ export interface IAtomMixin {
   getAtomRegistry(): Registry.Registry;
 }
 
-const getAtomMetadata = (ctor: Function): AtomMetadataConstructor =>
-  ctor as AtomMetadataConstructor;
+const getAtomMetadata = (ctor: Function) => ctor as AtomMetadataConstructor;
 
 /**
  * Mixin that integrates Effect-atom with Lit components
@@ -128,30 +113,6 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
           }),
         ),
       );
-
-      // Subscribe to writable atoms
-      pipe(
-        Option.fromNullable(ctor[WRITABLE_ATOM_PROPERTY_KEYS]),
-        Option.map(
-          Array.forEach(({ key, atom }) => {
-            subscribeToAtom(key, atom, (value) => {
-              updateProperty(key, value);
-            });
-          }),
-        ),
-      );
-
-      // Subscribe to Result atoms
-      pipe(
-        Option.fromNullable(ctor[RESULT_ATOM_PROPERTY_KEYS]),
-        Option.map(
-          Array.forEach(({ key, atom }) => {
-            subscribeToAtom(key, atom, (result) => {
-              updateProperty(key, result);
-            });
-          }),
-        ),
-      );
     }
 
     private _unsubscribeFromAtoms() {
@@ -166,7 +127,7 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
       const findAtomByKey = <
         T extends {
           readonly key: string | symbol;
-          readonly atom: Atom.Atom<any>;
+          readonly atom: Atom.Atom<A>;
         },
       >(
         arr: ReadonlyArray<T> | undefined,
@@ -181,11 +142,7 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
           ),
         );
 
-      return pipe(
-        findAtomByKey(ctor[ATOM_PROPERTY_KEYS]),
-        Option.orElse(() => findAtomByKey(ctor[WRITABLE_ATOM_PROPERTY_KEYS])),
-        Option.orElse(() => findAtomByKey(ctor[RESULT_ATOM_PROPERTY_KEYS])),
-      );
+      return pipe(findAtomByKey(ctor[ATOM_PROPERTY_KEYS]));
     }
 
     setAtom<A>(key: string | symbol, value: A): Option.Option<void> {
@@ -231,60 +188,6 @@ export const atomProperty =
 
     if (!exists) {
       ctor[ATOM_PROPERTY_KEYS] = Array.append(currentKeys, {
-        key: propertyKey,
-        atom,
-      });
-    }
-  };
-
-/**
- * Decorator to bind a writable atom to a component property
- */
-export const writableAtomProperty =
-  <R, W = R>(atom: Atom.Writable<R, W>) =>
-  <T extends object>(
-    target: T,
-    propertyKey: string | symbol,
-    _descriptor?: PropertyDescriptor,
-  ): void => {
-    const ctor = getAtomMetadata(target.constructor);
-    const currentKeys = ctor[WRITABLE_ATOM_PROPERTY_KEYS] ?? [];
-
-    // Check if already exists
-    const exists = pipe(
-      Array.findFirst(currentKeys, (k) => k.key === propertyKey),
-      Option.isSome,
-    );
-
-    if (!exists) {
-      ctor[WRITABLE_ATOM_PROPERTY_KEYS] = Array.append(currentKeys, {
-        key: propertyKey,
-        atom,
-      });
-    }
-  };
-
-/**
- * Decorator to bind a Result atom to a component property
- */
-export const resultAtomProperty =
-  <A, E = never>(atom: Atom.Atom<Result.Result<A, E>>) =>
-  <T extends object>(
-    target: T,
-    propertyKey: string | symbol,
-    _descriptor?: PropertyDescriptor,
-  ): void => {
-    const ctor = getAtomMetadata(target.constructor);
-    const currentKeys = ctor[RESULT_ATOM_PROPERTY_KEYS] ?? [];
-
-    // Check if already exists
-    const exists = pipe(
-      Array.findFirst(currentKeys, (k) => k.key === propertyKey),
-      Option.isSome,
-    );
-
-    if (!exists) {
-      ctor[RESULT_ATOM_PROPERTY_KEYS] = Array.append(currentKeys, {
         key: propertyKey,
         atom,
       });

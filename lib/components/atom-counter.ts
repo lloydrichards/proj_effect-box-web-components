@@ -5,11 +5,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Plus } from "lucide-static";
-import {
-  AtomMixin,
-  matchResult,
-  resultAtomProperty,
-} from "../shared/atomMixin";
+import { AtomMixin, matchResult, atomProperty } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 
@@ -67,7 +63,7 @@ const buttonVariants = cva(
  */
 @customElement("atom-counter")
 export class AtomCounter extends TwAtomElement {
-  @resultAtomProperty(countAtom)
+  @atomProperty(countAtom)
   countResult!: Result.Result<number, CountError>;
 
   @property() docsHint = "Atom state managed by Effect (shared globally)";

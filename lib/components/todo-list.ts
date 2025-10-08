@@ -6,7 +6,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Check, Plus, Trash2, X } from "lucide-static";
-import { AtomMixin, writableAtomProperty } from "../shared/atomMixin";
+import { AtomMixin, atomProperty } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 
@@ -60,7 +60,7 @@ const buttonVariants = cva(
 
 @customElement("todo-input")
 export class TodoInput extends TwAtomElement {
-  @writableAtomProperty(todosAtom)
+  @atomProperty(todosAtom)
   todos!: TodoItem[];
 
   @property() docsHint = "Add items to the shared todo list";
@@ -150,7 +150,7 @@ export class TodoInput extends TwAtomElement {
 
 @customElement("todo-list")
 export class TodoList extends TwAtomElement {
-  @writableAtomProperty(todosAtom)
+  @atomProperty(todosAtom)
   todos!: TodoItem[];
 
   @property() docsHint = "Shared todo list state with Effect atoms";
