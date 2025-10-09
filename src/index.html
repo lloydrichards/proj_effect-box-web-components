@@ -28,14 +28,25 @@
             <img src="/lib/assets/lit.svg" class="logo" alt="Lit logo" />
           </a>
           <a href="https://tailwindcss.com/" target="_blank">
-            <img src="/lib/assets/tailwind.svg" class="logo" alt="Tailwind logo" />
+            <img
+              src="/lib/assets/tailwind.svg"
+              class="logo"
+              alt="Tailwind logo"
+            />
           </a>
           <a href="https://effect.website/" target="_blank">
-            <img src="/lib/assets/effect_dark.svg" class="logo" alt="Effect logo" />
+            <img
+              src="/lib/assets/effect_dark.svg"
+              class="logo"
+              alt="Effect logo"
+            />
           </a>
         </div>
         <h1>Effect + Lit + Tailwind Components</h1>
-        <p>A showcase of web components built with Lit, styled with Tailwind CSS, and powered by Effect for state management and reactive programming.</p>
+        <p>
+          A showcase of web components built with Lit, styled with Tailwind CSS,
+          and powered by Effect for state management and reactive programming.
+        </p>
       </header>
       <section class="grid">
         <div class="grid-cell">
@@ -66,6 +77,13 @@
             <h3>Todo List</h3>
           </todo-input>
           <todo-list></todo-list>
+        </div>
+        <div class="grid-cell">
+          <yahtzee-game>
+            <yahtzee-status slot="status"></yahtzee-status>
+            <yahtzee-player name="Player 1" playerIndex="0"></yahtzee-player>
+            <yahtzee-player name="Player 2" playerIndex="1"></yahtzee-player>
+          </yahtzee-game>
         </div>
       </section>
     </div>
