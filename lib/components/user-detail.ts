@@ -79,6 +79,7 @@ export class UserDetail extends TW(AtomMixin(LitElement)) {
 
   render() {
     const userAtom = userAtomFamily(this.userId);
+    this.useAtomMount(userAtom, { reactivityKeys: ["users"] });
     const userResult = this.useAtomValue(userAtom);
     const refreshCount = this.useAtomValue(refreshCountAtom);
     const refresh = this.useAtomRefresh(userAtom);
