@@ -9,3 +9,10 @@ export {
   YahtzeePlayer,
   YahtzeeStatus,
 } from "./components/yahtzee-game";
+
+export {
+  AtomMixin,
+  atomProperty,
+  matchResult,
+} from "./shared/atomMixin";
+export { TW } from "./shared/tailwindMixin";

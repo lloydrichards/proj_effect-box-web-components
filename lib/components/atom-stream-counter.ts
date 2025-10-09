@@ -96,7 +96,7 @@ export class AtomStreamCounter extends TW(AtomMixin(LitElement)) {
   @atomProperty(counterValueAtom) declare currentCount: number;
   @atomProperty(isPausedAtom) declare isPaused: boolean;
   @atomProperty(counterErrorAtom) declare error: CounterLimitError | null;
-  @atomProperty(streamTickAtom) private _tick: any;
+  @atomProperty(streamTickAtom) private _tick: unknown;
   @property() docsHint =
     "Auto-incrementing with Effect Stream (pauses & resets)";
 

@@ -2,6 +2,7 @@ import { adoptStyles, type LitElement, unsafeCSS } from "lit";
 import style from "../styles/tailwind.global.css?inline";
 
 declare global {
+  // biome-ignore lint/suspicious/noExplicitAny: Required for mixin pattern compatibility
   export type LitMixin<T = unknown> = new (...args: any[]) => T & LitElement;
 }
 
