@@ -135,16 +135,48 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
       return HashMap.has(this[ATOM_SUBSCRIPTIONS], atom);
     }
 
+    protected _autoSubscribe<A>(atom: Atom.Atom<A>): void {
+      if (!this._isSubscribed(atom)) {
+        const registry = globalRegistry;
+        const unsubscribe = registry.subscribe(
+          atom,
+          () => {
+            this.requestUpdate();
+          },
+          { immediate: true },
+        );
+
+        this[ATOM_SUBSCRIPTIONS] = HashMap.set(
+          this[ATOM_SUBSCRIPTIONS],
+          atom,
+          unsubscribe,
+        );
+      }
+    }
+
+    protected _registerReactivityKeys<A>(
+      atom: Atom.Atom<A>,
+      keys: readonly string[],
+    ): void {
+      for (const key of keys) {
+        const existing = HashMap.get(this[REACTIVITY_KEYS], key);
+        const atomSet = pipe(
+          existing,
+          Option.map((set) => HashSet.add(set, atom)),
+          Option.getOrElse(() => HashSet.make(atom)),
+        );
+        this[REACTIVITY_KEYS] = HashMap.set(
+          this[REACTIVITY_KEYS],
+          key,
+          atomSet,
+        );
+      }
+    }
+
     useAtom<R, W>(
       atom: Atom.Writable<R, W>,
     ): readonly [value: R, setValue: (value: W | ((prev: R) => W)) => void] {
-      if (!this._isSubscribed(atom)) {
-        console.error(
-          `[AtomMixin] Attempted to use an atom that is not subscribed:`,
-          atom,
-        );
-        throw new Error("Atom not subscribed");
-      }
+      this._autoSubscribe(atom);
 
       const value = globalRegistry.get(atom);
       const setValue = (newValue: W | ((prev: R) => W)) => {
@@ -159,27 +191,14 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
     }
 
     useAtomValue<A>(atom: Atom.Atom<A>): A {
-      if (!this._isSubscribed(atom)) {
-        console.error(
-          `[AtomMixin] Attempted to use an atom that is not subscribed:`,
-          atom,
-        );
-        throw new Error("Atom not subscribed");
-      }
-
+      this._autoSubscribe(atom);
       return globalRegistry.get(atom);
     }
 
     useAtomSet<R, W>(
       atom: Atom.Writable<R, W>,
     ): (value: W | ((prev: R) => W)) => void {
-      if (!this._isSubscribed(atom)) {
-        console.error(
-          `[AtomMixin] Attempted to use an atom that is not subscribed:`,
-          atom,
-        );
-        throw new Error("Atom not subscribed");
-      }
+      this._autoSubscribe(atom);
 
       return (newValue: W | ((prev: R) => W)) => {
         const valueToSet =
@@ -194,13 +213,7 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
       atom: Atom.Atom<Result.Result<A, E>>,
       options?: { readonly suspendOnWaiting?: boolean },
     ): Promise<A> {
-      if (!this._isSubscribed(atom)) {
-        console.error(
-          `[AtomMixin] Attempted to use an atom that is not subscribed:`,
-          atom,
-        );
-        throw new Error("Atom not subscribed");
-      }
+      this._autoSubscribe(atom);
 
       const suspendOnWaiting = options?.suspendOnWaiting ?? false;
 
@@ -229,28 +242,30 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
     }
 
     useAtomRefresh<A>(atom: Atom.Atom<A>): () => void {
-      if (!this._isSubscribed(atom)) {
-        console.error(
-          `[AtomMixin] Attempted to use an atom that is not subscribed:`,
-          atom,
-        );
-        throw new Error("Atom not subscribed");
-      }
+      this._autoSubscribe(atom);
 
       return () => {
         globalRegistry.refresh(atom);
       };
     }
 
-    useAtomMount<A>(atom: Atom.Atom<A>): void {
+    useAtomMount<A>(
+      atom: Atom.Atom<A>,
+      options?: { readonly reactivityKeys?: readonly string[] },
+    ): void {
       const registry = globalRegistry;
-      const subscribeToAtom = <T>(
-        atom: Atom.Atom<T>,
-        handler: (value: T) => void,
-      ): void => {
-        const unsubscribe = registry.subscribe(atom, handler, {
-          immediate: true,
-        });
+
+      if (!this._isSubscribed(atom)) {
+        const unsubscribe = registry.subscribe(
+          atom,
+          () => {
+            this.requestUpdate();
+          },
+          {
+            immediate: true,
+          },
+        );
+
         this[ATOM_SUBSCRIPTIONS] = HashMap.set(
           this[ATOM_SUBSCRIPTIONS],
           atom,
@@ -258,10 +273,10 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
         );
       };
 
-      if (!this._isSubscribed(atom)) {
-        subscribeToAtom(atom, () => {
-          this.requestUpdate();
-        });
+        if (options?.reactivityKeys && options.reactivityKeys.length > 0) {
+          this._registerReactivityKeys(atom, options.reactivityKeys);
+        }
+
         registry.mount(atom);
       }
     }
