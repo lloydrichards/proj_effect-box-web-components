@@ -5,16 +5,28 @@ import * as Chunk from "effect/Chunk";
 import { pipe } from "effect/Function";
 import { globalValue } from "effect/GlobalValue";
 import * as HashMap from "effect/HashMap";
+import * as HashSet from "effect/HashSet";
 import * as Option from "effect/Option";
 import type { LitElement, TemplateResult } from "lit";
+import { state } from "lit/decorators.js";
 
+// biome-ignore lint/suspicious/noExplicitAny: Required for mixin pattern compatibility
 type Constructor<T = object> = abstract new (...args: any[]) => T;
 
-// Type-safe metadata interfaces with generic type parameters
+const ATOM_PROPERTY_KEYS = Symbol("atomPropertyKeys");
+const ATOM_SUBSCRIPTIONS = Symbol("atomSubscriptions");
+const REACTIVITY_KEYS = Symbol("reactivityKeys");
+
 declare global {
-  export type AtomPropertyKey<A = any> = {
+  export type AtomPropertyKey<A = unknown> = {
     readonly key: string | symbol;
     readonly atom: Atom.Atom<A>;
+    readonly reactivityKeys?: readonly string[];
+  };
+
+  export type ReactivityKeyMap = {
+    readonly keys: HashSet.HashSet<string>;
+    readonly atoms: HashSet.HashSet<Atom.Atom<unknown>>;
   };
 }
 
@@ -41,11 +53,12 @@ export type MatchResultOptions<A, E> = {
   onWaiting?: (result: Result.Result<A, E>) => TemplateResult | string | null;
 };
 
-const ATOM_PROPERTY_KEYS = Symbol("atomPropertyKeys");
-const ATOM_SUBSCRIPTIONS = Symbol("atomSubscriptions");
-
 type AtomMetadataConstructor = {
-  [ATOM_PROPERTY_KEYS]?: ReadonlyArray<AtomPropertyKey<any>>;
+  [ATOM_PROPERTY_KEYS]?: ReadonlyArray<AtomPropertyKey<unknown>>;
+  [REACTIVITY_KEYS]?: HashMap.HashMap<
+    string,
+    HashSet.HashSet<Atom.Atom<unknown>>
+  >;
 };
 
 export interface IAtomMixin {
@@ -61,21 +74,27 @@ export interface IAtomMixin {
     options?: { readonly suspendOnWaiting?: boolean },
   ): Promise<A>;
   useAtomRefresh<A>(atom: Atom.Atom<A>): () => void;
-  useAtomMount<A>(atom: Atom.Atom<A>): void;
+  useAtomMount<A>(
+    atom: Atom.Atom<A>,
+    options?: { readonly reactivityKeys?: readonly string[] },
+  ): void;
+  invalidate(keys: readonly string[]): void;
   getAtomRegistry(): Registry.Registry;
 }
 
+// biome-ignore lint/complexity/noBannedTypes: Function type needed for constructor property
 const getAtomMetadata = (ctor: Function) => ctor as AtomMetadataConstructor;
 
-/**
- * Mixin that integrates Effect-atom with Lit components
- * @template T - The base class type that extends LitElement
- */
 export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
   abstract class AtomMixinClass extends superClass implements IAtomMixin {
     protected [ATOM_SUBSCRIPTIONS]: HashMap.HashMap<
-      Atom.Atom<any>,
+      Atom.Atom<unknown>,
       () => void
+    > = HashMap.empty();
+
+    protected [REACTIVITY_KEYS]: HashMap.HashMap<
+      string,
+      HashSet.HashSet<Atom.Atom<unknown>>
     > = HashMap.empty();
 
     connectedCallback() {
@@ -92,43 +111,61 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
       const registry = globalRegistry;
       const ctor = getAtomMetadata(this.constructor);
 
-      // Helper to subscribe to an atom and store the unsubscribe function
       const subscribeToAtom = <A>(
         atom: Atom.Atom<A>,
         handler: (value: A) => void,
-      ): void => {
-        const unsubscribe = registry.subscribe(atom, handler, {
-          immediate: true,
-        });
+        reactivityKeys?: readonly string[],
+      ): Option.Option<() => void> => {
+        const unsubscribe = registry.subscribe(
+          atom,
+          (value) => {
+            handler(value);
+          },
+          {
+            immediate: true,
+          },
+        );
+
         this[ATOM_SUBSCRIPTIONS] = HashMap.set(
           this[ATOM_SUBSCRIPTIONS],
           atom,
           unsubscribe,
         );
+
+        if (reactivityKeys && reactivityKeys.length > 0) {
+          this._registerReactivityKeys(atom, reactivityKeys);
+        }
+
+        return Option.some(unsubscribe);
       };
 
-      // Helper to update instance property
       const updateProperty = <V>(key: string | symbol, value: V): void => {
         Reflect.set(this, key, value);
         this.requestUpdate(key);
       };
 
-      // Subscribe to read-only atoms
       pipe(
         Option.fromNullable(ctor[ATOM_PROPERTY_KEYS]),
         Option.map(
-          Array.forEach(({ key, atom }) => {
-            subscribeToAtom(atom, (value) => {
-              updateProperty(key, value);
-            });
+          Array.forEach(({ key, atom, reactivityKeys }) => {
+            subscribeToAtom(
+              atom,
+              (value) => {
+                updateProperty(key, value);
+              },
+              reactivityKeys,
+            );
           }),
         ),
       );
     }
 
     protected _unsubscribeFromAtoms() {
-      HashMap.forEach(this[ATOM_SUBSCRIPTIONS], (unsubscribe) => unsubscribe());
+      HashMap.forEach(this[ATOM_SUBSCRIPTIONS], (unsubscribe) => {
+        unsubscribe();
+      });
       this[ATOM_SUBSCRIPTIONS] = HashMap.empty();
+      this[REACTIVITY_KEYS] = HashMap.empty();
     }
 
     protected _isSubscribed<A>(atom: Atom.Atom<A>): boolean {
@@ -271,13 +308,29 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
           atom,
           unsubscribe,
         );
-      };
 
         if (options?.reactivityKeys && options.reactivityKeys.length > 0) {
           this._registerReactivityKeys(atom, options.reactivityKeys);
         }
 
         registry.mount(atom);
+      }
+    }
+
+    invalidate(keys: readonly string[]): void {
+      const registry = globalRegistry;
+
+      for (const key of keys) {
+        const atoms = HashMap.get(this[REACTIVITY_KEYS], key);
+        pipe(
+          atoms,
+          Option.map((atomSet) => {
+            HashSet.forEach(atomSet, (atom) => {
+              registry.refresh(atom);
+            });
+            return atomSet;
+          }),
+        );
       }
     }
 
@@ -289,16 +342,19 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
   return AtomMixinClass;
 };
 
-/**
- * Decorator to bind an atom to a component property
- */
 export const atomProperty =
-  <A>(atom: Atom.Atom<A>) =>
+  <A>(
+    atom: Atom.Atom<A>,
+    options?: { readonly reactivityKeys?: readonly string[] },
+  ) =>
   <T extends object>(
     target: T,
     propertyKey: string | symbol,
-    _descriptor?: PropertyDescriptor,
+    descriptor?: PropertyDescriptor,
   ): void => {
+    // Apply @state() decorator to mark as reactive internal state
+    state()(target, propertyKey, descriptor);
+
     const ctor = getAtomMetadata(target.constructor);
     const currentKeys = ctor[ATOM_PROPERTY_KEYS] ?? [];
 
@@ -311,13 +367,11 @@ export const atomProperty =
       ctor[ATOM_PROPERTY_KEYS] = Array.append(currentKeys, {
         key: propertyKey,
         atom,
+        reactivityKeys: options?.reactivityKeys,
       });
     }
   };
 
-/**
- * Pattern match on a Result to render different UI for each state
- */
 export const matchResult = <A, E>(
   result: Result.Result<A, E>,
   options: MatchResultOptions<A, E>,
