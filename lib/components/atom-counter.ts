@@ -9,9 +9,6 @@ import { AtomMixin, atomProperty, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 
-// Compose mixins: Tailwind + Atom
-const TwAtomElement = TW(AtomMixin(LitElement));
-
 class CountError extends Data.TaggedError("CountError")<{ message: string }> {}
 
 /**
@@ -62,7 +59,7 @@ const buttonVariants = cva(
  * The countResultAtom is shared globally, so multiple instances will share the same state
  */
 @customElement("atom-counter")
-export class AtomCounter extends TwAtomElement {
+export class AtomCounter extends TW(AtomMixin(LitElement)) {
   @atomProperty(countAtom) declare countResult: Result.Result<
     number,
     CountError

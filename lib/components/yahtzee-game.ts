@@ -18,8 +18,6 @@ import { AtomMixin, atomProperty } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 
-const TwAtomElement = TW(AtomMixin(LitElement));
-
 type DiceValue = 1 | 2 | 3 | 4 | 5 | 6;
 
 interface PlayerState {
@@ -198,7 +196,7 @@ const diceIcons = {
 };
 
 @customElement("yahtzee-status")
-export class YahtzeeStatus extends TwAtomElement {
+export class YahtzeeStatus extends TW(AtomMixin(LitElement)) {
   @atomProperty(gameStateAtom) declare gameState: GameState;
 
   render() {
@@ -258,7 +256,7 @@ export class YahtzeeStatus extends TwAtomElement {
 }
 
 @customElement("yahtzee-player")
-export class YahtzeePlayer extends TwAtomElement {
+export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
   @atomProperty(gameStateAtom) declare gameState: GameState;
   @property({ type: String }) name = "Player";
   @property({ type: Number }) playerIndex = 0;
@@ -450,7 +448,7 @@ export class YahtzeePlayer extends TwAtomElement {
 }
 
 @customElement("yahtzee-game")
-export class YahtzeeGame extends TwAtomElement {
+export class YahtzeeGame extends TW(AtomMixin(LitElement)) {
   @atomProperty(gameStateAtom) declare gameState: GameState;
 
   connectedCallback() {

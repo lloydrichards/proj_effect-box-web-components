@@ -11,8 +11,6 @@ import { AtomMixin, atomProperty } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 
-const TwAtomElement = TW(AtomMixin(LitElement));
-
 type TodoItem = {
   id: string;
   text: string;
@@ -157,7 +155,7 @@ const buttonVariants = cva(
 );
 
 @customElement("todo-input")
-export class TodoInput extends TwAtomElement {
+export class TodoInput extends TW(AtomMixin(LitElement)) {
   @atomProperty(addTodoErrorAtom) declare addTodoError: string | null;
   @atomProperty(addTodoEffect)
   @property()
@@ -226,7 +224,7 @@ export class TodoInput extends TwAtomElement {
 }
 
 @customElement("todo-list")
-export class TodoList extends TwAtomElement {
+export class TodoList extends TW(AtomMixin(LitElement)) {
   @atomProperty(todosAtom) declare todos: TodoItem[];
   @atomProperty(updateTodoEffect) declare updateTodo: (args: {
     id: string;

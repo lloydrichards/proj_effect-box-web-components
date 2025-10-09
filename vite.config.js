@@ -5,7 +5,9 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [tsconfigPaths(), dts({ rollupTypes: true })],
+  plugins: [
+    tsconfigPaths(),
+  ],
   build: {
     copyPublicDir: false,
     lib: {

@@ -9,9 +9,6 @@ import { AtomMixin, atomProperty } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 
-// Compose mixins: Tailwind + Atom
-const TwAtomElement = TW(AtomMixin(LitElement));
-
 class CounterLimitError extends Data.TaggedError("CounterLimit")<{
   message: string;
   count: number;
@@ -95,7 +92,7 @@ const buttonVariants = cva(
  * Uses atoms for state management
  */
 @customElement("atom-stream-counter")
-export class AtomStreamCounter extends TwAtomElement {
+export class AtomStreamCounter extends TW(AtomMixin(LitElement)) {
   @atomProperty(counterValueAtom) declare currentCount: number;
   @atomProperty(isPausedAtom) declare isPaused: boolean;
   @atomProperty(counterErrorAtom) declare error: CounterLimitError | null;

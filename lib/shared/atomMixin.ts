@@ -73,8 +73,10 @@ const getAtomMetadata = (ctor: Function) => ctor as AtomMetadataConstructor;
  */
 export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
   abstract class AtomMixinClass extends superClass implements IAtomMixin {
-    private [ATOM_SUBSCRIPTIONS]: HashMap.HashMap<Atom.Atom<any>, () => void> =
-      HashMap.empty();
+    protected [ATOM_SUBSCRIPTIONS]: HashMap.HashMap<
+      Atom.Atom<any>,
+      () => void
+    > = HashMap.empty();
 
     connectedCallback() {
       super.connectedCallback();
@@ -86,7 +88,7 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
       this._unsubscribeFromAtoms();
     }
 
-    private _subscribeToAtoms() {
+    protected _subscribeToAtoms() {
       const registry = globalRegistry;
       const ctor = getAtomMetadata(this.constructor);
 
@@ -124,12 +126,12 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
       );
     }
 
-    private _unsubscribeFromAtoms() {
+    protected _unsubscribeFromAtoms() {
       HashMap.forEach(this[ATOM_SUBSCRIPTIONS], (unsubscribe) => unsubscribe());
       this[ATOM_SUBSCRIPTIONS] = HashMap.empty();
     }
 
-    private _isSubscribed<A>(atom: Atom.Atom<A>): boolean {
+    protected _isSubscribed<A>(atom: Atom.Atom<A>): boolean {
       return HashMap.has(this[ATOM_SUBSCRIPTIONS], atom);
     }
 
