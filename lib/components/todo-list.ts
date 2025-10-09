@@ -1,11 +1,12 @@
 import { Atom } from "@effect-atom/atom";
 import { cva } from "class-variance-authority";
+import { Effect, Ref } from "effect";
 import * as Array from "effect/Array";
 import { pipe } from "effect/Function";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { Check, Plus, Trash2, X } from "lucide-static";
+import { Check, Plus, Trash2, Square } from "lucide-static";
 import { AtomMixin, atomProperty } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
@@ -18,7 +19,104 @@ type TodoItem = {
   completed: boolean;
 };
 
-export const todosAtom = Atom.make<TodoItem[]>([]);
+class TodoService extends Effect.Service<TodoService>()("TodoService", {
+  effect: Effect.gen(function* () {
+    const todos = yield* Ref.make<TodoItem[]>([]);
+
+    const addTodo = (text: string) =>
+      Effect.gen(function* () {
+        const current = yield* Ref.get(todos);
+        const activeCount = current.filter((t) => !t.completed).length;
+
+        if (activeCount >= 3) {
+          return yield* Effect.fail({
+            _tag: "MaxTodosReached" as const,
+            message: "Maximum of 3 unfinished todos reached",
+          });
+        }
+
+        const newTodo: TodoItem = {
+          id: crypto.randomUUID(),
+          text,
+          completed: false,
+        };
+
+        yield* Ref.update(todos, (current) => [...current, newTodo]);
+        return newTodo;
+      });
+
+    const removeTodo = (id: string) =>
+      Ref.update(todos, (current) => current.filter((t) => t.id !== id));
+
+    const updateTodo = (id: string, updates: Partial<TodoItem>) =>
+      Ref.update(todos, (current) =>
+        current.map((t) => (t.id === id ? { ...t, ...updates } : t)),
+      );
+
+    const getTodos = Ref.get(todos);
+
+    return {
+      addTodo,
+      removeTodo,
+      updateTodo,
+      getTodos,
+    } as const;
+  }),
+}) {}
+
+const todosRuntime = Atom.runtime(TodoService.Default);
+
+const todosResultAtom = todosRuntime
+  .atom(
+    Effect.gen(function* () {
+      const service = yield* TodoService;
+      return yield* service.getTodos;
+    }),
+  )
+  .pipe(Atom.withReactivity(["todos"]));
+
+export const todosAtom = Atom.make((get) => {
+  const result = get(todosResultAtom);
+  if (result._tag === "Success") {
+    return result.value;
+  }
+  return [];
+});
+
+const addTodoEffect = todosRuntime.fn(
+  Effect.fn(function* (text: string) {
+    const service = yield* TodoService;
+    return yield* service.addTodo(text);
+  }),
+  { reactivityKeys: ["todos"] },
+);
+
+export const addTodoErrorAtom = Atom.make((get) => {
+  const result = get(addTodoEffect);
+  if (result._tag === "Failure") {
+    const error = result.cause;
+    if (error._tag === "Fail" && error.error._tag === "MaxTodosReached") {
+      return error.error.message;
+    }
+  }
+  return null;
+});
+
+export const removeTodoEffect = todosRuntime.fn(
+  Effect.fn(function* (id: string) {
+    const service = yield* TodoService;
+    yield* service.removeTodo(id);
+  }),
+  { reactivityKeys: ["todos"] },
+);
+
+export const updateTodoEffect = todosRuntime.fn(
+  Effect.fn(function* (args: { id: string; updates: Partial<TodoItem> }) {
+    const service = yield* TodoService;
+    yield* service.updateTodo(args.id, args.updates);
+  }),
+  { reactivityKeys: ["todos"] },
+);
 
 const inputVariants = cva(
   "w-full px-4 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-primary transition-colors",
@@ -60,22 +158,15 @@ const buttonVariants = cva(
 
 @customElement("todo-input")
 export class TodoInput extends TwAtomElement {
-  @atomProperty(todosAtom)
-  todos!: TodoItem[];
-
-  @property() docsHint = "Add items to the shared todo list";
-  @property({ type: Number }) maxUnfinished = 3;
+  @atomProperty(addTodoErrorAtom) declare addTodoError: string | null;
+  @atomProperty(addTodoEffect)
+  @property()
+  docsHint = "Add items to the shared todo list";
 
   private inputValue = "";
 
   render() {
-    const activeTodosCount = pipe(
-      this.todos,
-      Array.filter((todo) => !todo.completed),
-      (arr) => arr.length,
-    );
-    const isLimitReached = activeTodosCount >= this.maxUnfinished;
-    const isInputDisabled = isLimitReached || !this.inputValue.trim();
+    const isInputDisabled = !this.inputValue.trim();
 
     return html`
       <div class="flex flex-col items-center gap-4 w-full">
@@ -88,7 +179,6 @@ export class TodoInput extends TwAtomElement {
             .value=${this.inputValue}
             @input=${this._handleInput}
             @keypress=${this._handleKeyPress}
-            ?disabled=${isLimitReached}
           />
           <button
             class="${cn(
@@ -103,11 +193,10 @@ export class TodoInput extends TwAtomElement {
           </button>
         </div>
         ${
-          isLimitReached
+          this.addTodoError
             ? html`<p class="text-red-500 text-sm font-medium">
-              Maximum of ${this.maxUnfinished} unfinished todos reached.
-              Complete or delete one to add more.
-            </p>`
+                ${this.addTodoError}
+              </p>`
             : html`<p class="text-gray-400 text-sm">${this.docsHint}</p>`
         }
       </div>
@@ -129,20 +218,7 @@ export class TodoInput extends TwAtomElement {
     const text = this.inputValue.trim();
     if (!text) return;
 
-    const activeTodosCount = pipe(
-      this.todos,
-      Array.filter((todo) => !todo.completed),
-      (arr) => arr.length,
-    );
-    if (activeTodosCount >= this.maxUnfinished) return;
-
-    const newTodo: TodoItem = {
-      id: crypto.randomUUID(),
-      text,
-      completed: false,
-    };
-
-    this.setAtom("todos", [...this.todos, newTodo]);
+    this.setAtom(addTodoEffect, text);
     this.inputValue = "";
     this.requestUpdate();
   }
@@ -152,6 +228,12 @@ export class TodoInput extends TwAtomElement {
 export class TodoList extends TwAtomElement {
   @atomProperty(todosAtom)
   todos!: TodoItem[];
+
+  @atomProperty(updateTodoEffect)
+  declare _updateTodoEffectSubscription: any;
+
+  @atomProperty(removeTodoEffect)
+  declare _removeTodoEffectSubscription: any;
 
   @property() docsHint = "Shared todo list state with Effect atoms";
 
@@ -227,13 +309,11 @@ export class TodoList extends TwAtomElement {
           @click=${() => this._toggleTodo(todo.id)}
           title="${todo.completed ? "Mark as incomplete" : "Mark as complete"}"
         >
-          ${unsafeSVG(todo.completed ? Check : X)}
+          ${unsafeSVG(todo.completed ? Check : Square)}
         </button>
 
         <span
-          class="flex-1 ${
-            todo.completed ? "line-through text-gray-400" : "text-gray-700"
-          }"
+          class="flex-1 ${todo.completed ? "line-through text-gray-400" : ""}"
         >
           ${todo.text}
         </span>
@@ -253,21 +333,17 @@ export class TodoList extends TwAtomElement {
   }
 
   private _toggleTodo(id: string) {
-    const updatedTodos = pipe(
-      this.todos,
-      Array.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
-      ),
-    );
-    this.setAtom("todos", updatedTodos);
+    const todo = this.todos.find((t) => t.id === id);
+    if (!todo) return;
+
+    this.setAtom(updateTodoEffect, {
+      id,
+      updates: { completed: !todo.completed },
+    });
   }
 
   private _deleteTodo(id: string) {
-    const updatedTodos = pipe(
-      this.todos,
-      Array.filter((todo) => todo.id !== id),
-    );
-    this.setAtom("todos", updatedTodos);
+    this.setAtom(removeTodoEffect, id);
   }
 }
 

@@ -63,7 +63,7 @@ const createStreamCounterProgram = (
 
         // Check if we've reached the limit
         if (count >= 100) {
-          yield* new CounterLimitError({
+          return yield* new CounterLimitError({
             message: "Counter reached limit of 100!",
             count,
           });
@@ -215,15 +215,15 @@ export class AtomStreamCounter extends TwAtomElement {
     }
 
     // Clear error state and unpause
-    const registry = this.getAtomRegistry();
-    registry.set(counterErrorAtom, null);
-    registry.set(isPausedAtom, false);
+    this.setAtom(counterErrorAtom, null);
+    this.setAtom(isPausedAtom, false);
 
+    const registry = this.getAtomRegistry();
     const fiber = Effect.runFork(
       createStreamCounterProgram(this.currentCount, registry).pipe(
         Effect.catchTag("CounterLimit", (error: CounterLimitError) =>
           Effect.sync(() => {
-            registry.set(counterErrorAtom, error);
+            this.setAtom(counterErrorAtom, error);
             this.streamFiber = null;
           }),
         ),
@@ -235,23 +235,19 @@ export class AtomStreamCounter extends TwAtomElement {
 
   private _togglePause() {
     // Toggle pause state in the atom
-    const registry = this.getAtomRegistry();
-    const currentPaused = registry.get(isPausedAtom);
-    registry.set(isPausedAtom, !currentPaused);
+    this.setAtom(isPausedAtom, !this.isPaused);
   }
 
   private async _reduce() {
     // Reduce count by 10 and restart
-    const registry = this.getAtomRegistry();
     const newCount = Math.max(0, this.currentCount - 10);
-    registry.set(counterValueAtom, newCount);
+    this.setAtom(counterValueAtom, newCount);
     await this._startTicking();
   }
 
   private async _reset() {
     // Reset counter to 0 and restart
-    const registry = this.getAtomRegistry();
-    registry.set(counterValueAtom, 0);
+    this.setAtom(counterValueAtom, 0);
     await this._startTicking();
   }
 }

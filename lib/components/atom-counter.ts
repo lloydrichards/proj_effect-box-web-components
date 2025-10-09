@@ -5,7 +5,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Plus } from "lucide-static";
-import { AtomMixin, matchResult, atomProperty } from "../shared/atomMixin";
+import { AtomMixin, atomProperty, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 
@@ -23,7 +23,7 @@ const countAtom = Atom.fn(
   (newValue: number) =>
     Effect.gen(function* () {
       if (newValue < -3) {
-        yield* new CountError({ message: "Count must be at least -3" });
+        return yield* new CountError({ message: "Count must be at least -3" });
       }
       yield* Effect.sleep("100 millis");
       yield* Effect.log("Counter updated to:", newValue);
@@ -63,9 +63,10 @@ const buttonVariants = cva(
  */
 @customElement("atom-counter")
 export class AtomCounter extends TwAtomElement {
-  @atomProperty(countAtom)
-  countResult!: Result.Result<number, CountError>;
-
+  @atomProperty(countAtom) declare countResult: Result.Result<
+    number,
+    CountError
+  >;
   @property() docsHint = "Atom state managed by Effect (shared globally)";
   @property({ type: String }) variant: VariantProps<
     typeof buttonVariants
@@ -150,7 +151,7 @@ export class AtomCounter extends TwAtomElement {
       ? this.countResult.value
       : 0;
 
-    this.setAtom("countResult", currentCount + delta);
+    this.setAtom(countAtom, currentCount + delta);
   }
 }
 

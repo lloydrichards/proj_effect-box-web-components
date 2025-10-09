@@ -18,7 +18,14 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "plugins": [
+      // ... other LSPs (if any) and as last
+      {
+        "name": "@effect/language-service"
+      }
+    ]
   },
   "include": ["src", "lib"]
 }

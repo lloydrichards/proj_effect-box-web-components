@@ -49,9 +49,8 @@ type AtomMetadataConstructor = {
 };
 
 export interface IAtomMixin {
-  getAtom<A>(key: string | symbol): Option.Option<Atom.Atom<A>>;
-  setAtom<A>(key: string | symbol, value: A): Option.Option<void>;
-  getAtomValue<A>(key: string | symbol): Option.Option<A>;
+  setAtom<R, W>(atom: Atom.Writable<R, W>, value: W): Option.Option<void>;
+  getAtomValue<A>(atom: Atom.Atom<A>): Option.Option<A>;
   getAtomRegistry(): Registry.Registry;
 }
 
@@ -63,7 +62,7 @@ const getAtomMetadata = (ctor: Function) => ctor as AtomMetadataConstructor;
  */
 export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
   abstract class AtomMixinClass extends superClass implements IAtomMixin {
-    private [ATOM_SUBSCRIPTIONS]: HashMap.HashMap<string | symbol, () => void> =
+    private [ATOM_SUBSCRIPTIONS]: HashMap.HashMap<Atom.Atom<any>, () => void> =
       HashMap.empty();
 
     connectedCallback() {
@@ -82,7 +81,6 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
 
       // Helper to subscribe to an atom and store the unsubscribe function
       const subscribeToAtom = <A>(
-        key: string | symbol,
         atom: Atom.Atom<A>,
         handler: (value: A) => void,
       ): void => {
@@ -91,7 +89,7 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
         });
         this[ATOM_SUBSCRIPTIONS] = HashMap.set(
           this[ATOM_SUBSCRIPTIONS],
-          key,
+          atom,
           unsubscribe,
         );
       };
@@ -107,7 +105,7 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
         Option.fromNullable(ctor[ATOM_PROPERTY_KEYS]),
         Option.map(
           Array.forEach(({ key, atom }) => {
-            subscribeToAtom(key, atom, (value) => {
+            subscribeToAtom(atom, (value) => {
               updateProperty(key, value);
             });
           }),
@@ -120,44 +118,36 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
       this[ATOM_SUBSCRIPTIONS] = HashMap.empty();
     }
 
-    getAtom<A>(key: string | symbol): Option.Option<Atom.Atom<A>> {
-      const ctor = getAtomMetadata(this.constructor);
-
-      // Helper to find atom in array by key with proper type narrowing
-      const findAtomByKey = <
-        T extends {
-          readonly key: string | symbol;
-          readonly atom: Atom.Atom<A>;
-        },
-      >(
-        arr: ReadonlyArray<T> | undefined,
-      ): Option.Option<Atom.Atom<A>> =>
-        pipe(
-          Option.fromNullable(arr),
-          Option.flatMap((keys) =>
-            pipe(
-              Array.findFirst(keys, (p) => p.key === key),
-              Option.map((p) => p.atom as Atom.Atom<A>),
-            ),
-          ),
-        );
-
-      return pipe(findAtomByKey(ctor[ATOM_PROPERTY_KEYS]));
+    private _isSubscribed<A>(atom: Atom.Atom<A>): boolean {
+      return HashMap.has(this[ATOM_SUBSCRIPTIONS], atom);
     }
 
-    setAtom<A>(key: string | symbol, value: A): Option.Option<void> {
+    setAtom<R, W>(atom: Atom.Writable<R, W>, value: W): Option.Option<void> {
+      if (!this._isSubscribed(atom)) {
+        console.error(
+          `[AtomMixin] Attempted to set an atom that is not subscribed:`,
+          atom,
+        );
+        return Option.none();
+      }
+
       return pipe(
-        this.getAtom<A>(key),
+        Option.some(atom),
         Option.filter(Atom.isWritable),
         Option.map((atom) => globalRegistry.set(atom, value)),
       );
     }
 
-    getAtomValue<A>(key: string | symbol): Option.Option<A> {
-      return pipe(
-        this.getAtom<A>(key),
-        Option.map((atom) => globalRegistry.get(atom)),
-      );
+    getAtomValue<A>(atom: Atom.Atom<A>): Option.Option<A> {
+      if (!this._isSubscribed(atom)) {
+        console.error(
+          `[AtomMixin] Attempted to get an atom that is not subscribed:`,
+          atom,
+        );
+        return Option.none();
+      }
+
+      return Option.some(globalRegistry.get(atom));
     }
 
     getAtomRegistry(): Registry.Registry {
@@ -165,11 +155,11 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
     }
   }
 
-  return AtomMixinClass as Constructor<IAtomMixin> & T;
+  return AtomMixinClass;
 };
 
 /**
- * Decorator to bind a read-only atom to a component property
+ * Decorator to bind an atom to a component property
  */
 export const atomProperty =
   <A>(atom: Atom.Atom<A>) =>
