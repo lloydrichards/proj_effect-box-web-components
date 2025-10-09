@@ -1,8 +1,8 @@
-import { Atom, type Registry } from "@effect-atom/atom";
+import { Atom } from "@effect-atom/atom";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Data, Duration, Effect, Fiber, Ref, Stream } from "effect";
+import { Data, Duration, Effect, Schedule, Stream } from "effect";
 import { html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Pause, Play, TimerReset } from "lucide-static";
 import { AtomMixin, atomProperty } from "../shared/atomMixin";
@@ -27,50 +27,42 @@ const isPausedAtom = Atom.make(false);
 const counterErrorAtom = Atom.make<CounterLimitError | null>(null);
 
 /**
- * Effect program that runs the stream counter
- * Uses a registry to read/write atoms
+ * Atom that runs the stream counter
+ * Uses Atom.make with a stream to automatically handle ticking
  */
-const createStreamCounterProgram = (
-  initialCount: number,
-  registry: Registry.Registry,
-) =>
-  Effect.gen(function* () {
-    // Create a Ref to store the counter state
-    const counterRef = yield* Ref.make(initialCount);
-
-    // Create a stream that ticks every 100ms
-    const tickStream = Stream.tick(Duration.millis(100));
-
-    // Process each tick: increment counter and check limit
-    yield* Stream.runForEach(tickStream, (_tick) =>
+const streamTickAtom = Atom.make((get) =>
+  Stream.fromSchedule(Schedule.spaced(Duration.millis(100))).pipe(
+    Stream.mapEffect(() =>
       Effect.gen(function* () {
-        // Get current pause state from atom
-        const isPaused = registry.get(isPausedAtom);
+        const error = get(counterErrorAtom);
+        const isPaused = get(isPausedAtom);
+
+        // Stop if there's an error
+        if (error !== null) {
+          return yield* Effect.fail(error);
+        }
 
         // Skip if paused
         if (isPaused) {
           return;
         }
+        const currentCount = get(counterValueAtom);
+        const newCount = currentCount + 1;
 
-        // Update counter
-        yield* Ref.update(counterRef, (n) => n + 1);
-
-        // Get current value
-        const count = yield* Ref.get(counterRef);
-
-        // Update the counter value atom
-        registry.set(counterValueAtom, count);
-
-        // Check if we've reached the limit
-        if (count >= 100) {
-          return yield* new CounterLimitError({
+        if (newCount >= 100) {
+          const limitError = new CounterLimitError({
             message: "Counter reached limit of 100!",
-            count,
+            count: newCount,
           });
+          get.set(counterErrorAtom, limitError);
+          return yield* Effect.fail(limitError);
         }
+
+        get.set(counterValueAtom, newCount);
       }),
-    );
-  });
+    ),
+  ),
+);
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -113,32 +105,21 @@ export class AtomStreamCounter extends TwAtomElement {
   @atomProperty(counterErrorAtom)
   error!: CounterLimitError | null;
 
-  @state()
-  private streamFiber: Fiber.RuntimeFiber<void, CounterLimitError> | null =
-    null;
+  @atomProperty(streamTickAtom)
+  private _tick: any;
 
-  @property() docsHint = "Stream-based counter using Effect Stream + Ref";
+  @property() docsHint = "Stream-based counter using Effect Stream";
+
+  connectedCallback() {
+    super.connectedCallback();
+    void this._tick;
+  }
   @property({ type: String }) variant: VariantProps<
     typeof buttonVariants
   >["variant"] = "default";
   @property({ type: String }) size: VariantProps<
     typeof buttonVariants
   >["size"] = "icon";
-
-  connectedCallback() {
-    super.connectedCallback();
-    // Start ticking when component is connected
-    this._startTicking();
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    // Stop the stream when component is disconnected
-    if (this.streamFiber) {
-      Effect.runSync(Fiber.interrupt(this.streamFiber));
-      this.streamFiber = null;
-    }
-  }
 
   render() {
     const showReset = this.error !== null;
@@ -206,49 +187,29 @@ export class AtomStreamCounter extends TwAtomElement {
     `;
   }
 
-  private async _startTicking() {
-    // Stop any existing stream
-    if (this.streamFiber) {
-      await Effect.runPromise(Fiber.interrupt(this.streamFiber));
-      this.streamFiber = null;
-      await new Promise((resolve) => setTimeout(resolve, 50));
-    }
-
-    // Clear error state and unpause
-    this.setAtom(counterErrorAtom, null);
-    this.setAtom(isPausedAtom, false);
-
-    const registry = this.getAtomRegistry();
-    const fiber = Effect.runFork(
-      createStreamCounterProgram(this.currentCount, registry).pipe(
-        Effect.catchTag("CounterLimit", (error: CounterLimitError) =>
-          Effect.sync(() => {
-            this.setAtom(counterErrorAtom, error);
-            this.streamFiber = null;
-          }),
-        ),
-      ),
-    );
-
-    this.streamFiber = fiber;
+  private _restart() {
+    const setError = this.useAtomSet(counterErrorAtom);
+    const setPaused = this.useAtomSet(isPausedAtom);
+    setError(null);
+    setPaused(false);
   }
 
   private _togglePause() {
-    // Toggle pause state in the atom
-    this.setAtom(isPausedAtom, !this.isPaused);
+    const setPaused = this.useAtomSet(isPausedAtom);
+    setPaused(!this.isPaused);
   }
 
-  private async _reduce() {
-    // Reduce count by 10 and restart
+  private _reduce() {
     const newCount = Math.max(0, this.currentCount - 10);
-    this.setAtom(counterValueAtom, newCount);
-    await this._startTicking();
+    const setCount = this.useAtomSet(counterValueAtom);
+    setCount(newCount);
+    this._restart();
   }
 
-  private async _reset() {
-    // Reset counter to 0 and restart
-    this.setAtom(counterValueAtom, 0);
-    await this._startTicking();
+  private _reset() {
+    const setCount = this.useAtomSet(counterValueAtom);
+    setCount(0);
+    this._restart();
   }
 }
 

@@ -49,8 +49,19 @@ type AtomMetadataConstructor = {
 };
 
 export interface IAtomMixin {
-  setAtom<R, W>(atom: Atom.Writable<R, W>, value: W): Option.Option<void>;
-  getAtomValue<A>(atom: Atom.Atom<A>): Option.Option<A>;
+  useAtom<R, W>(
+    atom: Atom.Writable<R, W>,
+  ): readonly [value: R, setValue: (value: W | ((prev: R) => W)) => void];
+  useAtomValue<A>(atom: Atom.Atom<A>): A;
+  useAtomSet<R, W>(
+    atom: Atom.Writable<R, W>,
+  ): (value: W | ((prev: R) => W)) => void;
+  useAtomPromise<A, E>(
+    atom: Atom.Atom<Result.Result<A, E>>,
+    options?: { readonly suspendOnWaiting?: boolean },
+  ): Promise<A>;
+  useAtomRefresh<A>(atom: Atom.Atom<A>): () => void;
+  useAtomMount<A>(atom: Atom.Atom<A>): void;
   getAtomRegistry(): Registry.Registry;
 }
 
@@ -122,32 +133,135 @@ export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
       return HashMap.has(this[ATOM_SUBSCRIPTIONS], atom);
     }
 
-    setAtom<R, W>(atom: Atom.Writable<R, W>, value: W): Option.Option<void> {
+    useAtom<R, W>(
+      atom: Atom.Writable<R, W>,
+    ): readonly [value: R, setValue: (value: W | ((prev: R) => W)) => void] {
       if (!this._isSubscribed(atom)) {
         console.error(
-          `[AtomMixin] Attempted to set an atom that is not subscribed:`,
+          `[AtomMixin] Attempted to use an atom that is not subscribed:`,
           atom,
         );
-        return Option.none();
+        throw new Error("Atom not subscribed");
       }
 
-      return pipe(
-        Option.some(atom),
-        Option.filter(Atom.isWritable),
-        Option.map((atom) => globalRegistry.set(atom, value)),
-      );
+      const value = globalRegistry.get(atom);
+      const setValue = (newValue: W | ((prev: R) => W)) => {
+        const valueToSet =
+          typeof newValue === "function"
+            ? (newValue as (prev: R) => W)(globalRegistry.get(atom))
+            : newValue;
+        globalRegistry.set(atom, valueToSet);
+      };
+
+      return [value, setValue] as const;
     }
 
-    getAtomValue<A>(atom: Atom.Atom<A>): Option.Option<A> {
+    useAtomValue<A>(atom: Atom.Atom<A>): A {
       if (!this._isSubscribed(atom)) {
         console.error(
-          `[AtomMixin] Attempted to get an atom that is not subscribed:`,
+          `[AtomMixin] Attempted to use an atom that is not subscribed:`,
           atom,
         );
-        return Option.none();
+        throw new Error("Atom not subscribed");
       }
 
-      return Option.some(globalRegistry.get(atom));
+      return globalRegistry.get(atom);
+    }
+
+    useAtomSet<R, W>(
+      atom: Atom.Writable<R, W>,
+    ): (value: W | ((prev: R) => W)) => void {
+      if (!this._isSubscribed(atom)) {
+        console.error(
+          `[AtomMixin] Attempted to use an atom that is not subscribed:`,
+          atom,
+        );
+        throw new Error("Atom not subscribed");
+      }
+
+      return (newValue: W | ((prev: R) => W)) => {
+        const valueToSet =
+          typeof newValue === "function"
+            ? (newValue as (prev: R) => W)(globalRegistry.get(atom))
+            : newValue;
+        globalRegistry.set(atom, valueToSet);
+      };
+    }
+
+    useAtomPromise<A, E>(
+      atom: Atom.Atom<Result.Result<A, E>>,
+      options?: { readonly suspendOnWaiting?: boolean },
+    ): Promise<A> {
+      if (!this._isSubscribed(atom)) {
+        console.error(
+          `[AtomMixin] Attempted to use an atom that is not subscribed:`,
+          atom,
+        );
+        throw new Error("Atom not subscribed");
+      }
+
+      const suspendOnWaiting = options?.suspendOnWaiting ?? false;
+
+      return new Promise<A>((resolve, reject) => {
+        const checkAndResolve = (result: Result.Result<A, E>) => {
+          if (Result.isInitial(result)) return;
+          if (suspendOnWaiting && Result.isWaiting(result)) return;
+
+          if (Result.isSuccess(result)) {
+            resolve(result.value);
+          } else if (Result.isFailure(result)) {
+            const error = pipe(
+              Chunk.head(Cause.failures(result.cause)),
+              Option.getOrElse(() => result.cause as E),
+            );
+            reject(error);
+          }
+        };
+
+        const current = globalRegistry.get(atom);
+        checkAndResolve(current);
+
+        const unsubscribe = globalRegistry.subscribe(atom, checkAndResolve);
+        setTimeout(unsubscribe, 30000);
+      });
+    }
+
+    useAtomRefresh<A>(atom: Atom.Atom<A>): () => void {
+      if (!this._isSubscribed(atom)) {
+        console.error(
+          `[AtomMixin] Attempted to use an atom that is not subscribed:`,
+          atom,
+        );
+        throw new Error("Atom not subscribed");
+      }
+
+      return () => {
+        globalRegistry.refresh(atom);
+      };
+    }
+
+    useAtomMount<A>(atom: Atom.Atom<A>): void {
+      const registry = globalRegistry;
+      const subscribeToAtom = <T>(
+        atom: Atom.Atom<T>,
+        handler: (value: T) => void,
+      ): void => {
+        const unsubscribe = registry.subscribe(atom, handler, {
+          immediate: true,
+        });
+        this[ATOM_SUBSCRIPTIONS] = HashMap.set(
+          this[ATOM_SUBSCRIPTIONS],
+          atom,
+          unsubscribe,
+        );
+      };
+
+      if (!this._isSubscribed(atom)) {
+        subscribeToAtom(atom, () => {
+          this.requestUpdate();
+        });
+        registry.mount(atom);
+      }
     }
 
     getAtomRegistry(): Registry.Registry {

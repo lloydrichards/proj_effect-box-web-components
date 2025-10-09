@@ -6,7 +6,7 @@ import { pipe } from "effect/Function";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { Check, Plus, Trash2, Square } from "lucide-static";
+import { Check, Plus, Square, Trash2 } from "lucide-static";
 import { AtomMixin, atomProperty } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
@@ -218,7 +218,8 @@ export class TodoInput extends TwAtomElement {
     const text = this.inputValue.trim();
     if (!text) return;
 
-    this.setAtom(addTodoEffect, text);
+    const addTodo = this.useAtomSet(addTodoEffect);
+    addTodo(text);
     this.inputValue = "";
     this.requestUpdate();
   }
@@ -336,14 +337,16 @@ export class TodoList extends TwAtomElement {
     const todo = this.todos.find((t) => t.id === id);
     if (!todo) return;
 
-    this.setAtom(updateTodoEffect, {
+    const updateTodo = this.useAtomSet(updateTodoEffect);
+    updateTodo({
       id,
       updates: { completed: !todo.completed },
     });
   }
 
   private _deleteTodo(id: string) {
-    this.setAtom(removeTodoEffect, id);
+    const removeTodo = this.useAtomSet(removeTodoEffect);
+    removeTodo(id);
   }
 }
 

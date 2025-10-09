@@ -147,11 +147,12 @@ export class AtomCounter extends TwAtomElement {
    * The atom automatically handles async execution and loading states
    */
   private _updateCount(delta: number) {
+    const setCount = this.useAtomSet(countAtom);
     const currentCount = Result.isSuccess(this.countResult)
       ? this.countResult.value
       : 0;
 
-    this.setAtom(countAtom, currentCount + delta);
+    setCount(currentCount + delta);
   }
 }
 
