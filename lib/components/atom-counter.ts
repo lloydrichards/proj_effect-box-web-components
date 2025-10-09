@@ -87,6 +87,7 @@ export class AtomCounter extends TW(AtomMixin(LitElement)) {
             @click=${this._decrement}
             ?disabled=${isLoading}
             part="button"
+            data-umami-event="atom-counter-interaction"
           >
             ${unsafeSVG(Minus)}
           </button>
@@ -120,6 +121,7 @@ export class AtomCounter extends TW(AtomMixin(LitElement)) {
             @click=${this._increment}
             ?disabled=${isLoading}
             part="button"
+            data-umami-event="atom-counter-interaction"
           >
             ${unsafeSVG(Plus)}
           </button>

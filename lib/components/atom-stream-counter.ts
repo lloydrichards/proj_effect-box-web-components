@@ -130,6 +130,7 @@ export class AtomStreamCounter extends TW(AtomMixin(LitElement)) {
             @click=${showReset ? this._reset : this._togglePause}
             part="button"
             title="${showReset ? "Reset" : this.isPaused ? "Resume" : "Pause"}"
+            data-umami-event="stream-counter-interaction"
           >
             ${
               showReset

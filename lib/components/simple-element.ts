@@ -89,6 +89,7 @@ export class SimpleElement extends TwLitElement {
             )}"
             @click=${this._decrement}
             part="button"
+            data-umami-event="simple-element-interaction"
           >
             -
           </button>
@@ -101,6 +102,7 @@ export class SimpleElement extends TwLitElement {
             )}"
             @click=${this._increment}
             part="button"
+            data-umami-event="simple-element-interaction"
           >
             +
           </button>

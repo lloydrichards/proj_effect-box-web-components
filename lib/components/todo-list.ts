@@ -185,6 +185,7 @@ export class TodoInput extends TW(AtomMixin(LitElement)) {
             )}"
             @click=${this._addTodo}
             ?disabled=${isInputDisabled}
+            data-umami-event="todo-interaction"
           >
             ${unsafeSVG(Plus)}
             <span class="ml-2">Add</span>
@@ -303,6 +304,7 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
           )}"
           @click=${() => this._toggleTodo(todo.id)}
           title="${todo.completed ? "Mark as incomplete" : "Mark as complete"}"
+          data-umami-event="todo-interaction"
         >
           ${unsafeSVG(todo.completed ? Check : Square)}
         </button>
@@ -320,6 +322,7 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
           )}"
           @click=${() => this._deleteTodo(todo.id)}
           title="Delete todo"
+          data-umami-event="todo-interaction"
         >
           ${unsafeSVG(Trash2)}
         </button>

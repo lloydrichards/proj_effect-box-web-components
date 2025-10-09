@@ -90,6 +90,7 @@ export class ReactiveElement extends TwLitElement {
             )}"
             @click=${this._decrement}
             part="button"
+            data-umami-event="reactive-element-interaction"
           >
             -
           </button>
@@ -102,6 +103,7 @@ export class ReactiveElement extends TwLitElement {
             )}"
             @click=${this._increment}
             part="button"
+            data-umami-event="reactive-element-interaction"
           >
             +
           </button>

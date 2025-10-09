@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import { resolve } from "path";
 import dts from "vite-plugin-dts";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { createHtmlPlugin } from "vite-plugin-html";
 
 const isLibMode = process.env.BUILD_MODE === "lib";
 
@@ -9,6 +10,13 @@ const isLibMode = process.env.BUILD_MODE === "lib";
 export default defineConfig({
   plugins: [
     tsconfigPaths(),
+    createHtmlPlugin({
+      inject: {
+        data: {
+          VITE_UMAMI_WEBSITE_ID: process.env.VITE_UMAMI_WEBSITE_ID || '',
+        },
+      },
+    }),
   ],
   build: isLibMode
     ? {
