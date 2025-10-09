@@ -96,19 +96,12 @@ const buttonVariants = cva(
  */
 @customElement("atom-stream-counter")
 export class AtomStreamCounter extends TwAtomElement {
-  @atomProperty(counterValueAtom)
-  currentCount!: number;
-
-  @atomProperty(isPausedAtom)
-  isPaused!: boolean;
-
-  @atomProperty(counterErrorAtom)
-  error!: CounterLimitError | null;
-
-  @atomProperty(streamTickAtom)
-  private _tick: any;
-
-  @property() docsHint = "Stream-based counter using Effect Stream";
+  @atomProperty(counterValueAtom) declare currentCount: number;
+  @atomProperty(isPausedAtom) declare isPaused: boolean;
+  @atomProperty(counterErrorAtom) declare error: CounterLimitError | null;
+  @atomProperty(streamTickAtom) private _tick: any;
+  @property() docsHint =
+    "Auto-incrementing with Effect Stream (pauses & resets)";
 
   connectedCallback() {
     super.connectedCallback();
@@ -125,10 +118,10 @@ export class AtomStreamCounter extends TwAtomElement {
     const showReset = this.error !== null;
 
     return html`
-      <div class="flex flex-col justify-center items-center gap-2 w-screen">
+      <div class="flex flex-col justify-center items-center gap-2 w-full">
         <slot></slot>
 
-        <div class="px-8 flex gap-4">
+        <div class="px-4 sm:px-8 flex gap-2 sm:gap-4 w-full justify-center">
           <button
             class="${cn(
               buttonVariants({
@@ -149,17 +142,17 @@ export class AtomStreamCounter extends TwAtomElement {
           </button>
 
           <div
-            class="p-4 min-w-48 flex justify-center text-lg font-medium text-gray-700 bg-white w-full rounded-lg shadow relative"
+            class="p-4 min-w-32 sm:min-w-48 flex justify-center text-base sm:text-lg font-medium text-gray-700 bg-white w-full max-w-xs rounded-lg shadow relative"
           >
             ${
               this.error
                 ? html`
-                  <span class="opacity-50">Counter:</span>
-                  <strong class="text-red-500 px-4">${this.error.count}</strong>
+                  <span class="opacity-50 text-sm sm:text-base">Counter:</span>
+                  <strong class="text-red-500 px-2 sm:px-4">${this.error.count}</strong>
                 `
                 : html`
-                  <span class="opacity-50">Counter:</span>
-                  <strong class="text-blue-500 px-4"
+                  <span class="opacity-50 text-sm sm:text-base">Counter:</span>
+                  <strong class="text-blue-500 px-2 sm:px-4"
                     >${this.currentCount}</strong
                   >
                 `
@@ -180,7 +173,7 @@ export class AtomStreamCounter extends TwAtomElement {
           </button>
         </div>
 
-        <p class="text-gray-400">
+        <p class="text-gray-400 text-xs sm:text-sm text-center px-2">
           ${this.error ? this.error.message : this.docsHint}
         </p>
       </div>

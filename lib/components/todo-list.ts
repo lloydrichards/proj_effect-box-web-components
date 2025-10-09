@@ -161,7 +161,7 @@ export class TodoInput extends TwAtomElement {
   @atomProperty(addTodoErrorAtom) declare addTodoError: string | null;
   @atomProperty(addTodoEffect)
   @property()
-  docsHint = "Add items to the shared todo list";
+  docsHint = "Effect Service managing shared todo state with validation";
 
   private inputValue = "";
 
@@ -169,9 +169,9 @@ export class TodoInput extends TwAtomElement {
     const isInputDisabled = !this.inputValue.trim();
 
     return html`
-      <div class="flex flex-col items-center gap-4 w-full">
+      <div class="flex flex-col items-center gap-4 w-full px-2">
         <slot></slot>
-        <div class="flex w-full gap-2 max-w-xl">
+        <div class="flex w-full gap-2 max-w-xl flex-col sm:flex-row">
           <input
             type="text"
             class="${inputVariants({ variant: "default" })}"
@@ -194,10 +194,10 @@ export class TodoInput extends TwAtomElement {
         </div>
         ${
           this.addTodoError
-            ? html`<p class="text-red-500 text-sm font-medium">
+            ? html`<p class="text-red-500 text-xs sm:text-sm font-medium text-center">
                 ${this.addTodoError}
               </p>`
-            : html`<p class="text-gray-400 text-sm">${this.docsHint}</p>`
+            : html`<p class="text-gray-400 text-xs sm:text-sm text-center">${this.docsHint}</p>`
         }
       </div>
     `;
@@ -227,16 +227,14 @@ export class TodoInput extends TwAtomElement {
 
 @customElement("todo-list")
 export class TodoList extends TwAtomElement {
-  @atomProperty(todosAtom)
-  todos!: TodoItem[];
-
-  @atomProperty(updateTodoEffect)
-  declare _updateTodoEffectSubscription: any;
-
-  @atomProperty(removeTodoEffect)
-  declare _removeTodoEffectSubscription: any;
-
-  @property() docsHint = "Shared todo list state with Effect atoms";
+  @atomProperty(todosAtom) declare todos: TodoItem[];
+  @atomProperty(updateTodoEffect) declare updateTodo: (args: {
+    id: string;
+    text: string;
+  }) => void;
+  @atomProperty(removeTodoEffect) declare removeTodo: (id: string) => void;
+  @property()
+  docsHint = "Reactive todo display with Effect Atom subscriptions";
 
   render() {
     const activeTodos = pipe(
@@ -249,15 +247,13 @@ export class TodoList extends TwAtomElement {
     );
 
     return html`
-      <div class="flex flex-col items-center gap-4 w-full">
-        <slot></slot>
-
+      <div class="flex flex-col items-center gap-4 w-full px-2">
         <div
           class="border border-border/50 w-full max-w-xl rounded-lg shadow-md p-4 min-h-[200px] max-h-[400px] overflow-y-auto"
         >
           ${
             this.todos.length === 0
-              ? html`<p class="text-gray-400 text-center py-8">
+              ? html`<p class="text-gray-400 text-center py-8 text-sm">
                 No todos yet. Add one above!
               </p>`
               : html`
@@ -265,7 +261,7 @@ export class TodoList extends TwAtomElement {
                   activeTodos.length > 0
                     ? html`
                       <div class="mb-4">
-                        <h4 class="text-sm font-semibold text-gray-600 mb-2">
+                        <h4 class="text-xs sm:text-sm font-semibold text-gray-600 mb-2">
                           Active (${activeTodos.length})
                         </h4>
                         ${activeTodos.map((todo) => this._renderTodoItem(todo))}
@@ -277,7 +273,7 @@ export class TodoList extends TwAtomElement {
                   completedTodos.length > 0
                     ? html`
                       <div>
-                        <h4 class="text-sm font-semibold text-gray-600 mb-2">
+                        <h4 class="text-xs sm:text-sm font-semibold text-gray-600 mb-2">
                           Completed (${completedTodos.length})
                         </h4>
                         ${completedTodos.map((todo) =>
@@ -291,7 +287,7 @@ export class TodoList extends TwAtomElement {
           }
         </div>
 
-        <p class="text-gray-400 text-sm">${this.docsHint}</p>
+        <p class="text-gray-400 text-xs sm:text-sm text-center">${this.docsHint}</p>
       </div>
     `;
   }

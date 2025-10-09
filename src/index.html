@@ -18,28 +18,56 @@
         --primary-foreground: hsl(210 40% 98%);
       }
     </style>
-    <section>
-      <simple-element variant="destructive" size="lg">
-        <h3>Vite + Lit + Tailwind + Effect</h3>
-      </simple-element>
-      <reactive-element size="lg">
-        <h3>Reactive Element with Effect Box</h3>
-      </reactive-element>
-      <atom-counter variant="outlined">
-        <h3>Atom Integration with Effect</h3>
-      </atom-counter>
-      <atom-counter variant="secondary">
-        <h3>Second Atom Integration with Effect</h3>
-      </atom-counter>
-      <atom-stream-counter>
-        <h3>Stream Counter (Ticks to 100)</h3>
-      </atom-stream-counter>
-      <todo-input>
-        <h3>Todo List - Input</h3>
-      </todo-input>
-      <todo-list>
-        <h3>Todo List - Display</h3>
-      </todo-list>
-    </section>
+    <div class="container">
+      <header class="header">
+        <div class="logos">
+          <a href="https://vitejs.dev" target="_blank">
+            <img src="/vite.svg" class="logo" alt="Vite logo" />
+          </a>
+          <a href="https://lit.dev" target="_blank">
+            <img src="/lib/assets/lit.svg" class="logo" alt="Lit logo" />
+          </a>
+          <a href="https://tailwindcss.com/" target="_blank">
+            <img src="/lib/assets/tailwind.svg" class="logo" alt="Tailwind logo" />
+          </a>
+          <a href="https://effect.website/" target="_blank">
+            <img src="/lib/assets/effect_dark.svg" class="logo" alt="Effect logo" />
+          </a>
+        </div>
+        <h1>Effect + Lit + Tailwind Components</h1>
+        <p>A showcase of web components built with Lit, styled with Tailwind CSS, and powered by Effect for state management and reactive programming.</p>
+      </header>
+      <section class="grid">
+        <div class="grid-cell">
+          <simple-element variant="destructive" size="lg">
+            <h3>Effect Box Counter</h3>
+          </simple-element>
+        </div>
+        <div class="grid-cell">
+          <reactive-element size="lg">
+            <h3>Reactive Element</h3>
+          </reactive-element>
+        </div>
+        <div class="grid-cell shared-atom-cell">
+          <atom-counter variant="outlined">
+            <h3>Shared Atom Counter - Instance 1</h3>
+          </atom-counter>
+          <atom-counter variant="secondary">
+            <h3>Shared Atom Counter - Instance 2</h3>
+          </atom-counter>
+        </div>
+        <div class="grid-cell">
+          <atom-stream-counter>
+            <h3>Stream Counter</h3>
+          </atom-stream-counter>
+        </div>
+        <div class="grid-cell todo-cell">
+          <todo-input>
+            <h3>Todo List</h3>
+          </todo-input>
+          <todo-list></todo-list>
+        </div>
+      </section>
+    </div>
   </body>
 </html>

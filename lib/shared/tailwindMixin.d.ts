@@ -1,4 +1,5 @@
-import { type LitElement } from "lit";
+import type { LitElement } from "lit";
+
 declare global {
   export type LitMixin<T = unknown> = new (...args: any[]) => T & LitElement;
 }

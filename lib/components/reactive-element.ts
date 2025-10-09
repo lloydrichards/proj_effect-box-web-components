@@ -33,7 +33,7 @@ const buttonVariants = cva(
 @customElement("reactive-element")
 export class ReactiveElement extends TwLitElement {
   @property() content = "";
-  @property() docsHint = "Click on the Vite and Lit logos to learn more";
+  @property() docsHint = "Reactive updates with Effect lifecycle integration";
   @property({ type: Number }) count = 0;
   @property({ type: String }) variant: VariantProps<
     typeof buttonVariants
@@ -81,9 +81,9 @@ export class ReactiveElement extends TwLitElement {
 
   render() {
     return html`
-      <div class="flex flex-col justify-center items-center gap-2 w-screen">
+      <div class="flex flex-col justify-center items-center gap-2 w-full">
         <slot></slot>
-        <div class="px-8 flex gap-4">
+        <div class="px-4 sm:px-8 flex gap-2 sm:gap-4 w-full justify-center">
           <button
             class="${cn(
               buttonVariants({ variant: this.variant, size: this.size }),
@@ -106,7 +106,7 @@ export class ReactiveElement extends TwLitElement {
             +
           </button>
         </div>
-        <p class="text-gray-400">${this.docsHint}</p>
+        <p class="text-gray-400 text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
       </div>
     `;
   }

@@ -3,10 +3,6 @@ import { Effect } from "effect";
 import { Box, Html, Renderer } from "effect-boxes";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import viteLogo from "/vite.svg";
-import effectLogo from "../assets/effect_dark.svg";
-import litLogo from "../assets/lit.svg";
-import tailwindLogo from "../assets/tailwind.svg";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 
@@ -36,7 +32,7 @@ const buttonVariants = cva(
 @customElement("simple-element")
 export class SimpleElement extends TwLitElement {
   @property() content = "";
-  @property() docsHint = "Click on the Vite and Lit logos to learn more";
+  @property() docsHint = "Effect Box rendering HTML from reactive state";
   @property({ type: Number }) count = 0;
   @property({ type: String }) variant: VariantProps<
     typeof buttonVariants
@@ -84,24 +80,9 @@ export class SimpleElement extends TwLitElement {
 
   render() {
     return html`
-      <div class="flex flex-col justify-center items-center gap-2 w-screen">
-        <div class="flex gap-8">
-          <a href="https://vitejs.dev" target="_blank">
-            <img src=${viteLogo} class="size-14" alt="Vite logo" />
-          </a>
-          <a href="https://lit.dev" target="_blank">
-            <img src=${litLogo} class="size-14" alt="Lit logo" />
-          </a>
-          <a href="https://tailwindcss.com/" target="_blank">
-            <img src=${tailwindLogo} class="size-14" alt="Tailwind logo" />
-          </a>
-          <a href="https://effect.website/" target="_blank">
-            <img src=${effectLogo} class="size-14" alt="Effect logo" />
-          </a>
-        </div>
-
+      <div class="flex flex-col justify-center items-center gap-2 w-full">
         <slot></slot>
-        <div class="px-8 flex gap-4">
+        <div class="px-4 sm:px-8 flex gap-2 sm:gap-4 w-full justify-center">
           <button
             class="${cn(
               buttonVariants({ variant: this.variant, size: this.size }),
@@ -124,7 +105,7 @@ export class SimpleElement extends TwLitElement {
             +
           </button>
         </div>
-        <p class="text-gray-400">${this.docsHint}</p>
+        <p class="text-gray-400 text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
       </div>
     `;
   }

@@ -1,4 +1,4 @@
-import { Atom, Registry, Result } from "@effect-atom/atom";
+import { type Atom, Registry, Result } from "@effect-atom/atom";
 import * as Array from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Chunk from "effect/Chunk";

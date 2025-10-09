@@ -67,7 +67,7 @@ export class AtomCounter extends TwAtomElement {
     number,
     CountError
   >;
-  @property() docsHint = "Atom state managed by Effect (shared globally)";
+  @property() docsHint = "Both instances share the same global atom state";
   @property({ type: String }) variant: VariantProps<
     typeof buttonVariants
   >["variant"] = "default";
@@ -78,10 +78,10 @@ export class AtomCounter extends TwAtomElement {
   render() {
     const isLoading = Result.isWaiting(this.countResult);
     return html`
-      <div class="flex flex-col justify-center items-center gap-2 w-screen">
+      <div class="flex flex-col justify-center items-center gap-2 w-full">
         <slot></slot>
 
-        <div class="px-8 flex gap-4">
+        <div class="px-4 sm:px-8 flex gap-2 sm:gap-4 w-full justify-center">
           <button
             class="${cn(
               buttonVariants({ variant: this.variant, size: this.size }),
@@ -95,19 +95,18 @@ export class AtomCounter extends TwAtomElement {
           </button>
 
           <div
-            class="p-4 min-w-48 flex justify-center text-lg font-medium text-gray-700 bg-white w-full rounded-lg shadow relative"
+            class="p-4 min-w-32 sm:min-w-48 flex justify-center text-base sm:text-lg font-medium text-gray-700 bg-white w-full max-w-xs rounded-lg shadow relative"
           >
             ${matchResult(this.countResult, {
               onInitial: () => html`
-                <!-- <span class="opacity-50">Counter:</span> -->
-                <strong class="text-gray-400 px-4">--</strong>
+                <strong class="text-gray-400 px-2 sm:px-4">--</strong>
               `,
               onSuccess: (count) => html`
-                <span class="opacity-50">Counter:</span>
-                <strong class="text-blue-500 px-4">${count}</strong>
+                <span class="opacity-50 text-sm sm:text-base">Counter:</span>
+                <strong class="text-blue-500 px-2 sm:px-4">${count}</strong>
               `,
               onFailure: (error) => html`
-                <strong class="text-red-500 px-4 opacity-50"
+                <strong class="text-red-500 px-2 sm:px-4 opacity-50 text-sm sm:text-base"
                   >${error.message}</strong
                 >
               `,
@@ -129,7 +128,7 @@ export class AtomCounter extends TwAtomElement {
           </button>
         </div>
 
-        <p class="text-gray-400">${this.docsHint}</p>
+        <p class="text-gray-400 text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
       </div>
     `;
   }
