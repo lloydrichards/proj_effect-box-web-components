@@ -100,6 +100,16 @@
             <yahtzee-player name="Player 2" playerIndex="1"></yahtzee-player>
           </yahtzee-game>
         </div>
+        <div class="grid-cell full-width-cell">
+          <h3>Database Configuration Setup</h3>
+          <prompt-terminal id="config-prompt">
+            <text-prompt key="host" message="What is your database host?"></text-prompt>
+            <text-prompt key="port" message="Which port should we use?"></text-prompt>
+            <text-prompt key="database" message="What is the database name?"></text-prompt>
+            <text-prompt key="username" message="Enter the username:"></text-prompt>
+            <text-prompt key="pool_size" message="How many connections in the pool?"></text-prompt>
+          </prompt-terminal>
+        </div>
       </section>
     </div>
   </body>
