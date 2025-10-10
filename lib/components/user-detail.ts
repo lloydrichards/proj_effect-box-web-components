@@ -1,5 +1,4 @@
 import { Atom, Result } from "@effect-atom/atom";
-import { cva } from "class-variance-authority";
 import { Data, Effect } from "effect";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -8,6 +7,7 @@ import { RefreshCw, User } from "lucide-static";
 import { AtomMixin, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
+import { buttonVariants } from "./ui/Button";
 
 class UserError extends Data.TaggedError("UserError")<{ message: string }> {}
 
@@ -48,28 +48,6 @@ const userAtomFamily = Atom.family((userId: string) =>
 );
 
 const refreshCountAtom = Atom.make(0);
-
-const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        outlined: "border hover:bg-gray-100",
-        ghost: "hover:bg-gray-100/10",
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-8 px-3",
-        icon: "p-2",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  },
-);
 
 @customElement("user-detail")
 export class UserDetail extends TW(AtomMixin(LitElement)) {
@@ -167,7 +145,7 @@ export class UserDetail extends TW(AtomMixin(LitElement)) {
             (id) => html`
               <button
                 class="${cn(
-                  buttonVariants({ variant: "outlined", size: "sm" }),
+                  buttonVariants({ variant: "outline", size: "sm" }),
                 )}"
                 @click=${() => {
                   this.userId = id;

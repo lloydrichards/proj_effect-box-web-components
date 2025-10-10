@@ -200,7 +200,7 @@ export const processTable = createTable(
 ).pipe(Effect.provide(TableServiceLayer));
 
 // Alternative ornate border style with decorative elements
-const OrnateBorderStyleLayer = Layer.succeed(
+export const OrnateBorderStyleLayer = Layer.succeed(
   BoarderStyleService,
   new BoarderStyleService({
     top: {
@@ -231,7 +231,7 @@ const OrnateBorderStyleLayer = Layer.succeed(
 );
 
 // Retro ASCII style border (keeping original for reference)
-const CustomBorderStyleLayer = Layer.succeed(
+export const CustomBorderStyleLayer = Layer.succeed(
   BoarderStyleService,
   new BoarderStyleService({
     top: {

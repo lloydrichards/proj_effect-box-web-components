@@ -1,5 +1,5 @@
 import { Atom, Result } from "@effect-atom/atom";
-import { cva, type VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 import { Data, Effect } from "effect";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -8,6 +8,7 @@ import { Minus, Plus } from "lucide-static";
 import { AtomMixin, atomProperty, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
+import { buttonVariants } from "./ui/Button";
 
 class CountError extends Data.TaggedError("CountError")<{ message: string }> {}
 
@@ -29,31 +30,6 @@ const countAtom = Atom.fn(
   { initialValue: 0 },
 );
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        outlined: "border hover:bg-gray-100",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        icon: "p-6",
-        lg: "min-h-11 rounded-md px-8",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  },
-);
-
 /**
  * Example component demonstrating Effect-atom integration with Lit using Result pattern
  * The countResultAtom is shared globally, so multiple instances will share the same state
@@ -70,7 +46,7 @@ export class AtomCounter extends TW(AtomMixin(LitElement)) {
   >["variant"] = "default";
   @property({ type: String }) size: VariantProps<
     typeof buttonVariants
-  >["size"] = "icon";
+  >["size"] = "icon-lg";
 
   render() {
     const isLoading = Result.isWaiting(this.countResult);

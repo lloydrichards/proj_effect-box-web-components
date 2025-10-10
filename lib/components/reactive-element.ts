@@ -1,4 +1,4 @@
-import { cva, type VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 import { Effect } from "effect";
 import { Box, Html, Renderer } from "effect-boxes";
 import { html, LitElement } from "lit";
@@ -6,29 +6,9 @@ import { customElement, property } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
+import { buttonVariants } from "./ui/Button";
 
 const TwLitElement = TW(LitElement);
-
-const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        lg: "min-h-11 rounded-md px-8",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  },
-);
 
 @customElement("reactive-element")
 export class ReactiveElement extends TwLitElement {

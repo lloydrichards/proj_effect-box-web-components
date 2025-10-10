@@ -1,5 +1,4 @@
 import { Atom } from "@effect-atom/atom";
-import { cva } from "class-variance-authority";
 import { Data, Effect, Random } from "effect";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -17,6 +16,7 @@ import {
 import { AtomMixin, atomProperty } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
+import { buttonVariants } from "./ui/Button";
 
 type DiceValue = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -160,32 +160,6 @@ const gameStateAtom = Atom.make<GameState>({
   winners: [],
 });
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        outlined: "border hover:bg-gray-100",
-        ghost: "bg-transparent hover:bg-gray-100/10",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        icon: "p-6",
-        lg: "min-h-11 rounded-md px-8",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  },
-);
-
 const diceIcons = {
   1: Dice1,
   2: Dice2,
@@ -317,7 +291,7 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
           <button
             class="${cn(
               buttonVariants({ variant: "default", size: "default" }),
-              "w-full",
+              "flex-1",
             )}"
             @click=${this._rollDice}
             ?disabled=${!canRoll || this.gameState.gameOver}
@@ -327,7 +301,7 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
 
           <button
             class="${cn(
-              buttonVariants({ variant: "outlined", size: "default" }),
+              buttonVariants({ variant: "outline", size: "default" }),
             )}"
             @click=${this._endTurn}
             ?disabled=${!player.isActive || this.gameState.gameOver}

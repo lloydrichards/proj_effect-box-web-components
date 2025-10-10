@@ -55,22 +55,22 @@
       </header>
       <section class="grid">
         <div class="grid-cell">
-          <simple-element variant="destructive" size="lg">
+          <simple-element variant="destructive" size="icon-lg">
             <h3>Effect Box Counter</h3>
           </simple-element>
         </div>
         <div class="grid-cell">
-          <reactive-element size="lg">
+          <reactive-element size="icon-lg">
             <h3>Reactive Element</h3>
           </reactive-element>
         </div>
         <div class="grid-cell">
-          <ansi-counter size="lg">
+          <ansi-counter size="icon-lg">
             <h3>Ansi Counter</h3>
           </ansi-counter>
         </div>
         <div class="grid-cell shared-atom-cell">
-          <atom-counter variant="outlined">
+          <atom-counter variant="outline">
             <h3>Shared Atom Counter - Instance 1</h3>
           </atom-counter>
           <atom-counter variant="secondary">
@@ -103,11 +103,26 @@
         <div class="grid-cell full-width-cell">
           <h3>Database Configuration Setup</h3>
           <prompt-terminal id="config-prompt">
-            <text-prompt key="host" message="What is your database host?"></text-prompt>
-            <text-prompt key="port" message="Which port should we use?"></text-prompt>
-            <text-prompt key="database" message="What is the database name?"></text-prompt>
-            <text-prompt key="username" message="Enter the username:"></text-prompt>
-            <text-prompt key="pool_size" message="How many connections in the pool?"></text-prompt>
+            <text-prompt
+              key="host"
+              message="What is your database host?"
+            ></text-prompt>
+            <text-prompt
+              key="port"
+              message="Which port should we use?"
+            ></text-prompt>
+            <text-prompt
+              key="database"
+              message="What is the database name?"
+            ></text-prompt>
+            <text-prompt
+              key="username"
+              message="Enter the username:"
+            ></text-prompt>
+            <text-prompt
+              key="pool_size"
+              message="How many connections in the pool?"
+            ></text-prompt>
           </prompt-terminal>
         </div>
       </section>
