@@ -1,3 +1,4 @@
+export { AnsiCounter } from "./components/ansi-counter";
 export { AtomCounter } from "./components/atom-counter";
 export { AtomStreamCounter } from "./components/atom-stream-counter";
 export { ReactiveElement } from "./components/reactive-element";

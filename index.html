@@ -7,7 +7,11 @@
     <title>Effect + Lit + Tailwind Demo</title>
     <link rel="stylesheet" href="./index.css" />
     <script type="module" src="./lib/main.ts"></script>
-    <script defer src="https://umami.lloydrichards.dev/script.js" data-website-id="%VITE_UMAMI_WEBSITE_ID%"></script>
+    <script
+      defer
+      src="https://umami.lloydrichards.dev/script.js"
+      data-website-id="%VITE_UMAMI_WEBSITE_ID%"
+    ></script>
   </head>
   <body>
     <style>
@@ -59,6 +63,11 @@
           <reactive-element size="lg">
             <h3>Reactive Element</h3>
           </reactive-element>
+        </div>
+        <div class="grid-cell">
+          <ansi-counter size="lg">
+            <h3>Ansi Counter</h3>
+          </ansi-counter>
         </div>
         <div class="grid-cell shared-atom-cell">
           <atom-counter variant="outlined">
