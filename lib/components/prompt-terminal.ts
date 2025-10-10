@@ -141,6 +141,8 @@ export class TextPrompt extends LitElement implements BasePrompt {
 
 @customElement("prompt-terminal")
 export class PromptTerminal extends TwLitElement {
+  @property() docsHint =
+    "Interactive terminal with Effect-powered rendering. Click to focus, and answer the prompts.";
   @state() private terminalState: TerminalState = {
     completed: [],
     current: null,
@@ -344,16 +346,19 @@ export class PromptTerminal extends TwLitElement {
       <div style="display: none">
         <slot @slotchange=${this._initializePrompts}></slot>
       </div>
-      <div
-        class="flex flex-col gap-2 p-2 w-full h-100 overflow-auto bg-background/10"
-        tabindex="0"
-        @focus=${this._handleFocus}
-        @blur=${this._handleBlur}
-        @keydown=${this._handleKeyDown}
-      >
-        <pre class="whitespace-pre"><code>${unsafeHTML(
-          fancyAnsi.toHtml(this.content),
-        )}</code></pre>
+      <div class="flex flex-col justify-center items-center gap-2 w-full">
+        <div
+          class="flex flex-col gap-2 p-2 w-full h-100 overflow-auto bg-background/10"
+          tabindex="0"
+          @focus=${this._handleFocus}
+          @blur=${this._handleBlur}
+          @keydown=${this._handleKeyDown}
+        >
+          <pre class="whitespace-pre"><code>${unsafeHTML(
+            fancyAnsi.toHtml(this.content),
+          )}</code></pre>
+        </div>
+        <p class="text-gray-400 text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
       </div>
     `;
   }
