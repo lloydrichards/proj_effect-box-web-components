@@ -345,13 +345,13 @@ export class PromptTerminal extends TwLitElement {
         <slot @slotchange=${this._initializePrompts}></slot>
       </div>
       <div
-        class="flex flex-col gap-2 p-2 w-full overflow-x-auto bg-background/10"
+        class="flex flex-col gap-2 p-2 w-full h-100 overflow-auto bg-background/10"
         tabindex="0"
         @focus=${this._handleFocus}
         @blur=${this._handleBlur}
         @keydown=${this._handleKeyDown}
       >
-        <pre class="overflow-x-auto whitespace-pre"><code>${unsafeHTML(
+        <pre class="whitespace-pre"><code>${unsafeHTML(
           fancyAnsi.toHtml(this.content),
         )}</code></pre>
       </div>
