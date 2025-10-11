@@ -1,5 +1,6 @@
 export { AnsiCounter } from "./components/ansi-counter";
 export { AtomCounter } from "./components/atom-counter";
+export { AtomSecrets } from "./components/atom-secrets";
 export { AtomStreamCounter } from "./components/atom-stream-counter";
 export { PromptTerminal, TextPrompt } from "./components/prompt-terminal";
 export { ReactiveElement } from "./components/reactive-element";
