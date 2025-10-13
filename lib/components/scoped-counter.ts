@@ -5,7 +5,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Plus } from "lucide-static";
-import { AtomMixin, atomProperty, matchResult } from "../shared/atomMixin";
+import { AtomMixin, atomState, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 import { buttonVariants } from "./ui/Button";
@@ -33,7 +33,7 @@ const scopedCountAtom = Atom.fn(
 
 @customElement("scoped-counter")
 export class ScopedCounter extends TW(AtomMixin(LitElement, scopedRegistry)) {
-  @atomProperty(scopedCountAtom) declare countResult: Result.Result<
+  @atomState(scopedCountAtom) declare countResult: Result.Result<
     number,
     CountError
   >;

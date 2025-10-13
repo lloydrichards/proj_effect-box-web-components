@@ -16,7 +16,7 @@ export {
 
 export {
   AtomMixin,
-  atomProperty,
+  atomState,
   matchResult,
 } from "./shared/atomMixin";
 export { TW } from "./shared/tailwindMixin";

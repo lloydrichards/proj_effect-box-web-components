@@ -5,7 +5,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Plus } from "lucide-static";
-import { AtomMixin, atomProperty, matchResult } from "../shared/atomMixin";
+import { AtomMixin, atomState, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 import { buttonVariants } from "./ui/Button";
@@ -36,10 +36,7 @@ const countAtom = Atom.fn(
  */
 @customElement("atom-counter")
 export class AtomCounter extends TW(AtomMixin(LitElement)) {
-  @atomProperty(countAtom) declare countResult: Result.Result<
-    number,
-    CountError
-  >;
+  @atomState(countAtom) declare countResult: Result.Result<number, CountError>;
   @property() docsHint = "Both instances share the same global atom state";
   @property({ type: String }) variant: VariantProps<
     typeof buttonVariants

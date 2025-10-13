@@ -5,7 +5,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Pause, Play, TimerReset } from "lucide-static";
-import { AtomMixin, atomProperty } from "../shared/atomMixin";
+import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 import { buttonVariants } from "./ui/Button";
@@ -69,10 +69,10 @@ const streamTickAtom = Atom.make((get) =>
  */
 @customElement("atom-stream-counter")
 export class AtomStreamCounter extends TW(AtomMixin(LitElement)) {
-  @atomProperty(counterValueAtom) declare currentCount: number;
-  @atomProperty(isPausedAtom) declare isPaused: boolean;
-  @atomProperty(counterErrorAtom) declare error: CounterLimitError | null;
-  @atomProperty(streamTickAtom) private _tick: unknown;
+  @atomState(counterValueAtom) declare currentCount: number;
+  @atomState(isPausedAtom) declare isPaused: boolean;
+  @atomState(counterErrorAtom) declare error: CounterLimitError | null;
+  @atomState(streamTickAtom) private _tick: unknown;
   @property() docsHint =
     "Auto-incrementing with Effect Stream (pauses & resets)";
 

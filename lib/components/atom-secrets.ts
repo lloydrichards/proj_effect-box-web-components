@@ -9,7 +9,7 @@ import {
 } from "effect";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { AtomMixin, atomProperty, matchResult } from "../shared/atomMixin";
+import { AtomMixin, atomState, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 
 class SecretError extends Data.TaggedError("SecretError")<{
@@ -40,7 +40,7 @@ const secretAtom = Atom.make(
  */
 @customElement("atom-secrets")
 export class AtomSecrets extends TW(AtomMixin(LitElement)) {
-  @atomProperty(secretAtom) declare secretResult: Result.Result<
+  @atomState(secretAtom) declare secretResult: Result.Result<
     boolean,
     SecretError
   >;

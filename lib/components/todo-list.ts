@@ -7,7 +7,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Check, Plus, Square, Trash2 } from "lucide-static";
-import { AtomMixin, atomProperty } from "../shared/atomMixin";
+import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 import { buttonVariants } from "./ui/Button";
@@ -133,8 +133,8 @@ const inputVariants = cva(
 
 @customElement("todo-input")
 export class TodoInput extends TW(AtomMixin(LitElement)) {
-  @atomProperty(addTodoErrorAtom) declare addTodoError: string | null;
-  @atomProperty(addTodoEffect, { reactivityKeys: ["todos"] })
+  @atomState(addTodoErrorAtom) declare addTodoError: string | null;
+  @atomState(addTodoEffect, { reactivityKeys: ["todos"] })
   @property()
   docsHint = "Effect Service managing shared todo state with validation";
 
@@ -203,10 +203,10 @@ export class TodoInput extends TW(AtomMixin(LitElement)) {
 
 @customElement("todo-list")
 export class TodoList extends TW(AtomMixin(LitElement)) {
-  @atomProperty(todosAtom) declare todos: TodoItem[];
-  @atomProperty(updateTodoEffect, { reactivityKeys: ["todos"] })
+  @atomState(todosAtom) declare todos: TodoItem[];
+  @atomState(updateTodoEffect, { reactivityKeys: ["todos"] })
   declare updateTodo: (args: { id: string; text: string }) => void;
-  @atomProperty(removeTodoEffect, { reactivityKeys: ["todos"] })
+  @atomState(removeTodoEffect, { reactivityKeys: ["todos"] })
   declare removeTodo: (id: string) => void;
   @property()
   docsHint = "Reactive todo display with Effect Atom subscriptions";

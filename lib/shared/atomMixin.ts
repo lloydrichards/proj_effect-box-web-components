@@ -346,7 +346,34 @@ export const AtomMixin = <T extends Constructor<LitElement>>(
   return AtomMixinClass;
 };
 
-export const atomProperty =
+/**
+ * Decorator that synchronizes an Atom value with a Lit component's internal reactive state.
+ *
+ * This decorator creates private reactive state (using `@state()` internally) that automatically
+ * subscribes to an Atom and updates the component when the Atom's value changes. It follows
+ * Lit's `@state()` convention for internal component state rather than `@property()` which
+ * would expose the value as a public API with attribute binding.
+ *
+ * The decorated property will be automatically updated whenever the Atom value changes,
+ * triggering a component re-render. The subscription is managed by the AtomMixin lifecycle,
+ * subscribing on `connectedCallback()` and unsubscribing on `disconnectedCallback()`.
+ *
+ * @example
+ * Basic usage with a simple atom:
+ * ```ts
+ * const countAtom = Atom.make(0);
+ *
+ * @customElement("my-counter")
+ * export class MyCounter extends AtomMixin(LitElement) {
+ *   @atomState(countAtom) declare count: number;
+ *
+ *   render() {
+ *     return html`<div>Count: ${this.count}</div>`;
+ *   }
+ * }
+ * ```
+ */
+export const atomState =
   <A>(
     atom: Atom.Atom<A>,
     options?: { readonly reactivityKeys?: readonly string[] },
@@ -356,7 +383,6 @@ export const atomProperty =
     propertyKey: string | symbol,
     descriptor?: PropertyDescriptor,
   ): void => {
-    // Apply @state() decorator to mark as reactive internal state
     state()(target, propertyKey, descriptor);
 
     const ctor = getAtomMetadata(target.constructor);

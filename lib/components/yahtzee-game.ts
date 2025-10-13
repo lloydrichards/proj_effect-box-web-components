@@ -13,7 +13,7 @@ import {
   RotateCcw,
   Trophy,
 } from "lucide-static";
-import { AtomMixin, atomProperty } from "../shared/atomMixin";
+import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 import { buttonVariants } from "./ui/Button";
@@ -171,7 +171,7 @@ const diceIcons = {
 
 @customElement("yahtzee-status")
 export class YahtzeeStatus extends TW(AtomMixin(LitElement)) {
-  @atomProperty(gameStateAtom) declare gameState: GameState;
+  @atomState(gameStateAtom) declare gameState: GameState;
 
   render() {
     const currentPlayer =
@@ -231,7 +231,7 @@ export class YahtzeeStatus extends TW(AtomMixin(LitElement)) {
 
 @customElement("yahtzee-player")
 export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
-  @atomProperty(gameStateAtom) declare gameState: GameState;
+  @atomState(gameStateAtom) declare gameState: GameState;
   @property({ type: String }) name = "Player";
   @property({ type: Number }) playerIndex = 0;
 
@@ -423,7 +423,7 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
 
 @customElement("yahtzee-game")
 export class YahtzeeGame extends TW(AtomMixin(LitElement)) {
-  @atomProperty(gameStateAtom) declare gameState: GameState;
+  @atomState(gameStateAtom) declare gameState: GameState;
 
   connectedCallback() {
     super.connectedCallback();
