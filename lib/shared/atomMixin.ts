@@ -214,6 +214,10 @@ export const AtomMixin = <T extends Constructor<LitElement>>(
       }
     }
 
+    /**
+     * Subscribe to a writable atom and get both its value and a setter function.
+     * Auto-subscribes the component to atom updates, triggering re-renders when the atom changes.
+     */
     useAtom<R, W>(
       atom: Atom.Writable<R, W>,
     ): readonly [value: R, setValue: (value: W | ((prev: R) => W)) => void] {
@@ -231,11 +235,21 @@ export const AtomMixin = <T extends Constructor<LitElement>>(
       return [value, setValue] as const;
     }
 
+    /**
+     * Subscribe to an atom and get its current value.
+     * Auto-subscribes the component to atom updates, triggering re-renders when the atom changes.
+     * Use this when you only need to read the atom value, not update it.
+     */
     useAtomValue<A>(atom: Atom.Atom<A>): A {
       this._autoSubscribe(atom);
       return globalRegistry.get(atom);
     }
 
+    /**
+     * Get a setter function for a writable atom without reading its value.
+     * Auto-subscribes the component to atom updates. Use this when you only need
+     * to update the atom but don't need its current value in the render.
+     */
     useAtomSet<R, W>(
       atom: Atom.Writable<R, W>,
     ): (value: W | ((prev: R) => W)) => void {
@@ -250,6 +264,11 @@ export const AtomMixin = <T extends Constructor<LitElement>>(
       };
     }
 
+    /**
+     * Convert a Result atom into a Promise that resolves with the success value.
+     * Auto-subscribes the component to atom updates. The promise resolves when the
+     * Result becomes successful, or rejects when it fails.
+     */
     useAtomPromise<A, E>(
       atom: Atom.Atom<Result.Result<A, E>>,
       options?: { readonly suspendOnWaiting?: boolean },
@@ -282,6 +301,11 @@ export const AtomMixin = <T extends Constructor<LitElement>>(
       });
     }
 
+    /**
+     * Get a function that refreshes (re-evaluates) an atom.
+     * Auto-subscribes the component to atom updates. Useful for atoms that
+     * derive their value from effects or computations.
+     */
     useAtomRefresh<A>(atom: Atom.Atom<A>): () => void {
       this._autoSubscribe(atom);
 
@@ -290,6 +314,11 @@ export const AtomMixin = <T extends Constructor<LitElement>>(
       };
     }
 
+    /**
+     * Subscribe to an atom and mount it in the registry.
+     * Use this in connectedCallback() or firstUpdated() for atoms that need to be
+     * explicitly mounted. Subscribes the component to updates and calls registry.mount().
+     */
     useAtomMount<A>(
       atom: Atom.Atom<A>,
       options?: { readonly reactivityKeys?: readonly string[] },
@@ -321,6 +350,10 @@ export const AtomMixin = <T extends Constructor<LitElement>>(
       }
     }
 
+    /**
+     * Manually invalidate (refresh) all atoms associated with the given reactivity keys.
+     * Use this to trigger selective updates when certain data changes.
+     */
     invalidate(keys: readonly string[]): void {
       const registry = globalRegistry;
 
@@ -338,6 +371,10 @@ export const AtomMixin = <T extends Constructor<LitElement>>(
       }
     }
 
+    /**
+     * Get direct access to the underlying Atom Registry.
+     * Use this for advanced operations or when you need to work with the registry directly.
+     */
     getAtomRegistry(): Registry.Registry {
       return globalRegistry;
     }
