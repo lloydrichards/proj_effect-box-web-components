@@ -81,10 +81,10 @@ export class AnsiCounter extends TwLitElement {
             +
           </button>
         </div>
-        <div class="w-full border border-border/10 rounded-md p-4 bg-background/10">
+        <div class="w-full border border-border/10 rounded-md p-4 bg-muted">
           <pre><code class="text-xs">${this.content}</code></pre>
         </div>
-        <p class="text-gray-400 text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
+        <p class="text-muted-foreground text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
       </div>
     `;
   }

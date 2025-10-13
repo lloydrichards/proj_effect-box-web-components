@@ -348,7 +348,7 @@ export class PromptTerminal extends TwLitElement {
       </div>
       <div class="flex flex-col justify-center items-center gap-2 w-full">
         <div
-          class="flex flex-col gap-2 p-2 w-full h-100 overflow-auto bg-background/10"
+          class="flex flex-col gap-2 p-2 w-full h-100 overflow-auto bg-muted/30 border border-border rounded-lg"
           tabindex="0"
           @focus=${this._handleFocus}
           @blur=${this._handleBlur}
@@ -358,7 +358,7 @@ export class PromptTerminal extends TwLitElement {
             fancyAnsi.toHtml(this.content),
           )}</code></pre>
         </div>
-        <p class="text-gray-400 text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
+        <p class="text-muted-foreground text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
       </div>
     `;
   }

@@ -116,17 +116,17 @@ export class AtomStreamCounter extends TW(AtomMixin(LitElement)) {
           </button>
 
           <div
-            class="p-4 min-w-32 sm:min-w-48 flex justify-center text-base sm:text-lg font-medium text-gray-700 bg-white w-full max-w-xs rounded-lg shadow relative"
+            class="p-4 min-w-32 sm:min-w-48 flex justify-center text-base sm:text-lg font-medium text-card-foreground bg-card w-full max-w-xs rounded-lg border border-border relative"
           >
             ${
               this.error
                 ? html`
                   <span class="opacity-50 text-sm sm:text-base">Counter:</span>
-                  <strong class="text-red-500 px-2 sm:px-4">${this.error.count}</strong>
+                  <strong class="text-destructive px-2 sm:px-4">${this.error.count}</strong>
                 `
                 : html`
                   <span class="opacity-50 text-sm sm:text-base">Counter:</span>
-                  <strong class="text-blue-500 px-2 sm:px-4"
+                  <strong class="text-foreground px-2 sm:px-4"
                     >${this.currentCount}</strong
                   >
                 `
@@ -147,7 +147,7 @@ export class AtomStreamCounter extends TW(AtomMixin(LitElement)) {
           </button>
         </div>
 
-        <p class="text-gray-400 text-xs sm:text-sm text-center px-2">
+        <p class="text-muted-foreground text-xs sm:text-sm text-center px-2">
           ${this.error ? this.error.message : this.docsHint}
         </p>
       </div>

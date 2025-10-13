@@ -67,11 +67,11 @@ export class UserDetail extends TW(AtomMixin(LitElement)) {
         <slot></slot>
 
         <div
-          class="border border-border/50 w-full max-w-sm rounded-lg shadow-sm p-4"
+          class="border border-border w-full max-w-sm rounded-lg bg-card p-4"
         >
           <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold flex items-center gap-2">
-              <span class="[&_svg]:size-4 text-blue-500"
+            <h3 class="text-sm font-semibold flex items-center gap-2 text-card-foreground">
+              <span class="[&_svg]:size-4 text-foreground"
                 >${unsafeSVG(User)}</span
               >
               User Details
@@ -96,26 +96,26 @@ export class UserDetail extends TW(AtomMixin(LitElement)) {
           ${matchResult(userResult, {
             onInitial: () => html`
               <div class="text-center py-6">
-                <p class="text-sm text-gray-400">Loading user...</p>
+                <p class="text-sm text-muted-foreground">Loading user...</p>
               </div>
             `,
             onSuccess: (user) => html`
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between items-baseline">
-                  <span class="text-gray-500">ID</span>
-                  <span class="font-medium">${user.id}</span>
+                  <span class="text-muted-foreground">ID</span>
+                  <span class="font-medium text-card-foreground">${user.id}</span>
                 </div>
                 <div class="flex justify-between items-baseline">
-                  <span class="text-gray-500">Name</span>
-                  <span class="font-medium">${user.name}</span>
+                  <span class="text-muted-foreground">Name</span>
+                  <span class="font-medium text-card-foreground">${user.name}</span>
                 </div>
                 <div class="flex justify-between items-baseline">
-                  <span class="text-gray-500">Email</span>
-                  <span class="font-medium">${user.email}</span>
+                  <span class="text-muted-foreground">Email</span>
+                  <span class="font-medium text-card-foreground">${user.email}</span>
                 </div>
-                <div class="flex justify-between items-baseline pt-1 border-t border-border/30">
-                  <span class="text-gray-400 text-xs">Loaded</span>
-                  <span class="text-gray-400 text-xs">
+                <div class="flex justify-between items-baseline pt-1 border-t border-border">
+                  <span class="text-muted-foreground text-xs">Loaded</span>
+                  <span class="text-muted-foreground text-xs">
                     ${new Date(user.loadedAt).toLocaleTimeString()}
                   </span>
                 </div>
@@ -123,18 +123,18 @@ export class UserDetail extends TW(AtomMixin(LitElement)) {
             `,
             onFailure: (error) => html`
               <div class="text-center py-6">
-                <p class="text-sm text-red-500 font-medium">${error.message}</p>
+                <p class="text-sm text-destructive font-medium">${error.message}</p>
               </div>
             `,
             onWaiting: () => html`
               <div class="text-center py-6">
-                <p class="text-sm text-blue-500">Loading user...</p>
+                <p class="text-sm text-foreground">Loading user...</p>
               </div>
             `,
           })}
 
-          <div class="mt-3 pt-2 border-t border-border/30">
-            <p class="text-xs text-gray-400 text-center">
+          <div class="mt-3 pt-2 border-t border-border">
+            <p class="text-xs text-muted-foreground text-center">
               Refreshed ${refreshCount}×
             </p>
           </div>
@@ -157,7 +157,7 @@ export class UserDetail extends TW(AtomMixin(LitElement)) {
           )}
         </div>
 
-        <p class="text-gray-400 text-xs sm:text-sm text-center px-2 max-w-sm">
+        <p class="text-muted-foreground text-xs sm:text-sm text-center px-2 max-w-sm">
           ${this.docsHint}
         </p>
       </div>

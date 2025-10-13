@@ -180,18 +180,18 @@ export class YahtzeeStatus extends TW(AtomMixin(LitElement)) {
     if (this.gameState.gameOver) {
       const isDraw = this.gameState.winners.length > 1;
       return html`
-        <div class="flex flex-col items-center gap-2 p-4 bg-green-50/10 border-2 border-green-500 rounded-lg">
+        <div class="flex flex-col items-center gap-2 p-4 bg-primary/10 border-2 border-primary rounded-lg">
           <div class="flex items-center gap-2">
-            <span class="[&_svg]:size-6 text-yellow-500">${unsafeSVG(Trophy)}</span>
-            <h3 class="text-xl font-bold text-green-700">Game Over!</h3>
+            <span class="[&_svg]:size-6 text-foreground">${unsafeSVG(Trophy)}</span>
+            <h3 class="text-xl font-bold text-foreground">Game Over!</h3>
           </div>
-          <p class="text-lg font-semibold">
+          <p class="text-lg font-semibold text-foreground">
             ${isDraw ? `Draw: ${this.gameState.winners.join(", ")}` : `Winner: ${this.gameState.winners[0]}`}
           </p>
           <div class="flex gap-4 text-sm">
             ${this.gameState.players.map(
               (p) => html`
-                <span class="${this.gameState.winners.includes(p.name) ? "font-bold text-green-700" : ""}">
+                <span class="${this.gameState.winners.includes(p.name) ? "font-bold text-foreground" : "text-muted-foreground"}">
                   ${p.name}: ${p.score} pts
                 </span>
               `,
@@ -202,24 +202,24 @@ export class YahtzeeStatus extends TW(AtomMixin(LitElement)) {
     }
 
     return html`
-      <div class="flex flex-row items-center justify-between gap-3 p-4 border-2 rounded-lg w-full">
+      <div class="flex flex-row items-center justify-between gap-3 p-4 border-2 border-border rounded-lg bg-card w-full">
           <div class="text-center">
-            <span class="text-sm">Round</span>
-            <p class="text-2xl font-bold">${this.gameState.round} / 3</p>
+            <span class="text-sm text-muted-foreground">Round</span>
+            <p class="text-2xl font-bold text-card-foreground">${this.gameState.round} / 3</p>
           </div>
           <div class="w-px h-12 bg-border"></div>
           <div class="text-center">
-            <span class="text-sm">Current Player</span>
-            <p class="text-xl font-bold">${currentPlayer?.name || "..."}</p>
+            <span class="text-sm text-muted-foreground">Current Player</span>
+            <p class="text-xl font-bold text-card-foreground">${currentPlayer?.name || "..."}</p>
           </div>
         <div class="flex gap-4 text-sm">
           ${this.gameState.players.map(
             (p) => html`
               <div class="text-center">
-                <p class="font-semibold">
+                <p class="font-semibold text-card-foreground">
                   ${p.name}
                 </p>
-                <p class="text-xs">${p.score} pts</p>
+                <p class="text-xs text-muted-foreground">${p.score} pts</p>
               </div>
             `,
           )}
@@ -248,19 +248,19 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
     return html`
       <div
         class="${cn(
-          "flex flex-col justify-center items-center gap-3 p-4 rounded-lg border-2 transition-all",
+          "flex flex-col justify-center items-center gap-3 p-4 rounded-lg border-2 transition-all bg-card",
           player.isActive && !this.gameState.gameOver
-            ? "border-blue-500"
-            : "border-gray-300",
-          isWinner && "border-green-500 bg-green-50/10",
+            ? "border-primary"
+            : "border-border",
+          isWinner && "border-primary bg-primary/10",
           isLoser && "opacity-60",
         )}"
       >
         <div class="flex items-center gap-2">
-          <h4 class="text-lg font-bold">${player.name}</h4>
+          <h4 class="text-lg font-bold text-card-foreground">${player.name}</h4>
           ${
             isWinner
-              ? html`<span class="[&_svg]:size-5 text-yellow-500"
+              ? html`<span class="[&_svg]:size-5 text-foreground"
                   >${unsafeSVG(Trophy)}</span
                 >`
               : ""
@@ -274,8 +274,8 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
                 class="${cn(
                   "p-3 rounded-lg transition-all",
                   player.held[index]
-                    ? "bg-blue-100/10 border-2 border-blue-500"
-                    : "border-2 border-gray-300/10 hover:border-gray-400",
+                    ? "bg-primary/10 border-2 border-primary"
+                    : "border-2 border-muted hover:border-muted-foreground",
                   "[&_svg]:size-10",
                 )}"
                 @click=${() => this._toggleHold(index)}
@@ -311,9 +311,9 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
         </div>
 
         <div class="text-center">
-          <p class="text-sm">
+          <p class="text-sm text-muted-foreground">
             Score:
-            <strong class="text-lg">${player.score}</strong>
+            <strong class="text-lg text-card-foreground">${player.score}</strong>
           </p>
         </div>
       </div>
@@ -443,7 +443,7 @@ export class YahtzeeGame extends TW(AtomMixin(LitElement)) {
                 : "Yahtzee Game"
             }
           </h3>
-          <div class="text-gray-400 text-xs max-w-md mb-4">
+          <div class="text-muted-foreground text-xs max-w-md mb-4">
             <p class="font-medium mb-1">How to Play:</p>
             <p>
               Each player gets 3 rolls per turn. Click dice to hold them, then

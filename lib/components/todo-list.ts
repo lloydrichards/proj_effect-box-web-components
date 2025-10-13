@@ -118,11 +118,11 @@ export const updateTodoEffect = todosRuntime.fn(
 );
 
 const inputVariants = cva(
-  "w-full px-4 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-primary transition-colors",
+  "w-full px-4 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-ring transition-colors bg-background text-foreground",
   {
     variants: {
       variant: {
-        default: "border-gray-300",
+        default: "border-input",
       },
     },
     defaultVariants: {
@@ -170,10 +170,10 @@ export class TodoInput extends TW(AtomMixin(LitElement)) {
         </div>
         ${
           this.addTodoError
-            ? html`<p class="text-red-500 text-xs sm:text-sm font-medium text-center">
+            ? html`<p class="text-destructive text-xs sm:text-sm font-medium text-center">
                 ${this.addTodoError}
               </p>`
-            : html`<p class="text-gray-400 text-xs sm:text-sm text-center">${this.docsHint}</p>`
+            : html`<p class="text-muted-foreground text-xs sm:text-sm text-center">${this.docsHint}</p>`
         }
       </div>
     `;
@@ -224,11 +224,11 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
     return html`
       <div class="flex flex-col items-center gap-4 w-full px-2">
         <div
-          class="border border-border/50 w-full max-w-xl rounded-lg shadow-md p-4 min-h-[200px] max-h-[400px] overflow-y-auto"
+          class="border border-border w-full max-w-xl rounded-lg bg-card p-4 min-h-[200px] max-h-[400px] overflow-y-auto"
         >
           ${
             this.todos.length === 0
-              ? html`<p class="text-gray-400 text-center py-8 text-sm">
+              ? html`<p class="text-muted-foreground text-center py-8 text-sm">
                 No todos yet. Add one above!
               </p>`
               : html`
@@ -236,7 +236,7 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
                   activeTodos.length > 0
                     ? html`
                       <div class="mb-4">
-                        <h4 class="text-xs sm:text-sm font-semibold text-gray-600 mb-2">
+                        <h4 class="text-xs sm:text-sm font-semibold text-muted-foreground mb-2">
                           Active (${activeTodos.length})
                         </h4>
                         ${activeTodos.map((todo) => this._renderTodoItem(todo))}
@@ -248,7 +248,7 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
                   completedTodos.length > 0
                     ? html`
                       <div>
-                        <h4 class="text-xs sm:text-sm font-semibold text-gray-600 mb-2">
+                        <h4 class="text-xs sm:text-sm font-semibold text-muted-foreground mb-2">
                           Completed (${completedTodos.length})
                         </h4>
                         ${completedTodos.map((todo) =>
@@ -262,7 +262,7 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
           }
         </div>
 
-        <p class="text-gray-400 text-xs sm:text-sm text-center">${this.docsHint}</p>
+        <p class="text-muted-foreground text-xs sm:text-sm text-center">${this.docsHint}</p>
       </div>
     `;
   }
@@ -270,13 +270,13 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
   private _renderTodoItem(todo: TodoItem) {
     return html`
       <div
-        class="flex items-center gap-3 p-3 border border-transparent hover:border-border rounded-md group transition-colors"
+        class="flex items-center gap-3 p-3 border border-transparent hover:border-border hover:bg-accent/50 rounded-md group transition-colors"
       >
         <button
           class="${cn(
             buttonVariants({ variant: "ghost", size: "icon" }),
             "[&_svg]:size-5",
-            todo.completed ? "text-green-600" : "text-gray-400",
+            todo.completed ? "text-foreground" : "text-muted-foreground",
           )}"
           @click=${() => this._toggleTodo(todo.id)}
           title="${todo.completed ? "Mark as incomplete" : "Mark as complete"}"
@@ -286,7 +286,7 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
         </button>
 
         <span
-          class="flex-1 ${todo.completed ? "line-through text-gray-400" : ""}"
+          class="flex-1 ${todo.completed ? "line-through text-muted-foreground" : "text-card-foreground"}"
         >
           ${todo.text}
         </span>
@@ -294,7 +294,7 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
         <button
           class="${cn(
             buttonVariants({ variant: "ghost", size: "icon" }),
-            "[&_svg]:size-4 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity",
+            "[&_svg]:size-4 text-destructive opacity-0 group-hover:opacity-100 transition-opacity",
           )}"
           @click=${() => this._deleteTodo(todo.id)}
           title="Delete todo"

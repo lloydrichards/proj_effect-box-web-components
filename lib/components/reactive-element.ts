@@ -43,13 +43,13 @@ export class ReactiveElement extends TwLitElement {
         Box.annotate(Html.span({ class: "opacity-50" })),
       ),
       Box.text(` ${this.count}`).pipe(
-        Box.annotate(Html.strong({ class: "text-blue-500 px-4" })),
+        Box.annotate(Html.strong({ class: "text-foreground px-4" })),
       ),
     ]).pipe(
       Box.annotate(
         Html.div({
           class:
-            "p-4 min-w-48 flex justify-center text-lg font-medium text-gray-700 bg-white w-full rounded-lg shadow",
+            "p-4 min-w-48 flex justify-center text-lg font-medium text-card-foreground bg-card w-full rounded-lg border border-border",
         }),
       ),
     );
@@ -88,7 +88,7 @@ export class ReactiveElement extends TwLitElement {
             +
           </button>
         </div>
-        <p class="text-gray-400 text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
+        <p class="text-muted-foreground text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
       </div>
     `;
   }

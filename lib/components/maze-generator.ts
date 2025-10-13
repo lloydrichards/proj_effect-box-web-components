@@ -1,4 +1,5 @@
 import { Atom } from "@effect-atom/atom";
+import { cva, type VariantProps } from "class-variance-authority";
 import {
   Array,
   Duration,
@@ -16,7 +17,6 @@ import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 import { buttonVariants } from "./ui/Button";
-import { cva, VariantProps } from "class-variance-authority";
 
 interface Cell {
   x: number;
@@ -49,9 +49,9 @@ interface MazeConfig {
 const cellVariant = cva("", {
   variants: {
     variant: {
-      start: "bg-green-300/80",
-      end: "bg-red-300/80",
-      current: "bg-blue-300/30",
+      start: "bg-primary/60",
+      end: "bg-destructive/60",
+      current: "bg-accent",
       normal: null,
     },
     topWall: {
@@ -71,7 +71,7 @@ const cellVariant = cva("", {
       false: null,
     },
     disabled: {
-      true: "border-border/10",
+      true: "border-border/30",
       false: null,
     },
   },
@@ -271,17 +271,17 @@ export class MazeGenerator extends TW(AtomMixin(LitElement)) {
         ${
           maze
             ? this._renderMaze(maze)
-            : html`<div class="text-gray-400">Initializing maze...</div>`
+            : html`<div class="text-muted-foreground">Initializing maze...</div>`
         }
 
         <div class="flex justify-between w-full text-sm px-8">
-          <div class="flex flex-row gap-4">
+          <div class="flex flex-row gap-4 text-muted-foreground">
             <span class="flex items-center gap-1">
-              <span class="w-4 h-4 bg-green-300 border border-gray-400"></span>
+              <span class="w-4 h-4 bg-primary/60 border border-border"></span>
               Start
             </span>
             <span class="flex items-center gap-1">
-              <span class="w-4 h-4 bg-red-300 border border-gray-400"></span>
+              <span class="w-4 h-4 bg-destructive/60 border border-border"></span>
               End
             </span>
           </div>
@@ -297,7 +297,7 @@ export class MazeGenerator extends TW(AtomMixin(LitElement)) {
           </button>
         </div>
         
-        <p class="text-gray-400 text-xs sm:text-sm text-center px-2">
+        <p class="text-muted-foreground text-xs sm:text-sm text-center px-2">
           Watch the maze slowly come to life using Effect Stream
         </p>
       </div>

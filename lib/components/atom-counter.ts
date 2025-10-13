@@ -66,23 +66,23 @@ export class AtomCounter extends TW(AtomMixin(LitElement)) {
           </button>
 
           <div
-            class="p-4 min-w-32 sm:min-w-48 flex justify-center text-base sm:text-lg font-medium text-gray-700 bg-white w-full max-w-xs rounded-lg shadow relative"
+            class="p-4 min-w-32 sm:min-w-48 flex justify-center text-base sm:text-lg font-medium text-card-foreground bg-card w-full max-w-xs rounded-lg border border-border relative"
           >
             ${matchResult(this.countResult, {
               onInitial: () => html`
-                <strong class="text-gray-400 px-2 sm:px-4">--</strong>
+                <strong class="text-muted-foreground px-2 sm:px-4">--</strong>
               `,
               onSuccess: (count) => html`
-                <span class="opacity-50 text-sm sm:text-base">Counter:</span>
-                <strong class="text-blue-500 px-2 sm:px-4">${count}</strong>
+                <span class="text-muted-foreground text-sm sm:text-base">Counter:</span>
+                <strong class="text-foreground px-2 sm:px-4">${count}</strong>
               `,
               onFailure: (error) => html`
-                <strong class="text-red-500 px-2 sm:px-4 opacity-50 text-sm sm:text-base"
+                <strong class="text-destructive px-2 sm:px-4 opacity-50 text-sm sm:text-base"
                   >${error.message}</strong
                 >
               `,
               onWaiting: () =>
-                html` <span class="text-blue-500">Loading...</span> `,
+                html` <span class="text-foreground">Loading...</span> `,
             })}
           </div>
 
@@ -100,7 +100,7 @@ export class AtomCounter extends TW(AtomMixin(LitElement)) {
           </button>
         </div>
 
-        <p class="text-gray-400 text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
+        <p class="text-muted-foreground text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
       </div>
     `;
   }
