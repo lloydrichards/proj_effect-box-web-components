@@ -4,8 +4,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: hsl(222.2 84% 4.9%);
+  background-color: hsl(0 0% 100%);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,13 +13,26 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.dark {
+  color: hsl(0 0% 98.5%);
+  background-color: hsl(0 0% 14.5%);
+}
+
 a {
   font-weight: 500;
-  color: #646cff;
+  color: hsl(221.2 83.2% 53.3%);
   text-decoration: inherit;
+  transition: color 0.2s ease;
 }
 a:hover {
-  color: #535bf2;
+  color: hsl(221.2 83.2% 48%);
+}
+
+.dark a {
+  color: hsl(0 0% 92.2%);
+}
+.dark a:hover {
+  color: hsl(0 0% 98.5%);
 }
 
 body {
@@ -123,16 +136,12 @@ body {
   }
 }
 
-@media (prefers-color-scheme: light) {
-  .grid-cell {
-    background: rgba(0, 0, 0, 0.02);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-  }
+.grid-cell {
+  background: hsl(0 0% 100%);
+  border: 1px solid hsl(214.3 31.8% 91.4%);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
+.dark .grid-cell {
+  background: hsl(0 0% 20.5%);
+  border: 1px solid hsl(0 0% 100% / 10%);
 }

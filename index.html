@@ -18,6 +18,15 @@
     ></script>
   </head>
   <body>
+    <script>
+      (function() {
+        const theme = localStorage.getItem('effect-box-theme') || 'system';
+        const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     <style>
       :root {
         --destructive: hsl(6 93% 71%);
@@ -29,6 +38,9 @@
     </style>
     <div class="container">
       <header class="header">
+        <div style="position: absolute; top: 1rem; right: 1rem;">
+          <theme-toggle></theme-toggle>
+        </div>
         <div class="logos">
           <a href="https://vitejs.dev" target="_blank">
             <img src="/lib/assets/vite.svg" class="logo" alt="Vite logo" />
