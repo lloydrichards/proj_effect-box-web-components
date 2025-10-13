@@ -4,6 +4,7 @@ export { AtomSecrets } from "./components/atom-secrets";
 export { AtomStreamCounter } from "./components/atom-stream-counter";
 export { PromptTerminal, TextPrompt } from "./components/prompt-terminal";
 export { ReactiveElement } from "./components/reactive-element";
+export { ScopedCounter } from "./components/scoped-counter";
 export { SimpleElement } from "./components/simple-element";
 export { TodoInput, TodoList } from "./components/todo-list";
 export { UserDetail } from "./components/user-detail";

@@ -30,7 +30,7 @@ declare global {
   };
 }
 
-const globalRegistry: Registry.Registry = globalValue(
+const defaultGlobalRegistry: Registry.Registry = globalValue(
   "@effect-box-web-components/atomMixin/registry",
   () =>
     Registry.make({
@@ -85,7 +85,11 @@ export interface IAtomMixin {
 // biome-ignore lint/complexity/noBannedTypes: Function type needed for constructor property
 const getAtomMetadata = (ctor: Function) => ctor as AtomMetadataConstructor;
 
-export const AtomMixin = <T extends Constructor<LitElement>>(superClass: T) => {
+export const AtomMixin = <T extends Constructor<LitElement>>(
+  superClass: T,
+  registry?: Registry.Registry,
+) => {
+  const globalRegistry = registry ?? defaultGlobalRegistry;
   abstract class AtomMixinClass extends superClass implements IAtomMixin {
     protected [ATOM_SUBSCRIPTIONS]: HashMap.HashMap<
       Atom.Atom<unknown>,
