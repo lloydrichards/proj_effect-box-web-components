@@ -5,6 +5,7 @@ export { AtomStreamCounter } from "./components/atom-stream-counter";
 export { MazeGenerator } from "./components/maze-generator";
 export { PromptTerminal, TextPrompt } from "./components/prompt-terminal";
 export { ReactiveElement } from "./components/reactive-element";
+export { RegistrationForm } from "./components/registration-form";
 export { ScopedCounter } from "./components/scoped-counter";
 export { SimpleElement } from "./components/simple-element";
 export { ThemeToggle } from "./components/theme-toggle";
@@ -20,6 +21,18 @@ export {
   CardHeader,
   CardTitle,
 } from "./components/ui/Card";
+export {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLegend,
+  FieldSet,
+} from "./components/ui/Field";
+export {
+  inputStyles,
+  selectStyles,
+} from "./components/ui/Input";
 export {
   Item,
   ItemActions,

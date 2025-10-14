@@ -1,5 +1,4 @@
 import { Atom } from "@effect-atom/atom";
-import { cva } from "class-variance-authority";
 import { Effect, Ref } from "effect";
 import * as Array from "effect/Array";
 import { pipe } from "effect/Function";
@@ -7,8 +6,10 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Check, Plus, Square, Trash2 } from "lucide-static";
+import { inputStyles } from "../main";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
+import { cn } from "../shared/utils";
 import "./ui/Button";
 import "./ui/Card";
 import "./ui/Item";
@@ -118,20 +119,6 @@ export const updateTodoEffect = todosRuntime.fn(
   { reactivityKeys: ["todos"] },
 );
 
-const inputVariants = cva(
-  "w-full px-4 py-2 border rounded-md focus:outline-hidden focus:ring-2 focus:ring-ring transition-colors bg-background text-foreground",
-  {
-    variants: {
-      variant: {
-        default: "border-input",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  },
-);
-
 @customElement("todo-input")
 export class TodoInput extends TW(AtomMixin(LitElement)) {
   @atomState(addTodoErrorAtom) declare addTodoError: string | null;
@@ -150,7 +137,7 @@ export class TodoInput extends TW(AtomMixin(LitElement)) {
         <div class="flex w-full gap-2 max-w-xl flex-col sm:flex-row">
           <input
             type="text"
-            class="${inputVariants({ variant: "default" })}"
+            class="${cn(inputStyles, "flex-1")}"
             placeholder="Enter a new todo..."
             .value=${this.inputValue}
             @input=${this._handleInput}

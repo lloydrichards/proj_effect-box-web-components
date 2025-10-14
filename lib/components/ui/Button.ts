@@ -39,6 +39,9 @@ type ButtonVariants = VariantProps<typeof buttonVariants>;
 
 @customElement("ui-button")
 export class Button extends TW(LitElement) {
+  static formAssociated = true;
+  private internals: ElementInternals;
+
   @property({ type: String }) variant: ButtonVariants["variant"] = "default";
   @property({ type: String }) size: ButtonVariants["size"] = "default";
   @property({ type: String }) type: "button" | "submit" | "reset" = "button";
@@ -51,6 +54,11 @@ export class Button extends TW(LitElement) {
   accessor ariaDescribedby: string | null = null;
   @property({ type: String, attribute: "aria-labelledby" })
   accessor ariaLabelledby: string | null = null;
+
+  constructor() {
+    super();
+    this.internals = this.attachInternals();
+  }
 
   private get isDisabled() {
     return this.disabled;
@@ -68,6 +76,16 @@ export class Button extends TW(LitElement) {
     }
   }
 
+  private handleClick(e: Event) {
+    if (this.type === "submit" && this.internals.form) {
+      e.preventDefault();
+      this.internals.form.requestSubmit();
+    } else if (this.type === "reset" && this.internals.form) {
+      e.preventDefault();
+      this.internals.form.reset();
+    }
+  }
+
   override render() {
     return html`
       <button
@@ -77,6 +95,7 @@ export class Button extends TW(LitElement) {
         aria-label=${this.ariaLabel || nothing}
         aria-describedby=${this.ariaDescribedby || nothing}
         aria-labelledby=${this.ariaLabelledby || nothing}
+        @click=${this.handleClick}
       >
         <slot></slot>
       </button>
