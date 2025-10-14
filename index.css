@@ -42,6 +42,15 @@ body {
   padding: 2rem 1rem;
 }
 
+*:not(:defined) {
+  opacity: 0;
+}
+
+*:defined {
+  opacity: 1;
+  transition: opacity 0.2s ease-in;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
