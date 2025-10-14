@@ -8,7 +8,7 @@ export class Card extends TW(LitElement) {
     return html`
       <div
         data-slot="card"
-        class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+        class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border py-6 shadow-sm"
       >
         <slot></slot>
       </div>
