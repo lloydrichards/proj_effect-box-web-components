@@ -17,6 +17,7 @@ import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 import { buttonVariants } from "./ui/Button";
+import "./ui/Button";
 
 type DiceValue = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -282,7 +283,7 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
                 ?disabled=${!canRoll || this.gameState.gameOver}
               >
                 ${unsafeSVG(diceIcons[value])}
-              </button>
+              </ui-button>
             `,
           )}
         </div>
@@ -297,7 +298,7 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
             ?disabled=${!canRoll || this.gameState.gameOver}
           >
             Roll (${player.rollsRemaining} left)
-          </button>
+          </ui-button>
 
           <button
             class="${cn(
@@ -307,7 +308,7 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
             ?disabled=${!player.isActive || this.gameState.gameOver}
           >
             End Turn
-          </button>
+          </ui-button>
         </div>
 
         <div class="text-center">
@@ -467,7 +468,7 @@ export class YahtzeeGame extends TW(AtomMixin(LitElement)) {
           title="New Game"
         >
           <span>New Game</span> ${unsafeSVG(RotateCcw)}
-        </button>
+        </ui-button>
       </div>
     `;
   }

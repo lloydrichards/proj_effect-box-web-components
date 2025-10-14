@@ -15,8 +15,7 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { RefreshCw } from "lucide-static";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
-import { cn } from "../shared/utils";
-import { buttonVariants } from "./ui/Button";
+import "./ui/Button";
 
 interface Cell {
   x: number;
@@ -285,16 +284,14 @@ export class MazeGenerator extends TW(AtomMixin(LitElement)) {
               End
             </span>
           </div>
-          <button
-            class="${cn(
-              buttonVariants({ variant: "default", size: "sm" }),
-              "[&_svg]:size-4",
-            )}"
+          <ui-button
+            variant="default"
+            size="sm"
             @click=${this._regenerateMaze}
             ?disabled=${isGenerating}
           >
             ${unsafeSVG(RefreshCw)} Regenerate
-          </button>
+          </ui-button>
         </div>
         
         <p class="text-muted-foreground text-xs sm:text-sm text-center px-2">

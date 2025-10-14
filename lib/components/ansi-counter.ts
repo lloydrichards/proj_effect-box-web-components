@@ -5,10 +5,12 @@ import { FancyAnsi } from "fancy-ansi";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { Minus, Plus } from "lucide-static";
 import { TW } from "../shared/tailwindMixin";
-import { cn } from "../shared/utils";
 import { Border } from "./ui/Border";
-import { buttonVariants } from "./ui/Button";
+import type { buttonVariants } from "./ui/Button";
+import "./ui/Button";
 
 const TwLitElement = TW(LitElement);
 const fancyAnsi = new FancyAnsi();
@@ -23,7 +25,7 @@ export class AnsiCounter extends TwLitElement {
   >["variant"] = "default";
   @property({ type: String }) size: VariantProps<
     typeof buttonVariants
-  >["size"] = "default";
+  >["size"] = "icon-lg";
 
   // Render effect into the content when count changes
   updated(changedProperties: Map<string, unknown>) {
@@ -58,28 +60,24 @@ export class AnsiCounter extends TwLitElement {
       <div class="flex flex-col justify-center items-center gap-2 w-full">
         <slot></slot>
         <div class="px-4 sm:px-8 flex gap-2 sm:gap-4 w-full items-center justify-center">
-          <button
-            class="${cn(
-              buttonVariants({ variant: this.variant, size: this.size }),
-            )}"
+          <ui-button
+            variant=${this.variant}
+            size=${this.size}
             @click=${this._decrement}
             part="button"
-            data-umami-event="ansi-counter-interaction"
           >
-            -
-          </button>
+            ${unsafeSVG(Minus)}
+          </ui-button>
           <!-- Effect-generated content -->
           <pre><code>${unsafeHTML(fancyAnsi.toHtml(this.content))}</code></pre>          
-          <button
-            class="${cn(
-              buttonVariants({ variant: this.variant, size: this.size }),
-            )}"
+          <ui-button
+            variant=${this.variant}
+            size=${this.size}
             @click=${this._increment}
             part="button"
-            data-umami-event="ansi-counter-interaction"
           >
-            +
-          </button>
+            ${unsafeSVG(Plus)}
+          </ui-button>
         </div>
         <div class="w-full border border-border/10 rounded-md p-4 bg-muted">
           <pre><code class="text-xs">${this.content}</code></pre>

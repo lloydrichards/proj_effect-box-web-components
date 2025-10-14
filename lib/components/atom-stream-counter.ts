@@ -7,8 +7,8 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Pause, Play, TimerReset } from "lucide-static";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
-import { cn } from "../shared/utils";
-import { buttonVariants } from "./ui/Button";
+import type { buttonVariants } from "./ui/Button";
+import "./ui/Button";
 
 class CounterLimitError extends Data.TaggedError("CounterLimit")<{
   message: string;
@@ -95,25 +95,19 @@ export class AtomStreamCounter extends TW(AtomMixin(LitElement)) {
         <slot></slot>
 
         <div class="px-4 sm:px-8 flex gap-2 sm:gap-4 w-full justify-center">
-          <button
-            class="${cn(
-              buttonVariants({
-                variant: showReset ? "destructive" : this.variant,
-                size: this.size,
-              }),
-              "[&_svg]:size-4",
-            )}"
+          <ui-button
+            variant=${showReset ? "destructive" : this.variant}
+            size=${this.size}
             @click=${showReset ? this._reset : this._togglePause}
             part="button"
             title="${showReset ? "Reset" : this.isPaused ? "Resume" : "Pause"}"
-            data-umami-event="stream-counter-interaction"
           >
             ${
               showReset
                 ? unsafeSVG(TimerReset)
                 : unsafeSVG(this.isPaused ? Play : Pause)
             }
-          </button>
+          </ui-button>
 
           <div
             class="p-4 min-w-32 sm:min-w-48 flex justify-center text-base sm:text-lg font-medium text-card-foreground bg-card w-full max-w-xs rounded-lg border border-border relative"
@@ -133,18 +127,16 @@ export class AtomStreamCounter extends TW(AtomMixin(LitElement)) {
             }
           </div>
 
-          <button
-            class="${cn(
-              buttonVariants({ variant: this.variant, size: this.size }),
-              "[&_svg]:size-4",
-            )}"
+          <ui-button
+            variant=${this.variant}
+            size=${this.size}
             @click=${this._reduce}
             ?disabled=${this.error !== null}
             part="button"
             title="Reduce by 10"
           >
             ${unsafeSVG(Minus)}
-          </button>
+          </ui-button>
         </div>
 
         <p class="text-muted-foreground text-xs sm:text-sm text-center px-2">

@@ -9,8 +9,7 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Check, Plus, Square, Trash2 } from "lucide-static";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
-import { cn } from "../shared/utils";
-import { buttonVariants } from "./ui/Button";
+import "./ui/Button";
 
 type TodoItem = {
   id: string;
@@ -155,18 +154,15 @@ export class TodoInput extends TW(AtomMixin(LitElement)) {
             @input=${this._handleInput}
             @keypress=${this._handleKeyPress}
           />
-          <button
-            class="${cn(
-              buttonVariants({ variant: "default", size: "default" }),
-              "[&_svg]:size-4",
-            )}"
+          <ui-button
+            variant="default"
+            size="default"
             @click=${this._addTodo}
             ?disabled=${isInputDisabled}
-            data-umami-event="todo-interaction"
           >
             ${unsafeSVG(Plus)}
             <span class="ml-2">Add</span>
-          </button>
+          </ui-button>
         </div>
         ${
           this.addTodoError
@@ -272,18 +268,15 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
       <div
         class="flex items-center gap-3 p-3 border border-transparent hover:border-border hover:bg-accent/50 rounded-md group transition-colors"
       >
-        <button
-          class="${cn(
-            buttonVariants({ variant: "ghost", size: "icon" }),
-            "[&_svg]:size-5",
-            todo.completed ? "text-foreground" : "text-muted-foreground",
-          )}"
+        <ui-button
+          variant="ghost"
+          size="icon"
+          class="${todo.completed ? "text-foreground" : "text-muted-foreground"}"
           @click=${() => this._toggleTodo(todo.id)}
           title="${todo.completed ? "Mark as incomplete" : "Mark as complete"}"
-          data-umami-event="todo-interaction"
         >
           ${unsafeSVG(todo.completed ? Check : Square)}
-        </button>
+        </ui-button>
 
         <span
           class="flex-1 ${todo.completed ? "line-through text-muted-foreground" : "text-card-foreground"}"
@@ -291,17 +284,15 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
           ${todo.text}
         </span>
 
-        <button
-          class="${cn(
-            buttonVariants({ variant: "ghost", size: "icon" }),
-            "[&_svg]:size-4 text-destructive opacity-0 group-hover:opacity-100 transition-opacity",
-          )}"
+        <ui-button
+          variant="ghost"
+          size="icon"
+          class="text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
           @click=${() => this._deleteTodo(todo.id)}
           title="Delete todo"
-          data-umami-event="todo-interaction"
         >
           ${unsafeSVG(Trash2)}
-        </button>
+        </ui-button>
       </div>
     `;
   }

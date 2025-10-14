@@ -4,6 +4,7 @@ import { TW } from "../shared/tailwindMixin";
 import { type Theme, themeManager } from "../shared/theme-manager";
 import { cn } from "../shared/utils";
 import { buttonVariants } from "./ui/Button";
+import "./ui/Button";
 
 const TwLitElement = TW(LitElement);
 
@@ -112,7 +113,7 @@ export class ThemeToggle extends TwLitElement {
             <path d="m6.34 17.66-1.41 1.41"></path>
             <path d="m19.07 4.93-1.41 1.41"></path>
           </svg>
-        </button>
+        </ui-button>
 
         ${
           this.isOpen
@@ -131,7 +132,7 @@ export class ThemeToggle extends TwLitElement {
                     role="menuitem"
                   >
                     Light
-                  </button>
+                  </ui-button>
                   <button
                     @click=${() => this.handleThemeChange("dark")}
                     class="block w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors ${
@@ -142,7 +143,7 @@ export class ThemeToggle extends TwLitElement {
                     role="menuitem"
                   >
                     Dark
-                  </button>
+                  </ui-button>
                   <button
                     @click=${() => this.handleThemeChange("system")}
                     class="block w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors ${
@@ -153,7 +154,7 @@ export class ThemeToggle extends TwLitElement {
                     role="menuitem"
                   >
                     System
-                  </button>
+                  </ui-button>
                 </div>
               </div>
             `

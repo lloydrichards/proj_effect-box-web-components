@@ -4,8 +4,10 @@ import { Box, Html, Renderer } from "effect-boxes";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { TW } from "../shared/tailwindMixin";
-import { cn } from "../shared/utils";
-import { buttonVariants } from "./ui/Button";
+import type { buttonVariants } from "./ui/Button";
+import "./ui/Button";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { Minus, Plus } from "lucide-static";
 
 const TwLitElement = TW(LitElement);
 
@@ -63,29 +65,25 @@ export class SimpleElement extends TwLitElement {
       <div class="flex flex-col justify-center items-center gap-2 w-full">
         <slot></slot>
         <div class="px-4 sm:px-8 flex gap-2 sm:gap-4 w-full justify-center">
-          <button
-            class="${cn(
-              buttonVariants({ variant: this.variant, size: this.size }),
-            )}"
+          <ui-button
+            variant=${this.variant}
+            size=${this.size}
             @click=${this._decrement}
             part="button"
-            data-umami-event="simple-element-interaction"
           >
-            -
-          </button>
+            ${unsafeSVG(Minus)}
+          </ui-button>
           <!-- Effect-generated content -->
           ${html`<div .innerHTML=${this.content || ""} />`}
           
-          <button
-            class="${cn(
-              buttonVariants({ variant: this.variant, size: this.size }),
-            )}"
+          <ui-button
+            variant=${this.variant}
+            size=${this.size}
             @click=${this._increment}
             part="button"
-            data-umami-event="simple-element-interaction"
           >
-            +
-          </button>
+            ${unsafeSVG(Plus)}
+          </ui-button>
         </div>
         <p class="text-muted-foreground text-xs sm:text-sm text-center px-2">${this.docsHint}</p>
       </div>

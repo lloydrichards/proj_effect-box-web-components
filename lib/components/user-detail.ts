@@ -8,6 +8,7 @@ import { AtomMixin, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 import { buttonVariants } from "./ui/Button";
+import "./ui/Button";
 
 class UserError extends Data.TaggedError("UserError")<{ message: string }> {}
 
@@ -90,7 +91,7 @@ export class UserDetail extends TW(AtomMixin(LitElement)) {
               title="Refresh user data"
             >
               ${unsafeSVG(RefreshCw)}
-            </button>
+            </ui-button>
           </div>
 
           ${matchResult(userResult, {
@@ -152,7 +153,7 @@ export class UserDetail extends TW(AtomMixin(LitElement)) {
                 }}
               >
                 User ${id}
-              </button>
+              </ui-button>
             `,
           )}
         </div>
