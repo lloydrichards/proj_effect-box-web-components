@@ -4,8 +4,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: hsl(222.2 84% 4.9%);
-  background-color: hsl(0 0% 100%);
+  color: oklch(0.147 0.004 49.25);
+  background-color: oklch(1 0 0);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -14,25 +14,25 @@
 }
 
 .dark {
-  color: hsl(0 0% 98.5%);
-  background-color: hsl(0 0% 14.5%);
+  color: oklch(0.985 0.001 106.423);
+  background-color: oklch(0.147 0.004 49.25);
 }
 
 a {
   font-weight: 500;
-  color: hsl(221.2 83.2% 53.3%);
+  color: oklch(0.65 0.25 264);
   text-decoration: inherit;
   transition: color 0.2s ease;
 }
 a:hover {
-  color: hsl(221.2 83.2% 48%);
+  color: oklch(0.6 0.28 264);
 }
 
 .dark a {
-  color: hsl(0 0% 92.2%);
+  color: oklch(0.75 0.18 264);
 }
 .dark a:hover {
-  color: hsl(0 0% 98.5%);
+  color: oklch(0.85 0.15 264);
 }
 
 body {
@@ -146,11 +146,11 @@ body {
 }
 
 .grid-cell {
-  background: hsl(0 0% 100%);
-  border: 1px solid hsl(214.3 31.8% 91.4%);
+  background: oklch(1 0 0);
+  border: 1px solid oklch(0.923 0.003 48.717);
 }
 
 .dark .grid-cell {
-  background: hsl(0 0% 20.5%);
-  border: 1px solid hsl(0 0% 100% / 10%);
+  background: oklch(0.216 0.006 56.043);
+  border: 1px solid oklch(1 0 0 / 10%);
 }
