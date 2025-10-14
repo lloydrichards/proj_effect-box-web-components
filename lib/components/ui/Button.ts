@@ -1,4 +1,7 @@
-import { cva } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
+import { html, LitElement, nothing, type PropertyValues } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import { TW } from "../../shared/tailwindMixin";
 
 export const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
@@ -31,3 +34,58 @@ export const buttonVariants = cva(
     },
   },
 );
+
+type ButtonVariants = VariantProps<typeof buttonVariants>;
+
+@customElement("ui-button")
+export class Button extends TW(LitElement) {
+  @property({ type: String }) variant: ButtonVariants["variant"] = "default";
+  @property({ type: String }) size: ButtonVariants["size"] = "default";
+  @property({ type: String }) type: "button" | "submit" | "reset" = "button";
+  @property({ type: Boolean }) disabled = false;
+
+  @property({ type: String, attribute: "aria-label" }) accessor ariaLabel:
+    | string
+    | null = null;
+  @property({ type: String, attribute: "aria-describedby" })
+  accessor ariaDescribedby: string | null = null;
+  @property({ type: String, attribute: "aria-labelledby" })
+  accessor ariaLabelledby: string | null = null;
+
+  private get isDisabled() {
+    return this.disabled;
+  }
+
+  private get buttonClasses() {
+    return buttonVariants({ variant: this.variant, size: this.size });
+  }
+
+  override updated(changedProperties: PropertyValues) {
+    super.updated(changedProperties);
+
+    if (changedProperties.has("disabled")) {
+      this.setAttribute("aria-disabled", String(this.isDisabled));
+    }
+  }
+
+  override render() {
+    return html`
+      <button
+        type=${this.type}
+        class=${this.buttonClasses}
+        ?disabled=${this.isDisabled}
+        aria-label=${this.ariaLabel || nothing}
+        aria-describedby=${this.ariaDescribedby || nothing}
+        aria-labelledby=${this.ariaLabelledby || nothing}
+      >
+        <slot></slot>
+      </button>
+    `;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "ui-button": Button;
+  }
+}
