@@ -10,6 +10,8 @@ import { Check, Plus, Square, Trash2 } from "lucide-static";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import "./ui/Button";
+import "./ui/Card";
+import "./ui/Item";
 
 type TodoItem = {
   id: string;
@@ -219,44 +221,56 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
 
     return html`
       <div class="flex flex-col items-center gap-4 w-full px-2">
-        <div
-          class="border border-border w-full max-w-xl rounded-lg bg-card p-4 min-h-[200px] max-h-[400px] overflow-y-auto"
-        >
-          ${
-            this.todos.length === 0
-              ? html`<p class="text-muted-foreground text-center py-8 text-sm">
-                No todos yet. Add one above!
-              </p>`
-              : html`
-                ${
-                  activeTodos.length > 0
-                    ? html`
-                      <div class="mb-4">
-                        <h4 class="text-xs sm:text-sm font-semibold text-muted-foreground mb-2">
-                          Active (${activeTodos.length})
-                        </h4>
-                        ${activeTodos.map((todo) => this._renderTodoItem(todo))}
-                      </div>
-                    `
-                    : null
-                }
-                ${
-                  completedTodos.length > 0
-                    ? html`
-                      <div>
-                        <h4 class="text-xs sm:text-sm font-semibold text-muted-foreground mb-2">
-                          Completed (${completedTodos.length})
-                        </h4>
-                        ${completedTodos.map((todo) =>
-                          this._renderTodoItem(todo),
-                        )}
-                      </div>
-                    `
-                    : null
-                }
-              `
-          }
-        </div>
+        <ui-card style="width: 100%; max-width: 42rem;">
+          <ui-card-content style="min-height: 200px; max-height: 400px; overflow-y: auto;">
+            ${
+              this.todos.length === 0
+                ? html`<p class="text-muted-foreground text-center py-8 text-sm">
+                  No todos yet. Add one above!
+                </p>`
+                : html`
+                  ${
+                    activeTodos.length > 0
+                      ? html`
+                        <div class="mb-6">
+                          <h4 class="text-xs sm:text-sm font-semibold text-muted-foreground mb-3 px-1">
+                            Active (${activeTodos.length})
+                          </h4>
+                          <ui-item-group class="gap-2">
+                            ${activeTodos.map(
+                              (todo, index) => html`
+                              ${this._renderTodoItem(todo)}
+                              ${index < activeTodos.length - 1 ? html`<ui-item-separator></ui-item-separator>` : null}
+                            `,
+                            )}
+                          </ui-item-group>
+                        </div>
+                      `
+                      : null
+                  }
+                  ${
+                    completedTodos.length > 0
+                      ? html`
+                        <div>
+                          <h4 class="text-xs sm:text-sm font-semibold text-muted-foreground mb-3 px-1">
+                            Completed (${completedTodos.length})
+                          </h4>
+                          <ui-item-group class="gap-2">
+                            ${completedTodos.map(
+                              (todo, index) => html`
+                              ${this._renderTodoItem(todo)}
+                              ${index < completedTodos.length - 1 ? html`<ui-item-separator></ui-item-separator>` : null}
+                            `,
+                            )}
+                          </ui-item-group>
+                        </div>
+                      `
+                      : null
+                  }
+                `
+            }
+          </ui-card-content>
+        </ui-card>
 
         <p class="text-muted-foreground text-xs sm:text-sm text-center">${this.docsHint}</p>
       </div>
@@ -265,35 +279,31 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
 
   private _renderTodoItem(todo: TodoItem) {
     return html`
-      <div
-        class="flex items-center gap-3 p-3 border border-transparent hover:border-border hover:bg-accent/50 rounded-md group transition-colors"
-      >
-        <ui-button
-          variant="ghost"
-          size="icon"
-          class="${todo.completed ? "text-foreground" : "text-muted-foreground"}"
-          @click=${() => this._toggleTodo(todo.id)}
-          title="${todo.completed ? "Mark as incomplete" : "Mark as complete"}"
-        >
-          ${unsafeSVG(todo.completed ? Check : Square)}
-        </ui-button>
+      <ui-item variant="outline" size="sm" class="group">
+        <ui-item-media variant="icon" class="cursor-pointer" @click=${() => this._toggleTodo(todo.id)}>
+          <span class="[&_svg]:size-4 ${todo.completed ? "text-foreground" : "text-muted-foreground"}">
+            ${unsafeSVG(todo.completed ? Check : Square)}
+          </span>
+        </ui-item-media>
 
-        <span
-          class="flex-1 ${todo.completed ? "line-through text-muted-foreground" : "text-card-foreground"}"
-        >
-          ${todo.text}
-        </span>
+        <ui-item-content @click=${() => this._toggleTodo(todo.id)} class="cursor-pointer">
+          <ui-item-title class="${todo.completed ? "line-through text-muted-foreground" : ""}">
+            ${todo.text}
+          </ui-item-title>
+        </ui-item-content>
 
-        <ui-button
-          variant="ghost"
-          size="icon"
-          class="text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-          @click=${() => this._deleteTodo(todo.id)}
-          title="Delete todo"
-        >
-          ${unsafeSVG(Trash2)}
-        </ui-button>
-      </div>
+        <ui-item-actions class="ml-auto">
+          <ui-button
+            variant="ghost"
+            size="icon-sm"
+            class="text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+            @click=${() => this._deleteTodo(todo.id)}
+            title="Delete todo"
+          >
+            ${unsafeSVG(Trash2)}
+          </ui-button>
+        </ui-item-actions>
+      </ui-item>
     `;
   }
 

@@ -9,6 +9,29 @@ export { ScopedCounter } from "./components/scoped-counter";
 export { SimpleElement } from "./components/simple-element";
 export { ThemeToggle } from "./components/theme-toggle";
 export { TodoInput, TodoList } from "./components/todo-list";
+export { Badge } from "./components/ui/Badge";
+export { Button } from "./components/ui/Button";
+export {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./components/ui/Card";
+export {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
+  ItemGroup,
+  ItemHeader,
+  ItemMedia,
+  ItemSeparator,
+  ItemTitle,
+} from "./components/ui/Item";
 export { UserDetail } from "./components/user-detail";
 export {
   YahtzeeGame,
