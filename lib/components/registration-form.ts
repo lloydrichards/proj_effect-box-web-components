@@ -1,11 +1,14 @@
 import { html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { HelpCircle } from "lucide-static";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 import "./ui/Button";
 import "./ui/Card";
 import "./ui/Field";
 import "./ui/Select";
+import "./ui/Tooltip";
 import { inputStyles } from "./ui/Input";
 
 type FormData = {
@@ -72,9 +75,26 @@ export class RegistrationForm extends TW(LitElement) {
               <form @submit=${this.handleSubmit} @reset=${this.handleReset} novalidate>
                 <ui-field-group>
                   <ui-field ?invalid=${!!this.errors.name}>
-                    <label for="name" class="text-sm font-medium"
-                      >Full Name</label
-                    >
+                    <div class="flex items-center gap-2">
+                      <label for="name" class="text-sm font-medium"
+                        >Full Name</label
+                      >
+                      <ui-tooltip delay-duration="300">
+                        <ui-tooltip-trigger>
+                          <ui-button
+                            variant="ghost"
+                            size="icon-sm"
+                            class="text-muted-foreground/60"
+                            aria-label="Name field help"
+                          >
+                           ${unsafeSVG(HelpCircle)}
+                          </ui-button>
+                        </ui-tooltip-trigger>
+                        <ui-tooltip-content side="top">
+                          Enter your first and last name
+                        </ui-tooltip-content>
+                      </ui-tooltip>
+                    </div>
                     <input
                       id="name"
                       name="name"
@@ -88,14 +108,30 @@ export class RegistrationForm extends TW(LitElement) {
                         ? html`<ui-field-error
                           >${this.errors.name}</ui-field-error
                         >`
-                        : html`<ui-field-description
-                          >Enter your first and last name</ui-field-description
-                        >`
+                        : ""
                     }
                   </ui-field>
 
                   <ui-field ?invalid=${!!this.errors.role}>
-                    <label for="role" class="text-sm font-medium">Role</label>
+                    <div class="flex items-center gap-2">
+                      <label for="role" class="text-sm font-medium">Role</label>
+                      <ui-tooltip delay-duration="300">
+                        <ui-tooltip-trigger>
+                          <ui-button
+                            variant="ghost"
+                            size="icon-sm"
+                            class="text-muted-foreground/60"
+                            aria-label="Role field help"
+                          >
+                            ${unsafeSVG(HelpCircle)}
+                          </ui-button>
+                        </ui-tooltip-trigger>
+                        <ui-tooltip-content side="top">
+                          Select your primary role
+                        
+                        </ui-tooltip-content>
+                      </ui-tooltip>
+                    </div>
                     <ui-select id="role" name="role" value="">
                       <ui-select-trigger>
                         <ui-select-value placeholder="Select a role..."></ui-select-value>
@@ -112,9 +148,7 @@ export class RegistrationForm extends TW(LitElement) {
                         ? html`<ui-field-error
                           >${this.errors.role}</ui-field-error
                         >`
-                        : html`<ui-field-description
-                          >Select your primary role</ui-field-description
-                        >`
+                        : ""
                     }
                   </ui-field>
 
@@ -129,6 +163,21 @@ export class RegistrationForm extends TW(LitElement) {
                       <label for="subscribe" class="text-sm font-medium"
                         >Subscribe to newsletter</label
                       >
+                      <ui-tooltip delay-duration="300">
+                        <ui-tooltip-trigger>
+                          <ui-button
+                            variant="ghost"
+                            size="icon-sm"
+                            class="text-muted-foreground/60"
+                            aria-label="Newsletter subscription help"
+                          >
+                            ${unsafeSVG(HelpCircle)}
+                          </ui-button>
+                        </ui-tooltip-trigger>
+                        <ui-tooltip-content side="top">
+                          Receive updates and news via email
+                        </ui-tooltip-content>
+                      </ui-tooltip>
                     </div>
                   </ui-field>
                 </ui-field-group>
