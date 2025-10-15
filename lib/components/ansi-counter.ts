@@ -65,16 +65,18 @@ export class AnsiCounter extends TwLitElement {
             size=${this.size}
             @click=${this._decrement}
             part="button"
+            aria-label="Decrement counter"
           >
             ${unsafeSVG(Minus)}
           </ui-button>
           <!-- Effect-generated content -->
-          <pre><code>${unsafeHTML(fancyAnsi.toHtml(this.content))}</code></pre>          
+          <pre><code>${unsafeHTML(fancyAnsi.toHtml(this.content))}</code></pre>
           <ui-button
             variant=${this.variant}
             size=${this.size}
             @click=${this._increment}
             part="button"
+            aria-label="Increment counter"
           >
             ${unsafeSVG(Plus)}
           </ui-button>

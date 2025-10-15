@@ -17,6 +17,7 @@ import { CryptoService } from "../services/Crypto";
 import { AtomMixin, atomState, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
+import "./ui/Button";
 
 class SecretError extends Data.TaggedError("SecretError")<{
   message: string;
@@ -187,13 +188,14 @@ export class SecretEncryptor extends TW(AtomMixin(LitElement)) {
                       readonly
                       class="${cn(inputStyles, "flex-1")}"
                     />
-                    <button
+                    <ui-button
+                      variant="secondary"
+                      size="sm"
                       @click=${() => this.copyToClipboard(encryptedValue)}
-                      class="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 font-medium transition-colors"
-                      title="Copy to clipboard"
+                      aria-label="Copy encrypted value to clipboard"
                     >
                       Copy
-                    </button>
+                    </ui-button>
                   </div>
                 `
               : html``,

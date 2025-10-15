@@ -6,8 +6,6 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Mail, RefreshCw, User } from "lucide-static";
 import { AtomMixin, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
-import { cn } from "../shared/utils";
-import { buttonVariants } from "./ui/Button";
 import "./ui/Button";
 import "./ui/Card";
 import "./ui/Item";
@@ -78,21 +76,20 @@ export class UserDetail extends TW(AtomMixin(LitElement)) {
               </span>
             </ui-card-title>
             <ui-card-action>
-              <button
-                class="${cn(
-                  buttonVariants({ variant: "ghost", size: "icon" }),
-                  "[&_svg]:size-3.5",
-                )}"
+              <ui-button
+                variant="ghost"
+                size="icon"
+                class="[&_svg]:size-3.5"
                 @click=${() => {
                   refresh();
                   const setCount = this.useAtomSet(refreshCountAtom);
                   setCount((c) => c + 1);
                 }}
                 ?disabled=${Result.isWaiting(userResult)}
-                title="Refresh user data"
+                aria-label="Refresh user data"
               >
                 ${unsafeSVG(RefreshCw)}
-              </button>
+              </ui-button>
             </ui-card-action>
           </ui-card-header>
 
@@ -148,10 +145,9 @@ export class UserDetail extends TW(AtomMixin(LitElement)) {
         <div class="flex gap-2 flex-wrap justify-center max-w-sm">
           ${["1", "2", "3", "error"].map(
             (id) => html`
-              <button
-                class="${cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                )}"
+              <ui-button
+                variant="outline"
+                size="sm"
                 @click=${() => {
                   this.userId = id;
                 }}

@@ -58,6 +58,7 @@ export class ScopedCounter extends TW(AtomMixin(LitElement, scopedRegistry)) {
             @click=${this._decrement}
             ?disabled=${isLoading}
             part="button"
+            aria-label="Decrement counter"
           >
             ${unsafeSVG(Minus)}
           </ui-button>
@@ -89,6 +90,7 @@ export class ScopedCounter extends TW(AtomMixin(LitElement, scopedRegistry)) {
             @click=${this._increment}
             ?disabled=${isLoading}
             part="button"
+            aria-label="Increment counter"
           >
             ${unsafeSVG(Plus)}
           </ui-button>

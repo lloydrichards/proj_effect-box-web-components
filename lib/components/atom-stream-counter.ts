@@ -100,7 +100,7 @@ export class AtomStreamCounter extends TW(AtomMixin(LitElement)) {
             size=${this.size}
             @click=${showReset ? this._reset : this._togglePause}
             part="button"
-            title="${showReset ? "Reset" : this.isPaused ? "Resume" : "Pause"}"
+            aria-label="${showReset ? "Reset counter" : this.isPaused ? "Resume counter" : "Pause counter"}"
           >
             ${
               showReset
@@ -133,7 +133,7 @@ export class AtomStreamCounter extends TW(AtomMixin(LitElement)) {
             @click=${this._reduce}
             ?disabled=${this.error !== null}
             part="button"
-            title="Reduce by 10"
+            aria-label="Reduce counter by 10"
           >
             ${unsafeSVG(Minus)}
           </ui-button>

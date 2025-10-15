@@ -16,7 +16,6 @@ import {
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
-import { buttonVariants } from "./ui/Button";
 import "./ui/Button";
 
 type DiceValue = 1 | 2 | 3 | 4 | 5 | 6;
@@ -271,16 +270,19 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
         <div class="flex gap-2 flex-wrap justify-center">
           ${player.dice.map(
             (value, index) => html`
-              <button
+              <ui-button
+                variant="ghost"
+                size="icon"
                 class="${cn(
-                  "p-3 rounded-lg transition-all",
+                  "p-3 transition-all [&_svg]:size-10",
                   player.held[index]
                     ? "bg-primary/10 border-2 border-primary"
-                    : "border-2 border-muted hover:border-muted-foreground",
-                  "[&_svg]:size-10",
+                    : "border-2 border-muted hover:border-muted-foreground hover:bg-transparent",
                 )}"
                 @click=${() => this._toggleHold(index)}
                 ?disabled=${!canRoll || this.gameState.gameOver}
+                aria-label="${player.held[index] ? `Release die ${index + 1} (value: ${value})` : `Hold die ${index + 1} (value: ${value})`}"
+                .ariaPressed="${player.held[index]}"
               >
                 ${unsafeSVG(diceIcons[value])}
               </ui-button>
@@ -289,21 +291,19 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
         </div>
 
         <div class="flex gap-2 items-center w-full justify-stretch">
-          <button
-            class="${cn(
-              buttonVariants({ variant: "default", size: "default" }),
-              "flex-1",
-            )}"
+          <ui-button
+            variant="default"
+            size="default"
+            class="flex-1"
             @click=${this._rollDice}
             ?disabled=${!canRoll || this.gameState.gameOver}
           >
             Roll (${player.rollsRemaining} left)
           </ui-button>
 
-          <button
-            class="${cn(
-              buttonVariants({ variant: "outline", size: "default" }),
-            )}"
+          <ui-button
+            variant="outline"
+            size="default"
             @click=${this._endTurn}
             ?disabled=${!player.isActive || this.gameState.gameOver}
           >
@@ -459,13 +459,12 @@ export class YahtzeeGame extends TW(AtomMixin(LitElement)) {
           <slot></slot>
         </div>
 
-        <button
-          class="${cn(
-            buttonVariants({ variant: "ghost", size: "default" }),
-            "[&_svg]:size-4 flex gap-2",
-          )}"
+        <ui-button
+          variant="ghost"
+          size="default"
+          class="[&_svg]:size-4"
           @click=${this._newGame}
-          title="New Game"
+          aria-label="Start new game"
         >
           <span>New Game</span> ${unsafeSVG(RotateCcw)}
         </ui-button>

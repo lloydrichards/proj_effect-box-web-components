@@ -285,7 +285,7 @@ export class TodoList extends TW(AtomMixin(LitElement)) {
             size="icon-sm"
             class="text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
             @click=${() => this._deleteTodo(todo.id)}
-            title="Delete todo"
+            aria-label="Delete todo"
           >
             ${unsafeSVG(Trash2)}
           </ui-button>

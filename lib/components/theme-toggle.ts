@@ -107,7 +107,7 @@ export class ThemeToggle extends TwLitElement {
                     role="menuitem"
                   >
                     Light
-                  </ui-button>
+                  </button>
                   <button
                     @click=${() => this.handleThemeChange("dark")}
                     class="block w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors ${
@@ -118,7 +118,7 @@ export class ThemeToggle extends TwLitElement {
                     role="menuitem"
                   >
                     Dark
-                  </ui-button>
+                  </button>
                   <button
                     @click=${() => this.handleThemeChange("system")}
                     class="block w-full text-left px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors ${
@@ -129,7 +129,7 @@ export class ThemeToggle extends TwLitElement {
                     role="menuitem"
                   >
                     System
-                  </ui-button>
+                  </button>
                 </div>
               </div>
             `
