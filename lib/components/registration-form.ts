@@ -5,7 +5,8 @@ import { cn } from "../shared/utils";
 import "./ui/Button";
 import "./ui/Card";
 import "./ui/Field";
-import { inputStyles, selectStyles } from "./ui/Input";
+import "./ui/Select";
+import { inputStyles } from "./ui/Input";
 
 type FormData = {
   name: string;
@@ -95,18 +96,17 @@ export class RegistrationForm extends TW(LitElement) {
 
                   <ui-field ?invalid=${!!this.errors.role}>
                     <label for="role" class="text-sm font-medium">Role</label>
-                    <select
-                      id="role"
-                      name="role"
-                      class=${cn(selectStyles)}
-                      aria-invalid=${!!this.errors.role}
-                    >
-                      <option value="">Select a role...</option>
-                      <option value="developer">Developer</option>
-                      <option value="designer">Designer</option>
-                      <option value="manager">Manager</option>
-                      <option value="other">Other</option>
-                    </select>
+                    <ui-select id="role" name="role" value="">
+                      <ui-select-trigger>
+                        <ui-select-value placeholder="Select a role..."></ui-select-value>
+                      </ui-select-trigger>
+                      <ui-select-content>
+                        <ui-select-item value="developer">Developer</ui-select-item>
+                        <ui-select-item value="designer">Designer</ui-select-item>
+                        <ui-select-item value="manager">Manager</ui-select-item>
+                        <ui-select-item value="other">Other</ui-select-item>
+                      </ui-select-content>
+                    </ui-select>
                     ${
                       this.errors.role
                         ? html`<ui-field-error

@@ -45,6 +45,16 @@ export {
   ItemSeparator,
   ItemTitle,
 } from "./components/ui/Item";
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/Select";
 export { UserDetail } from "./components/user-detail";
 export {
   YahtzeeGame,

@@ -113,13 +113,81 @@ export class Field extends TwLitElement {
     return fieldVariants({ orientation: this.orientation });
   }
 
+  override firstUpdated() {
+    this.updateAriaAttributes();
+  }
+
+  override updated(changedProperties: Map<string, unknown>) {
+    super.updated(changedProperties);
+    if (changedProperties.has("invalid")) {
+      this.updateAriaAttributes();
+    }
+  }
+
+  private updateAriaAttributes() {
+    const description = this.querySelector("ui-field-description");
+    const error = this.querySelector("ui-field-error");
+    const label = this.querySelector("label");
+    const input = this.querySelector("input, textarea, ui-select");
+
+    if (!input) return;
+
+    const ariaIds: string[] = [];
+
+    // Add description ID if present
+    if (description?.id) {
+      ariaIds.push(description.id);
+    }
+
+    // Handle error message with aria-errormessage (best practice for 2025)
+    if (error?.id) {
+      if (this.invalid) {
+        input.setAttribute("aria-errormessage", error.id);
+        input.setAttribute("aria-invalid", "true");
+      } else {
+        input.removeAttribute("aria-errormessage");
+        input.removeAttribute("aria-invalid");
+      }
+    }
+
+    // Set aria-describedby if we have descriptions (for native inputs)
+    if (ariaIds.length > 0 && input.tagName !== "UI-SELECT") {
+      input.setAttribute("aria-describedby", ariaIds.join(" "));
+    } else if (input.tagName !== "UI-SELECT") {
+      input.removeAttribute("aria-describedby");
+    }
+
+    // Special handling for ui-select component
+    if (input.tagName === "UI-SELECT") {
+      const select = input;
+
+      // Get label text for aria-label (solves shadow DOM boundary issue)
+      const labelText = label?.textContent?.trim();
+      if (labelText) {
+        select.ariaLabel = labelText;
+      }
+
+      // Set aria-invalid on the select host element
+      // The Select component will propagate this to the internal button
+      if (this.invalid) {
+        select.setAttribute("aria-invalid", "true");
+      } else {
+        select.removeAttribute("aria-invalid");
+      }
+
+      // Note: We don't set aria-describedby or aria-errormessage because they
+      // reference IDs that won't cross the shadow DOM boundary in most browsers.
+      // Future enhancement: Use Reference Target API when widely supported.
+    }
+  }
+
   override render() {
     return html`
-      <div 
+      <div
         role="group"
-        part="field" 
+        part="field"
         data-slot="field"
-        data-orientation=${this.orientation || nothing} 
+        data-orientation=${this.orientation || nothing}
         data-invalid=${this.invalid}
         class=${this.fieldClasses}>
         <slot></slot>
@@ -136,9 +204,12 @@ export class FieldDescription extends TwLitElement {
     }
   `;
 
+  @property({ type: String }) id = `field-description-${crypto.randomUUID()}`;
+
   override render() {
     return html`
       <p
+        id=${this.id}
         part="description"
         data-slot="field-description"
         class="text-muted-foreground text-sm leading-normal font-normal group-has-[[data-orientation=horizontal]]/field:text-balance last:mt-0 nth-last-2:-mt-1 [[data-variant=legend]+&]:-mt-1.5 [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4"
@@ -157,10 +228,14 @@ export class FieldError extends TwLitElement {
     }
   `;
 
+  @property({ type: String }) id = `field-error-${crypto.randomUUID()}`;
+
   override render() {
     return html`
       <div
+        id=${this.id}
         role="alert"
+        aria-live="polite"
         part="error"
         data-slot="field-error"
         class="text-destructive text-sm font-normal"
