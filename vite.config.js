@@ -3,6 +3,7 @@ import { resolve } from "path";
 import dts from "vite-plugin-dts";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { createHtmlPlugin } from "vite-plugin-html";
+import { visualizer } from "rollup-plugin-visualizer";
 
 const isLibMode = process.env.BUILD_MODE === "lib";
 
@@ -16,6 +17,11 @@ export default defineConfig({
           VITE_UMAMI_WEBSITE_ID: process.env.VITE_UMAMI_WEBSITE_ID || '',
         },
       },
+    }),
+    visualizer({
+      filename: "dist/stats.html",
+      gzipSize: true,
+      brotliSize: true,
     }),
   ],
   build: isLibMode
