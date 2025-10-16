@@ -9,6 +9,7 @@ import "./ui/Card";
 import "./ui/Field";
 import { inputStyles } from "./ui/Input";
 import "./ui/Select";
+import "./ui/Switch";
 import "./ui/Tabs";
 import "./ui/Tooltip";
 
@@ -188,12 +189,11 @@ export class RegistrationForm extends TW(LitElement) {
 
                   <ui-field orientation="horizontal">
                     <div class="flex items-center gap-2">
-                      <input
+                      <ui-switch
                         id="subscribe"
                         name="subscribe"
-                        type="checkbox"
-                        class="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring"
-                      />
+                        aria-label="Subscribe to newsletter"
+                      ></ui-switch>
                       <label for="subscribe" class="text-sm font-medium"
                         >Subscribe to newsletter</label
                       >
