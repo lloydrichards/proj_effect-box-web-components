@@ -9,6 +9,8 @@ export { RegistrationForm } from "./components/registration-form";
 export { ScopedCounter } from "./components/scoped-counter";
 export { SimpleElement } from "./components/simple-element";
 export { ThemeToggle } from "./components/theme-toggle";
+export { toast, Toaster } from "./components/ui/Toast";
+export { ToastDemo } from "./components/toast-demo";
 export { TodoInput, TodoList } from "./components/todo-list";
 export { Badge } from "./components/ui/Badge";
 export { Button } from "./components/ui/Button";
