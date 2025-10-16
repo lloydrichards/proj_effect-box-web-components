@@ -7,9 +7,10 @@ import { cn } from "../shared/utils";
 import "./ui/Button";
 import "./ui/Card";
 import "./ui/Field";
-import "./ui/Select";
-import "./ui/Tooltip";
 import { inputStyles } from "./ui/Input";
+import "./ui/Select";
+import "./ui/Tabs";
+import "./ui/Tooltip";
 
 type FormData = {
   name: string;
@@ -21,6 +22,7 @@ type FormData = {
 export class RegistrationForm extends TW(LitElement) {
   @state() private submittedData: FormData | null = null;
   @state() private errors: Partial<Record<keyof FormData, string>> = {};
+  @state() private activeTab = "form";
 
   private handleSubmit(e: Event) {
     e.preventDefault();
@@ -45,25 +47,57 @@ export class RegistrationForm extends TW(LitElement) {
 
     this.errors = newErrors;
 
-    if (Object.keys(newErrors).length === 0) {
-      this.submittedData = data;
-    }
+    this.submittedData = data;
+    this.activeTab = "result";
   }
 
   private handleReset() {
     this.submittedData = null;
     this.errors = {};
+    this.activeTab = "form";
   }
 
   render() {
-    if (this.submittedData) {
-      return this.renderResults();
-    }
-
     return html`
       <div class="flex flex-col items-center gap-6 w-full px-4 py-8">
         <div class="w-full max-w-2xl">
-          <ui-card>
+          <ui-tabs
+            .value=${this.activeTab}
+            @change=${(e: CustomEvent) => {
+              if (
+                e.target instanceof HTMLElement &&
+                e.target.tagName === "UI-TABS"
+              ) {
+                this.activeTab = e.detail.value;
+              }
+            }}
+          >
+            <ui-tabs-list>
+              <ui-tabs-trigger value="form">Form</ui-tabs-trigger>
+              <ui-tabs-trigger value="result">Result</ui-tabs-trigger>
+            </ui-tabs-list>
+
+            <ui-tabs-content value="form">
+              ${this.renderForm()}
+            </ui-tabs-content>
+
+            <ui-tabs-content value="result">
+              ${this.renderResults()}
+            </ui-tabs-content>
+          </ui-tabs>
+        </div>
+
+        <p class="text-muted-foreground text-xs sm:text-sm text-center max-w-2xl">
+          This is a demo registration form. Fill it out and submit to see the
+          results in the Result tab.
+        </p>
+      </div>
+    `;
+  }
+
+  private renderForm() {
+    return html`
+      <ui-card>
             <ui-card-header>
               <ui-card-title><slot></slot></ui-card-title>
               <ui-card-description>
@@ -191,49 +225,85 @@ export class RegistrationForm extends TW(LitElement) {
               </form>
             </ui-card-content>
           </ui-card>
-        </div>
-
-        <p class="text-muted-foreground text-xs sm:text-sm text-center max-w-2xl">
-          This is a demo registration form. Fill it out and submit to see the
-          results.
-        </p>
-      </div>
     `;
   }
 
   private renderResults() {
+    const hasErrors = Object.keys(this.errors).length > 0;
+    const hasData = this.submittedData !== null;
+
     return html`
-      <div class="flex flex-col items-center gap-6 w-full px-4 py-8">
-        <div class="w-full max-w-2xl">
-          <ui-card>
-            <ui-card-header>
-              <ui-card-title>Form Submission Results</ui-card-title>
-              <ui-card-description>
-                Here's the data that was submitted from the form
-              </ui-card-description>
-            </ui-card-header>
+      <ui-card>
+        <ui-card-header>
+          <ui-card-title>Form Submission Results</ui-card-title>
+          <ui-card-description>
+            ${
+              hasData
+                ? hasErrors
+                  ? "Form data submitted with validation errors"
+                  : "Here's the data that was submitted from the form"
+                : "No data submitted yet. Fill out the form and press Submit."
+            }
+          </ui-card-description>
+        </ui-card-header>
 
-            <ui-card-content>
-              <pre
-                class="bg-muted text-foreground p-4 rounded-lg overflow-x-auto text-sm"
-              >${JSON.stringify(this.submittedData, null, 2)}</pre>
+        <ui-card-content>
+          ${
+            hasData
+              ? html`
+                ${
+                  hasErrors
+                    ? html`
+                      <div class="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                        <p class="text-sm font-medium text-destructive mb-2">
+                          Validation Errors:
+                        </p>
+                        <ul class="text-sm text-destructive/90 list-disc list-inside">
+                          ${Object.entries(this.errors).map(
+                            ([field, error]) =>
+                              html`<li>${field}: ${error}</li>`,
+                          )}
+                        </ul>
+                      </div>
+                    `
+                    : ""
+                }
+                <pre
+                  class="bg-muted text-foreground p-4 rounded-lg overflow-x-auto text-sm"
+                >${JSON.stringify(this.submittedData, null, 2)}</pre>
+              `
+              : html`
+                <p class="text-muted-foreground text-sm">
+                  Submit the form to see the results here.
+                </p>
+              `
+          }
 
-              <ui-button
-                @click=${this.handleReset}
-                variant="default"
-                class="mt-6"
-              >
-                Back to Form
-              </ui-button>
-            </ui-card-content>
-          </ui-card>
-        </div>
+          <ui-button
+            @click=${() => {
+              this.activeTab = "form";
+            }}
+            variant="outline"
+            class="mt-6"
+          >
+            Back to Form
+          </ui-button>
 
-        <p class="text-muted-foreground text-xs sm:text-sm text-center max-w-2xl">
-          The submitted data is displayed above in JSON format. Click "Back to
-          Form" to submit again.
-        </p>
-      </div>
+          ${
+            hasData
+              ? html`
+                <ui-button
+                  @click=${this.handleReset}
+                  variant="default"
+                  class="mt-6 ml-3"
+                >
+                  Reset Form
+                </ui-button>
+              `
+              : ""
+          }
+        </ui-card-content>
+      </ui-card>
     `;
   }
 }
