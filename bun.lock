@@ -5,6 +5,8 @@
       "name": "lit-template",
       "dependencies": {
         "@effect-atom/atom": "^0.3.0",
+        "@effect/ai": "^0.31.1",
+        "@effect/ai-openai": "^0.34.0",
         "@effect/platform": "^0.92.1",
         "@effect/platform-bun": "^0.81.1",
         "class-variance-authority": "^0.7.1",
@@ -62,6 +64,10 @@
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.2.5", "", { "os": "win32", "cpu": "x64" }, "sha512-F/jhuXCssPFAuciMhHKk00xnCAxJRS/pUzVfXYmOMUp//XW7mO6QeCjsjvnm8L4AO/dG2VOB0O+fJPiJ2uXtIw=="],
 
     "@effect-atom/atom": ["@effect-atom/atom@0.3.0", "", { "peerDependencies": { "@effect/experimental": "^0.56.0", "@effect/platform": "^0.92.0", "@effect/rpc": "^0.71.0", "effect": "^3.18.0" } }, "sha512-KEY8VrGX3iCi0kTzRx7jpeZKzqMX7D7Dzqjhnh6OCiCSiKlh3exZS1BMrBCc6tD+VVCUG3CL/b/K94QOzODLHQ=="],
+
+    "@effect/ai": ["@effect/ai@0.31.1", "", { "dependencies": { "find-my-way-ts": "^0.1.6" }, "peerDependencies": { "@effect/experimental": "^0.56.0", "@effect/platform": "^0.92.1", "@effect/rpc": "^0.71.0", "effect": "^3.18.4" } }, "sha512-WFXlypbXwHEcBsg/B3+0l6Vi6yNoTgI68K3OpCJOTGKtFITfwxFoMJUB6poENTvFkIAhzQ9k3qU7VILRiX70Xg=="],
+
+    "@effect/ai-openai": ["@effect/ai-openai@0.34.0", "", { "dependencies": { "gpt-tokenizer": "^2.9.0" }, "peerDependencies": { "@effect/ai": "^0.31.0", "@effect/experimental": "^0.56.0", "@effect/platform": "^0.92.1", "effect": "^3.18.4" } }, "sha512-7xcH3xoMZhgbnlvMASOv2L+MqN8Bon+pdNhnwGMH1+F1k/zZSsf1NjPFqw/szz523E3MhEv/YU+80bOBdni1ig=="],
 
     "@effect/cluster": ["@effect/cluster@0.50.4", "", { "peerDependencies": { "@effect/platform": "^0.92.1", "@effect/rpc": "^0.71.0", "@effect/sql": "^0.46.0", "@effect/workflow": "^0.11.3", "effect": "^3.18.4" } }, "sha512-9uS2pRN4BCguAGqFCLFlQkReXG993UFj/TLtiwaXsacytKhdlGBU5zDDI/TckbM0wUv4g2nZPRRywqU8qnrvjQ=="],
 
@@ -452,6 +458,8 @@
     "glob-parent": ["glob-parent@5.1.2", "", { "dependencies": { "is-glob": "^4.0.1" } }, "sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow=="],
 
     "globrex": ["globrex@0.1.2", "", {}, "sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg=="],
+
+    "gpt-tokenizer": ["gpt-tokenizer@2.9.0", "", {}, "sha512-YSpexBL/k4bfliAzMrRqn3M6+it02LutVyhVpDeMKrC/O9+pCe/5s8U2hYKa2vFLD5/vHhsKc8sOn/qGqII8Kg=="],
 
     "graceful-fs": ["graceful-fs@4.2.11", "", {}, "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ=="],
 

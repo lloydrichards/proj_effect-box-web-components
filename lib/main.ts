@@ -1,3 +1,5 @@
+export { AiChat } from "./components/ai-chat";
+export { AiTextGenerator } from "./components/ai-text-generator";
 export { AnsiCounter } from "./components/ansi-counter";
 export { AtomCounter } from "./components/atom-counter";
 export { AtomSecrets, SecretEncryptor } from "./components/atom-secrets";
