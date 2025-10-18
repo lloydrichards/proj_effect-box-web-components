@@ -49,6 +49,7 @@ export {
   ItemSeparator,
   ItemTitle,
 } from "./components/ui/Item";
+export { Popup } from "./components/ui/Popup";
 export {
   Select,
   SelectContent,

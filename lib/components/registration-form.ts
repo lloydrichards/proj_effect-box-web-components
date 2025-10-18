@@ -114,20 +114,15 @@ export class RegistrationForm extends TW(LitElement) {
                       <label for="name" class="text-sm font-medium"
                         >Full Name</label
                       >
-                      <ui-tooltip delay-duration="300">
-                        <ui-tooltip-trigger>
-                          <ui-button
-                            variant="ghost"
-                            size="icon-sm"
-                            class="text-muted-foreground/60"
-                            aria-label="Name field help"
-                          >
-                           ${unsafeSVG(HelpCircle)}
-                          </ui-button>
-                        </ui-tooltip-trigger>
-                        <ui-tooltip-content side="top">
-                          Enter your first and last name
-                        </ui-tooltip-content>
+                      <ui-tooltip content="Enter your first and last name" placement="top">
+                        <ui-button
+                          variant="ghost"
+                          size="icon-sm"
+                          class="text-muted-foreground/60"
+                          aria-label="Name field help"
+                        >
+                         ${unsafeSVG(HelpCircle)}
+                        </ui-button>
                       </ui-tooltip>
                     </div>
                     <input
@@ -150,21 +145,15 @@ export class RegistrationForm extends TW(LitElement) {
                   <ui-field ?invalid=${!!this.errors.role}>
                     <div class="flex items-center gap-2">
                       <label for="role" class="text-sm font-medium">Role</label>
-                      <ui-tooltip delay-duration="300">
-                        <ui-tooltip-trigger>
-                          <ui-button
-                            variant="ghost"
-                            size="icon-sm"
-                            class="text-muted-foreground/60"
-                            aria-label="Role field help"
-                          >
-                            ${unsafeSVG(HelpCircle)}
-                          </ui-button>
-                        </ui-tooltip-trigger>
-                        <ui-tooltip-content side="top">
-                          Select your primary role
-                        
-                        </ui-tooltip-content>
+                      <ui-tooltip content="Select your primary role" placement="top">
+                        <ui-button
+                          variant="ghost"
+                          size="icon-sm"
+                          class="text-muted-foreground/60"
+                          aria-label="Role field help"
+                        >
+                          ${unsafeSVG(HelpCircle)}
+                        </ui-button>
                       </ui-tooltip>
                     </div>
                     <ui-select id="role" name="role" value="">
@@ -197,20 +186,15 @@ export class RegistrationForm extends TW(LitElement) {
                       <label for="subscribe" class="text-sm font-medium"
                         >Subscribe to newsletter</label
                       >
-                      <ui-tooltip delay-duration="300">
-                        <ui-tooltip-trigger>
-                          <ui-button
-                            variant="ghost"
-                            size="icon-sm"
-                            class="text-muted-foreground/60"
-                            aria-label="Newsletter subscription help"
-                          >
-                            ${unsafeSVG(HelpCircle)}
-                          </ui-button>
-                        </ui-tooltip-trigger>
-                        <ui-tooltip-content side="top">
-                          Receive updates and news via email
-                        </ui-tooltip-content>
+                      <ui-tooltip content="Receive updates and news via email" placement="top">
+                        <ui-button
+                          variant="ghost"
+                          size="icon-sm"
+                          class="text-muted-foreground/60"
+                          aria-label="Newsletter subscription help"
+                        >
+                          ${unsafeSVG(HelpCircle)}
+                        </ui-button>
                       </ui-tooltip>
                     </div>
                   </ui-field>
