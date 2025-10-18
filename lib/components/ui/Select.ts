@@ -31,10 +31,15 @@ export class Select extends TW(LitElement) {
   ariaInvalid: string | null = null;
 
   @query("ui-select-trigger") triggerElement?: HTMLElement;
+  @query("ui-popup") popupElement?: HTMLElement;
 
-  private resizeObserver?: ResizeObserver;
   private clickAwayHandler = (e: MouseEvent) => {
-    if (this.open && !this.contains(e.target as Node)) {
+    const popup = this.popupElement;
+    if (
+      this.open &&
+      !this.contains(e.target as Node) &&
+      (!popup || !popup.contains(e.target as Node))
+    ) {
       this.open = false;
     }
   };
@@ -45,34 +50,14 @@ export class Select extends TW(LitElement) {
   }
 
   override firstUpdated() {
-    this.updateTriggerWidth();
-
-    // Wait for trigger's shadow DOM to be ready
     setTimeout(() => {
       this.updateTriggerAttributes();
       this.updateTriggerAriaExpanded();
     }, 0);
-
-    const trigger = this.querySelector("ui-select-trigger");
-    if (trigger) {
-      this.resizeObserver = new ResizeObserver(() => {
-        this.updateTriggerWidth();
-      });
-      this.resizeObserver.observe(trigger);
-    }
-  }
-
-  private updateTriggerWidth() {
-    const trigger = this.querySelector("ui-select-trigger");
-    if (trigger) {
-      const width = trigger.getBoundingClientRect().width;
-      this.style.setProperty("--trigger-width", `${width}px`);
-    }
   }
 
   connectedCallback() {
     super.connectedCallback();
-    // Don't set role on host - the trigger button has role="combobox"
 
     this.addEventListener("trigger-click", this.handleTriggerClick);
     this.addEventListener("select-item-click", this.handleItemClick);
@@ -83,10 +68,6 @@ export class Select extends TW(LitElement) {
     this.removeEventListener("trigger-click", this.handleTriggerClick);
     this.removeEventListener("select-item-click", this.handleItemClick);
     document.removeEventListener("click", this.clickAwayHandler);
-
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-    }
   }
 
   private handleItemClick = (e: CustomEvent) => {
@@ -120,7 +101,6 @@ export class Select extends TW(LitElement) {
   private handleKeyDown = (e: KeyboardEvent) => {
     if (this.disabled) return;
 
-    // If the event came from ui-select-content, let it handle everything except Escape
     if (
       e.target instanceof HTMLElement &&
       e.target.tagName === "UI-SELECT-CONTENT"
@@ -195,7 +175,6 @@ export class Select extends TW(LitElement) {
       changedProperties.has("ariaLabel") ||
       changedProperties.has("ariaInvalid")
     ) {
-      // Use setTimeout to ensure trigger's shadow DOM is ready
       setTimeout(() => {
         this.updateTriggerAttributes();
       }, 0);
@@ -240,8 +219,13 @@ export class Select extends TW(LitElement) {
 
   override render() {
     return html`
-      <div
-        class="relative"
+      <ui-popup
+        .active=${this.open}
+        .anchor=${this.triggerElement}
+        placement="bottom-start"
+        .distance=${8}
+        flip
+        shift
         @keydown=${this.handleKeyDown}
         @blur=${(e: FocusEvent) => {
           if (!this.contains(e.relatedTarget as Node)) {
@@ -249,8 +233,9 @@ export class Select extends TW(LitElement) {
           }
         }}
       >
-        <slot></slot>
-      </div>
+        <slot name="trigger" slot="anchor"></slot>
+        <slot name="content"></slot>
+      </ui-popup>
     `;
   }
 }
@@ -330,6 +315,7 @@ export class SelectValue extends TW(LitElement) {
 export class SelectContent extends TW(LitElement) {
   @state() private isOpen = false;
   @state() private highlightedIndex = -1;
+  @state() private triggerWidth = "auto";
 
   @queryAssignedElements({ selector: "ui-select-item" })
   items!: Array<SelectItem>;
@@ -337,6 +323,7 @@ export class SelectContent extends TW(LitElement) {
   connectedCallback() {
     super.connectedCallback();
     this.updateOpenState();
+    this.updateTriggerWidth();
     this.addEventListener("slotchange", this.handleSlotChange);
   }
 
@@ -349,6 +336,17 @@ export class SelectContent extends TW(LitElement) {
     this.requestUpdate();
   };
 
+  private updateTriggerWidth() {
+    const select = this.closest("ui-select");
+    if (!select) return;
+
+    const trigger = select.querySelector("ui-select-trigger");
+    if (trigger) {
+      const width = trigger.getBoundingClientRect().width;
+      this.triggerWidth = `${width}px`;
+    }
+  }
+
   private updateOpenState() {
     const select = this.closest("ui-select");
     if (!select) return;
@@ -357,6 +355,7 @@ export class SelectContent extends TW(LitElement) {
       this.isOpen = select.open;
       if (this.isOpen) {
         this.updateHighlightedIndex();
+        this.updateTriggerWidth();
       }
     });
 
@@ -428,7 +427,6 @@ export class SelectContent extends TW(LitElement) {
         this.updateHighlightAttributes(items);
         break;
       case "Escape":
-        // Let this bubble up to parent to handle closing
         break;
       default:
         if (e.key.length === 1) {
@@ -485,8 +483,8 @@ export class SelectContent extends TW(LitElement) {
       <div
         role="listbox"
         tabindex="0"
-        style="width: var(--trigger-width, auto);"
-        class="absolute z-50 mt-2 overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md animate-in fade-in-80"
+        style="width: ${this.triggerWidth};"
+        class="overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md animate-in fade-in-80"
         @keydown=${this.handleKeyDown}
       >
         <div class="max-h-[300px] overflow-y-auto p-1">
@@ -538,7 +536,7 @@ export class SelectItem extends TW(LitElement) {
 
   override render() {
     const select = this.closest("ui-select");
-    const isSelected = select && this.value === select.value;
+    const isSelected = this.value === select?.value || false;
 
     return html`
       <div

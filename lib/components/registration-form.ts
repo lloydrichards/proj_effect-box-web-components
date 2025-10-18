@@ -157,10 +157,10 @@ export class RegistrationForm extends TW(LitElement) {
                       </ui-tooltip>
                     </div>
                     <ui-select id="role" name="role" value="">
-                      <ui-select-trigger>
+                      <ui-select-trigger slot="trigger">
                         <ui-select-value placeholder="Select a role..."></ui-select-value>
                       </ui-select-trigger>
-                      <ui-select-content>
+                      <ui-select-content slot="content">
                         <ui-select-item value="developer">Developer</ui-select-item>
                         <ui-select-item value="designer">Designer</ui-select-item>
                         <ui-select-item value="manager">Manager</ui-select-item>
