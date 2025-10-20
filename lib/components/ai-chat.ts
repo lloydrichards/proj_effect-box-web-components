@@ -1,15 +1,15 @@
-import { FetchHttpClient } from "@effect/platform";
-import { Atom } from "@effect-atom/atom";
-import { ConfigProvider, Effect, Layer, Stream } from "effect";
+import { Effect, Layer, Stream } from "effect";
 import { html, LitElement } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Send, Trash2 } from "lucide-static";
 import { inputStyles } from "../main";
-import { AiService } from "../services/AiService";
-import { AtomMixin } from "../shared/atomMixin";
+import { AiService, ApiKey } from "../services/AiService";
+import { AtomMixin, atomState } from "../shared/atomMixin";
+import { apiKeyStatusAtom, type ApiKeyStatus } from "./api-key-setup";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
+import "./api-key-setup";
 import "./ui/Button";
 import "./ui/Card";
 
@@ -20,39 +20,10 @@ type Message = {
   timestamp: number;
 };
 
-const aiLayer = AiService.Default.pipe(
-  Layer.provide(
-    Layer.setConfigProvider(ConfigProvider.fromJson(import.meta.env)),
-  ),
-  Layer.provide(FetchHttpClient.layer),
-);
-
-const runtime = Atom.runtime(aiLayer);
-
-const currentMessageAtom = Atom.make("");
-
-const assistantResponseAtom = runtime.atom((get) => {
-  const message = get(currentMessageAtom);
-  if (!message) return Effect.succeed(null);
-
-  return Effect.gen(function* () {
-    const stream = yield* AiService.streamText(message);
-    let fullText = "";
-
-    yield* Stream.runForEach(stream, (chunk) =>
-      Effect.sync(() => {
-        if (chunk.type === "text-delta") {
-          fullText += chunk.delta;
-        }
-      }),
-    );
-
-    return fullText;
-  });
-});
-
 @customElement("ai-chat")
 export class AiChat extends TW(AtomMixin(LitElement)) {
+  @atomState(apiKeyStatusAtom) declare apiKeyStatus: ApiKeyStatus;
+
   @state() private _messages: Message[] = [];
   @state() private _inputValue = "";
   @state() private _isSending = false;
@@ -61,6 +32,14 @@ export class AiChat extends TW(AtomMixin(LitElement)) {
   @query("#messagesContainer") private _messagesContainer?: HTMLDivElement;
 
   render() {
+    if (this.apiKeyStatus.type !== "unlocked") {
+      return html`
+        <api-key-setup
+          title="AI Chat Configuration"
+          description="Configure your OpenAI API key to start chatting"
+        ></api-key-setup>
+      `;
+    }
     return html`
       <ui-card>
         <ui-card-header class="relative border-b border-border ">
@@ -172,6 +151,7 @@ export class AiChat extends TW(AtomMixin(LitElement)) {
 
   private async _handleSend() {
     if (!this._inputValue || this._isSending) return;
+    if (this.apiKeyStatus.type !== "unlocked") return;
 
     const userMessage = this._inputValue;
     this._inputValue = "";
@@ -190,12 +170,29 @@ export class AiChat extends TW(AtomMixin(LitElement)) {
 
     this._messages = [...this._messages, userMsg];
 
-    const setMessage = this.useAtomSet(currentMessageAtom);
-
     try {
-      setMessage(userMessage);
+      const effect = Effect.gen(function* () {
+        const stream = yield* AiService.streamText(userMessage);
+        let fullText = "";
 
-      const fullText = await this.useAtomPromise(assistantResponseAtom);
+        yield* Stream.runForEach(stream, (chunk) =>
+          Effect.sync(() => {
+            if (chunk.type === "text-delta") {
+              fullText += chunk.delta;
+            }
+          }),
+        );
+
+        return fullText;
+      }).pipe(
+        Effect.provide(
+          AiService.Default.pipe(
+            Layer.provide(Layer.succeed(ApiKey, this.apiKeyStatus.apiKey)),
+          ),
+        ),
+      );
+
+      const fullText = await Effect.runPromise(effect);
 
       if (fullText) {
         const assistantMsg: Message = {
@@ -218,7 +215,6 @@ export class AiChat extends TW(AtomMixin(LitElement)) {
       this._messages = [...this._messages, errorMsg];
     } finally {
       this._isSending = false;
-      setMessage("");
       this._scrollToBottom();
     }
   }

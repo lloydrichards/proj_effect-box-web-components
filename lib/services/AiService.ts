@@ -1,49 +1,31 @@
 import { LanguageModel } from "@effect/ai/LanguageModel";
 import type * as Prompt from "@effect/ai/Prompt";
 import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai";
-import { Config, Data, Effect, Layer, Redacted } from "effect";
-import { CryptoService } from "./Crypto";
+import { Context, Data, Effect, Layer, Redacted } from "effect";
+import { FetchHttpClient } from "@effect/platform";
 
 class AiGenerationError extends Data.TaggedError("AiGenerationError")<{
   message: string;
   cause?: unknown;
 }> {}
 
-class DecryptionError extends Data.TaggedError("DecryptionError")<{
-  message: string;
-}> {}
-
-const decryptApiKey = Effect.gen(function* () {
-  const crypto = yield* CryptoService;
-  const encryptedKey = yield* Config.string("VITE_OPENAI_API_KEY");
-
-  const decrypted = yield* crypto.decrypt(encryptedKey).pipe(
-    Effect.mapError(
-      (error) =>
-        new DecryptionError({
-          message: error.message,
-        }),
-    ),
-  );
-
-  return Redacted.make(decrypted);
-});
+export class ApiKey extends Context.Tag("ApiKey")<
+  ApiKey,
+  Redacted.Redacted<string>
+>() {}
 
 const Gpt4o = OpenAiLanguageModel.model("gpt-4o");
 
-const OpenAi = Layer.unwrapEffect(
-  Effect.gen(function* () {
-    const apiKey = yield* decryptApiKey;
-    return OpenAiClient.layer({ apiKey });
-  }),
-).pipe(Layer.provide(CryptoService.Default));
-
-const OpenAiLive = Layer.provide(Gpt4o, OpenAi);
+const makeOpenAiLayer = (apiKey: Redacted.Redacted<string>) =>
+  Layer.provide(Gpt4o, OpenAiClient.layer({ apiKey }));
 
 export class AiService extends Effect.Service<AiService>()("AiService", {
-  dependencies: [OpenAiLive],
+  dependencies: [FetchHttpClient.layer],
   effect: Effect.gen(function* () {
-    const model = yield* LanguageModel;
+    const apiKey = yield* ApiKey;
+    const model = yield* LanguageModel.pipe(
+      Effect.provide(makeOpenAiLayer(apiKey)),
+    );
 
     const generateText = (prompt: Prompt.RawInput) =>
       Effect.gen(function* () {

@@ -28,6 +28,7 @@
     "@effect/ai": "^0.31.1",
     "@effect/ai-openai": "^0.34.0",
     "@effect/platform": "^0.92.1",
+    "@effect/platform-browser": "^0.72.0",
     "@effect/platform-bun": "^0.81.1",
     "@floating-ui/dom": "^1.7.4",
     "class-variance-authority": "^0.7.1",

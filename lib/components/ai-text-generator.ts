@@ -1,52 +1,18 @@
-import { Atom, Result } from "@effect-atom/atom";
 import { FetchHttpClient } from "@effect/platform";
-import { ConfigProvider, Effect, Layer, Ref, Stream } from "effect";
+import { Effect, Layer, Stream } from "effect";
 import { LitElement, css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Sparkles } from "lucide-static";
 import { inputStyles } from "../main";
-import { AiService } from "../services/AiService";
+import { AiService, ApiKey } from "../services/AiService";
 import { AtomMixin, atomState } from "../shared/atomMixin";
+import { apiKeyStatusAtom, type ApiKeyStatus } from "./api-key-setup";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
+import "./api-key-setup";
 import "./ui/Button";
 import "./ui/Card";
-
-const aiLayer = AiService.Default.pipe(
-  Layer.provide(
-    Layer.setConfigProvider(ConfigProvider.fromJson(import.meta.env)),
-  ),
-  Layer.provide(FetchHttpClient.layer),
-);
-
-const runtime = Atom.runtime(aiLayer);
-
-const promptAtom = Atom.make("");
-
-const responseAtom = runtime.atom(
-  (get) => {
-    const prompt = get(promptAtom);
-    if (!prompt) return Stream.succeed("");
-
-    return Stream.unwrap(
-      Effect.gen(function* () {
-        const stream = yield* AiService.streamText(prompt);
-        const textRef = yield* Ref.make("");
-
-        return stream.pipe(
-          Stream.mapEffect((chunk) => {
-            if (chunk.type === "text-delta") {
-              return Ref.updateAndGet(textRef, (text) => text + chunk.delta);
-            }
-            return Ref.get(textRef);
-          }),
-        );
-      }),
-    );
-  },
-  { initialValue: "" },
-);
 
 @customElement("ai-text-generator")
 export class AiTextGenerator extends TW(AtomMixin(LitElement)) {
@@ -56,12 +22,22 @@ export class AiTextGenerator extends TW(AtomMixin(LitElement)) {
     }
   `;
 
-  @atomState(promptAtom) declare prompt: string;
-  @atomState(responseAtom) declare response: Result.Result<string, Error>;
+  @atomState(apiKeyStatusAtom) declare apiKeyStatus: ApiKeyStatus;
 
   @state() private _inputValue = "";
+  @state() private _isGenerating = false;
+  @state() private _generatedText = "";
+  @state() private _error: string | null = null;
 
   render() {
+    if (this.apiKeyStatus.type !== "unlocked") {
+      return html`
+        <api-key-setup
+          title="AI Text Generator Configuration"
+          description="Configure your OpenAI API key to generate text"
+        ></api-key-setup>
+      `;
+    }
     return html`
       <ui-card style="width: 100%; max-width: 56rem;">
         <ui-card-header>
@@ -88,11 +64,11 @@ export class AiTextGenerator extends TW(AtomMixin(LitElement)) {
         <ui-card-footer>
           <ui-button
             @click=${this._handleGenerate}
-            ?disabled=${!this._inputValue || Result.isWaiting(this.response)}
+            ?disabled=${!this._inputValue || this._isGenerating}
             variant="default"
           >
             ${unsafeSVG(Sparkles)}
-            ${Result.isWaiting(this.response) ? "Generating..." : "Generate"}
+            ${this._isGenerating ? "Generating..." : "Generate"}
           </ui-button>
         </ui-card-footer>
       </ui-card>
@@ -100,51 +76,36 @@ export class AiTextGenerator extends TW(AtomMixin(LitElement)) {
   }
 
   private _renderResponse() {
-    return Result.builder(this.response)
-      .onInitial(() => nothing)
-      .onWaiting((result) => {
-        const text = Result.getOrElse(result, () => "");
+    if (this._error) {
+      return html`
+        <div class="p-4 rounded-lg border border-destructive bg-destructive/10">
+          <p class="text-sm text-destructive">Error: ${this._error}</p>
+        </div>
+      `;
+    }
 
-        const content = html`
-          <div class="p-4 rounded-lg border bg-muted">
-            ${
-              text
-                ? html` <div class="whitespace-pre-wrap text-sm mb-2">${text}</div> `
-                : null
-            }
-            <div class="flex items-center gap-2">
-              <div
-                class="animate-spin h-4 w-4 border-2 border-muted-foreground border-t-transparent rounded-full"
-              ></div>
-              <span class="text-sm text-muted-foreground">
-                ${text ? "Streaming..." : "Starting..."}
-              </span>
-            </div>
+    if (this._isGenerating) {
+      return html`
+        <div class="p-4 rounded-lg border bg-muted">
+          <div class="flex items-center gap-2">
+            <div
+              class="animate-spin h-4 w-4 border-2 border-muted-foreground border-t-transparent rounded-full"
+            ></div>
+            <span class="text-sm text-muted-foreground">Generating...</span>
           </div>
-        `;
-        return content;
-      })
-      .onSuccess((text) => {
-        if (!text) return nothing;
-        return html`
-          <div class="p-4 rounded-lg border bg-muted">
-            <div class="whitespace-pre-wrap text-sm">${text}</div>
-          </div>
-        `;
-      })
-      .onError((error) => {
-        const errorMsg = html`
-          <div
-            class="p-4 rounded-lg border border-destructive bg-destructive/10"
-          >
-            <p class="text-sm text-destructive">
-              Error: ${error.message || String(error)}
-            </p>
-          </div>
-        `;
-        return errorMsg;
-      })
-      .render();
+        </div>
+      `;
+    }
+
+    if (this._generatedText) {
+      return html`
+        <div class="p-4 rounded-lg border bg-muted">
+          <div class="whitespace-pre-wrap text-sm">${this._generatedText}</div>
+        </div>
+      `;
+    }
+
+    return nothing;
   }
 
   private _handleInput(e: Event) {
@@ -152,11 +113,44 @@ export class AiTextGenerator extends TW(AtomMixin(LitElement)) {
     this._inputValue = target.value;
   }
 
-  private _handleGenerate() {
+  private async _handleGenerate() {
     if (!this._inputValue) return;
-    this.invalidate(["ai-response"]);
-    const setPrompt = this.useAtomSet(promptAtom);
-    setPrompt(this._inputValue);
+    if (this.apiKeyStatus.type !== "unlocked") return;
+
+    this._isGenerating = true;
+    this._error = null;
+
+    try {
+      const prompt = this._inputValue;
+      const component = this;
+
+      const effect = Effect.gen(function* () {
+        const stream = yield* AiService.streamText(prompt);
+        let fullText = "";
+
+        yield* Stream.runForEach(stream, (chunk) =>
+          Effect.sync(() => {
+            if (chunk.type === "text-delta") {
+              fullText += chunk.delta;
+              component._generatedText = fullText;
+              component.requestUpdate();
+            }
+          }),
+        );
+
+        return fullText;
+      }).pipe(
+        Effect.provide(AiService.Default),
+        Effect.provide(Layer.succeed(ApiKey, this.apiKeyStatus.apiKey)),
+        Effect.provide(FetchHttpClient.layer),
+      );
+
+      await Effect.runPromise(effect);
+    } catch (error) {
+      this._error = error instanceof Error ? error.message : String(error);
+    } finally {
+      this._isGenerating = false;
+    }
   }
 }
 

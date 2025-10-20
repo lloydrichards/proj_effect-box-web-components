@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Key Setup Toast Test</title>
+    <link rel="stylesheet" href="./index.css" />
+    <script type="module" src="./lib/main.ts"></script>
+  </head>
+  <body>
+    <script>
+      // Set up dark mode if needed
+      (function () {
+        const theme = localStorage.getItem("effect-box-theme") || "system";
+        const isDark =
+          theme === "dark" ||
+          (theme === "system" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        if (isDark) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+    
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        padding: 2rem;
+        background-color: var(--background, white);
+        color: var(--foreground, black);
+      }
+      
+      :root {
+        --destructive: oklch(0.65 0.22 28);
+        --destructive-foreground: oklch(0.985 0.001 106.423);
+        --primary: oklch(0.65 0.25 264);
+        --primary-foreground: oklch(0.985 0.001 106.423);
+      }
+
+      .dark {
+        --destructive: oklch(0.72 0.19 28);
+        --destructive-foreground: oklch(0.985 0.001 106.423);
+        --primary: oklch(0.75 0.18 264);
+        --primary-foreground: oklch(0.147 0.004 49.25);
+      }
+      
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      
+      h1 {
+        margin-bottom: 2rem;
+      }
+      
+      .section {
+        margin-bottom: 2rem;
+      }
+      
+      .instructions {
+        padding: 1rem;
+        background-color: oklch(0.95 0.01 200);
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+      }
+      
+      .dark .instructions {
+        background-color: oklch(0.2 0.01 200);
+      }
+    </style>
+    
+    <div class="container">
+      <h1>API Key Setup - Toast Notifications Test</h1>
+      
+      <div class="instructions">
+        <h3>Test Instructions:</h3>
+        <ul>
+          <li><strong>Success Toast:</strong> Enter a valid API key (e.g., "sk-test123") and a passkey (6+ chars), then click "Save & Encrypt"</li>
+          <li><strong>Error Toast:</strong> Try entering a short passkey (less than 6 chars) or leave fields empty</li>
+          <li><strong>Unlock Success:</strong> After saving, the form will lock. Enter the correct passkey to unlock</li>
+          <li><strong>Unlock Error:</strong> Try entering a wrong passkey when unlocking</li>
+          <li><strong>Clear Toast:</strong> Click the trash icon when the key is configured</li>
+        </ul>
+      </div>
+      
+      <div class="section">
+        <api-key-setup
+          title="OpenAI API Configuration"
+          description="Securely store your API key with encryption"
+        ></api-key-setup>
+      </div>
+      
+      <div class="section">
+        <theme-toggle></theme-toggle>
+      </div>
+    </div>
+  </body>
+</html>
