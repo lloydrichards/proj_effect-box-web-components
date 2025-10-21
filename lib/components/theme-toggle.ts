@@ -68,7 +68,7 @@ export class ThemeToggle extends TwLitElement {
           variant="outline"
           size="icon"
           aria-label="Toggle theme"
-          .ariaExpanded="${this.isOpen}"
+          .ariaExpanded=${String(this.isOpen)}
         >
           <div
             class="transition-all ${

@@ -282,7 +282,7 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
                 @click=${() => this._toggleHold(index)}
                 ?disabled=${!canRoll || this.gameState.gameOver}
                 aria-label="${player.held[index] ? `Release die ${index + 1} (value: ${value})` : `Hold die ${index + 1} (value: ${value})`}"
-                .ariaPressed="${player.held[index]}"
+                .ariaPressed="${String(player.held[index])}"
               >
                 ${unsafeSVG(diceIcons[value])}
               </ui-button>

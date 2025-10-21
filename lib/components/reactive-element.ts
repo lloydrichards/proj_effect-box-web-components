@@ -1,4 +1,3 @@
-import type { VariantProps } from "class-variance-authority";
 import { Effect } from "effect";
 import { Box, Html, Renderer } from "effect-boxes";
 import { html, LitElement } from "lit";
@@ -7,8 +6,8 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Plus } from "lucide-static";
 import { TW } from "../shared/tailwindMixin";
-import type { buttonVariants } from "./ui/button/button";
 import "./ui/button/button";
+import type { ButtonSize, ButtonVariant } from "./ui/button/button";
 
 const TwLitElement = TW(LitElement);
 
@@ -17,12 +16,8 @@ export class ReactiveElement extends TwLitElement {
   @property() content = "";
   @property() docsHint = "Reactive updates with Effect lifecycle integration";
   @property({ type: Number }) count = 0;
-  @property({ type: String }) variant: VariantProps<
-    typeof buttonVariants
-  >["variant"] = "default";
-  @property({ type: String }) size: VariantProps<
-    typeof buttonVariants
-  >["size"] = "icon-lg";
+  @property({ type: String }) variant: ButtonVariant = "default";
+  @property({ type: String }) size: ButtonSize = "icon-lg";
 
   // Render effect into the content when count changes
   updated(changedProperties: Map<string, unknown>) {

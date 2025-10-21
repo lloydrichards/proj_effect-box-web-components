@@ -1,4 +1,4 @@
-import { Result } from "@effect-atom/atom";
+import type { Result } from "@effect-atom/atom";
 import { Data } from "effect";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";

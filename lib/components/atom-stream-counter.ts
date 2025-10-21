@@ -1,5 +1,4 @@
 import { Atom } from "@effect-atom/atom";
-import type { VariantProps } from "class-variance-authority";
 import { Data, Duration, Effect, Schedule, Stream } from "effect";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -7,8 +6,8 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Pause, Play, TimerReset } from "lucide-static";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
-import type { buttonVariants } from "./ui/button/button";
 import "./ui/button/button";
+import type { ButtonSize, ButtonVariant } from "./ui/button/button";
 
 class CounterLimitError extends Data.TaggedError("CounterLimit")<{
   message: string;
@@ -80,12 +79,8 @@ export class AtomStreamCounter extends TW(AtomMixin(LitElement)) {
     super.connectedCallback();
     void this._tick;
   }
-  @property({ type: String }) variant: VariantProps<
-    typeof buttonVariants
-  >["variant"] = "default";
-  @property({ type: String }) size: VariantProps<
-    typeof buttonVariants
-  >["size"] = "icon-lg";
+  @property({ type: String }) variant: ButtonVariant = "default";
+  @property({ type: String }) size: ButtonSize = "icon-lg";
 
   render() {
     const showReset = this.error !== null;

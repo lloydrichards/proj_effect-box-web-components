@@ -1,5 +1,4 @@
 import { Atom, Registry, Result } from "@effect-atom/atom";
-import type { VariantProps } from "class-variance-authority";
 import { Data, Effect } from "effect";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -7,9 +6,9 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Plus } from "lucide-static";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
-import type { buttonVariants } from "./ui/button/button";
-import "./ui/button/button";
 import "./status-panel";
+import "./ui/button/button";
+import type { ButtonSize, ButtonVariant } from "./ui/button/button";
 
 class CountError extends Data.TaggedError("CountError")<{ message: string }> {}
 
@@ -94,12 +93,8 @@ export class GlobalCounterControls extends TW(AtomMixin(LitElement)) {
     CountError
   >;
 
-  @property({ type: String }) variant: VariantProps<
-    typeof buttonVariants
-  >["variant"] = "default";
-  @property({ type: String }) size: VariantProps<
-    typeof buttonVariants
-  >["size"] = "icon-lg";
+  @property({ type: String }) variant: ButtonVariant = "default";
+  @property({ type: String }) size: ButtonSize = "icon-lg";
 
   render() {
     const isLoading = Result.isWaiting(this.countResult);
@@ -154,12 +149,8 @@ export class ScopedCounterControls extends TW(
     CountError
   >;
 
-  @property({ type: String }) variant: VariantProps<
-    typeof buttonVariants
-  >["variant"] = "default";
-  @property({ type: String }) size: VariantProps<
-    typeof buttonVariants
-  >["size"] = "icon-lg";
+  @property({ type: String }) variant: ButtonVariant = "default";
+  @property({ type: String }) size: ButtonSize = "icon-lg";
 
   render() {
     const isLoading = Result.isWaiting(this.countResult);
@@ -207,12 +198,8 @@ export class ScopedCounterControls extends TW(
 
 @customElement("registry-demo")
 export class RegistryDemo extends TW(LitElement) {
-  @property({ type: String }) variant: VariantProps<
-    typeof buttonVariants
-  >["variant"] = "default";
-  @property({ type: String }) size: VariantProps<
-    typeof buttonVariants
-  >["size"] = "icon-lg";
+  @property({ type: String }) variant: ButtonVariant = "default";
+  @property({ type: String }) size: ButtonSize = "icon-lg";
 
   render() {
     return html`

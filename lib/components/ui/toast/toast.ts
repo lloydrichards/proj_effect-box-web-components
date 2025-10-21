@@ -36,12 +36,14 @@ export const toastVariants = cva(
 );
 
 type ToastVariants = VariantProps<typeof toastVariants>;
+export type ToastVariant = NonNullable<ToastVariants["variant"]>;
+export type ToastState = NonNullable<ToastVariants["state"]>;
 
 export type ToastType = "success" | "error" | "info" | "warning" | "loading";
 
 export interface ToastOptions {
   description?: string;
-  variant?: ToastVariants["variant"];
+  variant?: ToastVariant;
   type?: ToastType;
   duration?: number;
   action?: {

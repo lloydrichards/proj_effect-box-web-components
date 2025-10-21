@@ -30,13 +30,15 @@ export const itemVariants = cva(
 );
 
 type ItemVariants = VariantProps<typeof itemVariants>;
+export type ItemVariant = NonNullable<ItemVariants["variant"]>;
+export type ItemSize = NonNullable<ItemVariants["size"]>;
 
 export interface ItemProperties {
-  variant?: ItemVariants["variant"];
-  size?: ItemVariants["size"];
-  ariaLabel?: string | null;
-  ariaDescribedby?: string | null;
-  role?: string | null;
+  variant: ItemVariant;
+  size: ItemSize;
+  ariaLabel: string | null;
+  ariaDescribedby: string | null;
+  role: string | null;
 }
 
 /**
@@ -78,8 +80,8 @@ const itemSlottedStyles = unsafeCSS(itemSlottedCss);
 export class Item extends TwLitElement implements ItemProperties {
   static styles = itemSlottedStyles;
 
-  @property({ type: String }) variant: ItemVariants["variant"] = "default";
-  @property({ type: String }) size: ItemVariants["size"] = "default";
+  @property({ type: String }) variant: ItemVariant = "default";
+  @property({ type: String }) size: ItemSize = "default";
 
   @property({ type: String, attribute: "aria-label" }) accessor ariaLabel:
     | string

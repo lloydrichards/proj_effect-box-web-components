@@ -106,6 +106,7 @@ const fieldVariants = cva(
 );
 
 type FieldVariants = VariantProps<typeof fieldVariants>;
+export type FieldOrientation = NonNullable<FieldVariants["orientation"]>;
 
 @customElement("ui-field")
 export class Field extends TwLitElement {
@@ -115,8 +116,7 @@ export class Field extends TwLitElement {
     }
   `;
 
-  @property({ type: String }) orientation: FieldVariants["orientation"] =
-    "vertical";
+  @property({ type: String }) orientation: FieldOrientation = "vertical";
   @property({ type: Boolean, reflect: true }) invalid = false;
 
   private get fieldClasses() {

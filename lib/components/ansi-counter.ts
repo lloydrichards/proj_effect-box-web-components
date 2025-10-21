@@ -1,4 +1,3 @@
-import type { VariantProps } from "class-variance-authority";
 import { Effect } from "effect";
 import { Ansi, Box, Renderer } from "effect-boxes";
 import { FancyAnsi } from "fancy-ansi";
@@ -9,7 +8,7 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Plus } from "lucide-static";
 import { TW } from "../shared/tailwindMixin";
 import { Border } from "./boxes/Border";
-import type { buttonVariants } from "./ui/button/button";
+import type { ButtonSize, ButtonVariant } from "./ui/button/button";
 import "./ui/button/button";
 
 const TwLitElement = TW(LitElement);
@@ -20,12 +19,8 @@ export class AnsiCounter extends TwLitElement {
   @property() content = "";
   @property() docsHint = "Render ANSI effects with Effect Boxes";
   @property({ type: Number }) count = 0;
-  @property({ type: String }) variant: NonNullable<
-    VariantProps<typeof buttonVariants>["variant"]
-  > = "default";
-  @property({ type: String }) size: NonNullable<
-    VariantProps<typeof buttonVariants>["size"]
-  > = "icon-lg";
+  @property({ type: String }) variant: ButtonVariant = "default";
+  @property({ type: String }) size: ButtonSize = "icon-lg";
 
   // Render effect into the content when count changes
   updated(changedProperties: Map<string, unknown>) {

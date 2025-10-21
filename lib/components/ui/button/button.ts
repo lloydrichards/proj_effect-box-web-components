@@ -35,11 +35,13 @@ export const buttonVariants = cva(
   },
 );
 
-type ButtonVariants = VariantProps<typeof buttonVariants>;
+export type ButtonVariants = VariantProps<typeof buttonVariants>;
+export type ButtonVariant = NonNullable<ButtonVariants["variant"]>;
+export type ButtonSize = NonNullable<ButtonVariants["size"]>;
 
 export type ButtonProperties = {
-  variant?: ButtonVariants["variant"];
-  size?: ButtonVariants["size"];
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   type: "button" | "submit" | "reset";
   disabled: boolean;
   ariaLabel: string | null;
@@ -52,8 +54,8 @@ export class Button extends TW(LitElement) implements ButtonVariants {
   static formAssociated = true;
   private internals: ElementInternals;
 
-  @property({ type: String }) variant: ButtonVariants["variant"] = "default";
-  @property({ type: String }) size: ButtonVariants["size"] = "default";
+  @property({ type: String }) variant: ButtonVariant = "default";
+  @property({ type: String }) size: ButtonSize = "default";
   @property({ type: String }) type: "button" | "submit" | "reset" = "button";
   @property({ type: Boolean }) disabled = false;
 

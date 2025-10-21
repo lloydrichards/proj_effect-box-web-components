@@ -1,6 +1,6 @@
 import { FetchHttpClient } from "@effect/platform";
 import { Effect, Layer, Stream } from "effect";
-import { LitElement, css, html, nothing } from "lit";
+import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Sparkles } from "lucide-static";
@@ -8,7 +8,7 @@ import { AiService, ApiKey } from "../services/AiService";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import "./api-key-setup";
-import { apiKeyStatusAtom, type ApiKeyStatus } from "./api-key-setup";
+import { type ApiKeyStatus, apiKeyStatusAtom } from "./api-key-setup";
 import "./ui/button/button";
 import "./ui/card/card";
 
