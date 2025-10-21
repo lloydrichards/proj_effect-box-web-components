@@ -16,7 +16,7 @@ import {
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
-import "./ui/Button";
+import "./ui/button/button";
 
 type DiceValue = 1 | 2 | 3 | 4 | 5 | 6;
 

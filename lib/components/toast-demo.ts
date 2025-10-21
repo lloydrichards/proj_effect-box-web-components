@@ -1,7 +1,7 @@
 import { html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
 import { TW } from "../shared/tailwindMixin";
-import { toast } from "./ui/Toast";
+import { toast } from "./ui/toast/toast";
 
 @customElement("toast-demo")
 export class ToastDemo extends TW(LitElement) {

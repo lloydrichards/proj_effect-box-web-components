@@ -1,7 +1,8 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { TW } from "../../shared/tailwindMixin";
+import { TW } from "@/shared/tailwindMixin";
+import { cn } from "@/shared/utils";
 
 const TwLitElement = TW(LitElement);
 
@@ -9,7 +10,7 @@ const TwLitElement = TW(LitElement);
 export class FieldSet extends TwLitElement {
   static styles = css`
     :host {
-      display: contents;
+      display: block;
     }
   `;
 
@@ -18,7 +19,10 @@ export class FieldSet extends TwLitElement {
       <fieldset
         part="fieldset"
         data-slot="field-set"
-        class="flex flex-col gap-6 has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3"
+        class=${cn(
+          "flex flex-col gap-6 has-[>[data-slot=checkbox-group]]:gap-3 has-[>[data-slot=radio-group]]:gap-3",
+          this.className,
+        )}
       >
         <slot></slot>
       </fieldset>
@@ -42,7 +46,10 @@ export class FieldLegend extends TwLitElement {
         part="legend"
         data-slot="field-legend"
         data-variant=${this.variant}
-        class="mb-3 font-medium data-[variant=legend]:text-base data-[variant=label]:text-sm"
+        class=${cn(
+          "mb-3 font-medium data-[variant=legend]:text-base data-[variant=label]:text-sm",
+          this.className,
+        )}
       >
         <slot></slot>
       </legend>
@@ -63,7 +70,10 @@ export class FieldGroup extends TwLitElement {
       <div
         part="group"
         data-slot="field-group"
-        class="group/field-group @container/field-group flex w-full flex-col gap-7 data-[slot=checkbox-group]:gap-3 [&>[data-slot=field-group]]:gap-4"
+        class=${cn(
+          "group/field-group @container/field-group flex w-full flex-col gap-7 data-[slot=checkbox-group]:gap-3 [&>[data-slot=field-group]]:gap-4",
+          this.className,
+        )}
       >
         <slot></slot>
       </div>
@@ -189,7 +199,8 @@ export class Field extends TwLitElement {
         data-slot="field"
         data-orientation=${this.orientation || nothing}
         data-invalid=${this.invalid}
-        class=${this.fieldClasses}>
+        class=${cn(this.fieldClasses, this.className)}
+      >
         <slot></slot>
       </div>
     `;
@@ -212,7 +223,10 @@ export class FieldDescription extends TwLitElement {
         id=${this.id}
         part="description"
         data-slot="field-description"
-        class="text-muted-foreground text-sm leading-normal font-normal group-has-[[data-orientation=horizontal]]/field:text-balance last:mt-0 nth-last-2:-mt-1 [[data-variant=legend]+&]:-mt-1.5 [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4"
+        class=${cn(
+          "text-muted-foreground text-sm leading-normal font-normal group-has-[[data-orientation=horizontal]]/field:text-balance last:mt-0 nth-last-2:-mt-1 [[data-variant=legend]+&]:-mt-1.5 [&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4",
+          this.className,
+        )}
       >
         <slot></slot>
       </p>
@@ -238,7 +252,7 @@ export class FieldError extends TwLitElement {
         aria-live="polite"
         part="error"
         data-slot="field-error"
-        class="text-destructive text-sm font-normal"
+        class=${cn("text-destructive text-sm font-normal", this.className)}
       >
         <slot></slot>
       </div>

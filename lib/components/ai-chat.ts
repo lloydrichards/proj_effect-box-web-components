@@ -3,15 +3,14 @@ import { html, LitElement } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Send, Trash2 } from "lucide-static";
-import { inputStyles } from "../main";
 import { AiService, ApiKey } from "../services/AiService";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { apiKeyStatusAtom, type ApiKeyStatus } from "./api-key-setup";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 import "./api-key-setup";
-import "./ui/Button";
-import "./ui/Card";
+import "./ui/button/button";
+import "./ui/card/card";
 
 type Message = {
   id: string;
@@ -72,7 +71,7 @@ export class AiChat extends TW(AtomMixin(LitElement)) {
               @input=${this._handleInput}
               @keydown=${this._handleKeyDown}
               placeholder="Type your message..."
-              class=${cn(inputStyles, "flex-1 resize-none min-h-[2.5rem]")}
+              class="flex-1 resize-none min-h-[2.5rem]"
               rows="2"
             ></textarea>
             <ui-button

@@ -4,8 +4,8 @@ import { Box, Html, Renderer } from "effect-boxes";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { TW } from "../shared/tailwindMixin";
-import type { buttonVariants } from "./ui/Button";
-import "./ui/Button";
+import type { buttonVariants } from "./ui/button/button";
+import "./ui/button/button";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Plus } from "lucide-static";
 

@@ -7,8 +7,8 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Plus } from "lucide-static";
 import { AtomMixin, atomState, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
-import "./ui/Button";
-import type { buttonVariants } from "./ui/Button";
+import "./ui/button/button";
+import type { buttonVariants } from "./ui/button/button";
 
 class CountError extends Data.TaggedError("CountError")<{ message: string }> {}
 

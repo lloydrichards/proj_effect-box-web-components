@@ -1,14 +1,24 @@
-import { html, LitElement } from "lit";
+import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
-import { TW } from "../../shared/tailwindMixin";
+import { TW } from "@/shared/tailwindMixin";
+import { cn } from "@/shared/utils";
 
 @customElement("ui-card")
 export class Card extends TW(LitElement) {
+  static styles = css`
+    :host {
+      display: block;
+    }
+  `;
+
   override render() {
     return html`
       <div
         data-slot="card"
-        class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border py-6 shadow-sm"
+        class=${cn(
+          "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-border py-6 shadow-sm",
+          this.className,
+        )}
       >
         <slot></slot>
       </div>
@@ -22,7 +32,10 @@ export class CardHeader extends TW(LitElement) {
     return html`
       <div
         data-slot="card-header"
-        class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-[*[data-slot=card-action]]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+        class=${cn(
+          "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-[*[data-slot=card-action]]:grid-cols-[1fr_auto] [.border-b]:pb-6",
+          this.className,
+        )}
       >
         <slot></slot>
       </div>
@@ -34,7 +47,10 @@ export class CardHeader extends TW(LitElement) {
 export class CardTitle extends TW(LitElement) {
   override render() {
     return html`
-      <div data-slot="card-title" class="leading-none font-semibold">
+      <div
+        data-slot="card-title"
+        class=${cn("leading-none font-semibold", this.className)}
+      >
         <slot></slot>
       </div>
     `;
@@ -47,7 +63,7 @@ export class CardDescription extends TW(LitElement) {
     return html`
       <div
         data-slot="card-description"
-        class="text-muted-foreground text-sm"
+        class=${cn("text-muted-foreground text-sm", this.className)}
       >
         <slot></slot>
       </div>
@@ -61,7 +77,10 @@ export class CardAction extends TW(LitElement) {
     return html`
       <div
         data-slot="card-action"
-        class="col-start-2 row-span-2 row-start-1 self-start justify-self-end"
+        class=${cn(
+          "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+          this.className,
+        )}
       >
         <slot></slot>
       </div>
@@ -73,7 +92,7 @@ export class CardAction extends TW(LitElement) {
 export class CardContent extends TW(LitElement) {
   override render() {
     return html`
-      <div data-slot="card-content" class="px-6">
+      <div data-slot="card-content" class=${cn("px-6", this.className)}>
         <slot></slot>
       </div>
     `;
@@ -86,7 +105,7 @@ export class CardFooter extends TW(LitElement) {
     return html`
       <div
         data-slot="card-footer"
-        class="flex items-center px-6 [.border-t]:pt-6"
+        class=${cn("flex items-center px-6 [.border-t]:pt-6", this.className)}
       >
         <slot></slot>
       </div>

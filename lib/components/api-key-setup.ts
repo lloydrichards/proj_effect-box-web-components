@@ -5,14 +5,13 @@ import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Eye, EyeOff, KeyRound, Lock, Trash2 } from "lucide-static";
-import { inputStyles } from "../main";
 import { ApiKeyLoaderService } from "../services/ApiKeyLoader";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
-import "./ui/Button";
-import "./ui/Card";
-import { toast } from "./ui/Toast";
+import "./ui/button/button";
+import "./ui/card/card";
+import { toast } from "./ui/toast/toast";
 
 export type ApiKeyStatus =
   | { type: "not-configured" }
@@ -317,7 +316,7 @@ export class ApiKeySetup extends TW(AtomMixin(LitElement)) {
                 this._apiKey = (e.target as HTMLInputElement).value;
               }}
               placeholder="sk-..."
-              class=${cn(inputStyles, "pr-10")}
+              class="pr-10"
             />
             <button
               type="button"
@@ -342,7 +341,6 @@ export class ApiKeySetup extends TW(AtomMixin(LitElement)) {
               }}
               placeholder="Enter a secure passkey"
               class=${cn(
-                inputStyles,
                 "pr-10",
                 this._passkey && this._passkey.length < 6
                   ? "border-destructive"
@@ -434,7 +432,7 @@ export class ApiKeySetup extends TW(AtomMixin(LitElement)) {
                 if (e.key === "Enter") this._handleUnlock();
               }}
               placeholder="Enter your passkey"
-              class=${cn(inputStyles, "pr-10")}
+              class="pr-10"
             />
             <button
               type="button"

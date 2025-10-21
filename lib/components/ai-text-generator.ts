@@ -4,15 +4,13 @@ import { LitElement, css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Sparkles } from "lucide-static";
-import { inputStyles } from "../main";
 import { AiService, ApiKey } from "../services/AiService";
 import { AtomMixin, atomState } from "../shared/atomMixin";
-import { apiKeyStatusAtom, type ApiKeyStatus } from "./api-key-setup";
 import { TW } from "../shared/tailwindMixin";
-import { cn } from "../shared/utils";
 import "./api-key-setup";
-import "./ui/Button";
-import "./ui/Card";
+import { apiKeyStatusAtom, type ApiKeyStatus } from "./api-key-setup";
+import "./ui/button/button";
+import "./ui/card/card";
 
 @customElement("ai-text-generator")
 export class AiTextGenerator extends TW(AtomMixin(LitElement)) {
@@ -54,7 +52,7 @@ export class AiTextGenerator extends TW(AtomMixin(LitElement)) {
               .value=${this._inputValue}
               @input=${this._handleInput}
               placeholder="Ask me anything..."
-              class=${cn(inputStyles, "min-h-[100px] resize-vertical")}
+              class="min-h-[100px] resize-vertical"
             ></textarea>
           </div>
 

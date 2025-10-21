@@ -7,8 +7,8 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Plus } from "lucide-static";
 import { TW } from "../shared/tailwindMixin";
-import type { buttonVariants } from "./ui/Button";
-import "./ui/Button";
+import type { buttonVariants } from "./ui/button/button";
+import "./ui/button/button";
 
 const TwLitElement = TW(LitElement);
 

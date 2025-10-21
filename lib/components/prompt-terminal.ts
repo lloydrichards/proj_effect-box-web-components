@@ -5,8 +5,8 @@ import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { TW } from "../shared/tailwindMixin";
-import { Border } from "./ui/Border";
-import { createTable, TableServiceLayer } from "./ui/Table";
+import { Border } from "./boxes/Border";
+import { createTable, TableServiceLayer } from "./boxes/Table";
 
 const TwLitElement = TW(LitElement);
 const fancyAnsi = new FancyAnsi();

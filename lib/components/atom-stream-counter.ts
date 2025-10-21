@@ -7,8 +7,8 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Minus, Pause, Play, TimerReset } from "lucide-static";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
-import type { buttonVariants } from "./ui/Button";
-import "./ui/Button";
+import type { buttonVariants } from "./ui/button/button";
+import "./ui/button/button";
 
 class CounterLimitError extends Data.TaggedError("CounterLimit")<{
   message: string;

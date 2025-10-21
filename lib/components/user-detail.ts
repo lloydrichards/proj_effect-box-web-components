@@ -6,9 +6,9 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Mail, RefreshCw, User } from "lucide-static";
 import { AtomMixin, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
-import "./ui/Button";
-import "./ui/Card";
-import "./ui/Item";
+import "./ui/button/button";
+import "./ui/card/card";
+import "./ui/item/item";
 
 class UserError extends Data.TaggedError("UserError")<{ message: string }> {}
 

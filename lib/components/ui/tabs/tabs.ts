@@ -4,14 +4,20 @@ import {
   property,
   queryAssignedElements,
 } from "lit/decorators.js";
-import { TW } from "../../shared/tailwindMixin";
+import { TW } from "@/shared/tailwindMixin";
+import { cn } from "@/shared/utils";
 
 export interface TabsChangeEvent extends CustomEvent {
   detail: { value: string };
 }
 
+export interface TabsProperties {
+  value?: string;
+  defaultValue?: string;
+}
+
 @customElement("ui-tabs")
-export class Tabs extends TW(LitElement) {
+export class Tabs extends TW(LitElement) implements TabsProperties {
   @property({ type: String }) value = "";
   @property({ type: String, attribute: "default-value" }) defaultValue = "";
 
@@ -149,7 +155,10 @@ export class TabsList extends TW(LitElement) {
   override render() {
     return html`
       <div
-        class="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground"
+        class=${cn(
+          "inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground",
+          this.className,
+        )}
         @keydown=${this.handleKeyDown}
       >
         <slot></slot>
@@ -214,7 +223,10 @@ export class TabsTrigger extends TW(LitElement) {
     return html`
       <button
         type="button"
-        class="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow"
+        class=${cn(
+          "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow",
+          this.className,
+        )}
         ?disabled=${this.disabled}
         tabindex=${this.tabIndex}
         data-state=${this.selected ? "active" : "inactive"}
@@ -268,7 +280,10 @@ export class TabsContent extends TW(LitElement) {
 
     return html`
       <div
-        class="mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        class=${cn(
+          "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          this.className,
+        )}
         tabindex="0"
         ?hidden=${!this.active}
       >

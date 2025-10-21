@@ -12,12 +12,11 @@ import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Lock } from "lucide-static";
-import { inputStyles } from "../main";
 import { CryptoService } from "../services/Crypto";
 import { AtomMixin, atomState, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
-import "./ui/Button";
+import "./ui/button/button";
 
 class SecretError extends Data.TaggedError("SecretError")<{
   message: string;
@@ -164,7 +163,7 @@ export class SecretEncryptor extends TW(AtomMixin(LitElement)) {
               .value=${this.inputValue}
               @input=${this.handleInput}
               placeholder=${this.placeholder}
-              class="${cn(inputStyles, "flex-1")}"
+              class= "flex-1"
             />
             <ui-button
               size="sm"
@@ -186,7 +185,7 @@ export class SecretEncryptor extends TW(AtomMixin(LitElement)) {
                       type="text"
                       .value=${encryptedValue}
                       readonly
-                      class="${cn(inputStyles, "flex-1")}"
+                      class="flex-1"
                     />
                     <ui-button
                       variant="secondary"

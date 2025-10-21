@@ -8,14 +8,22 @@ import {
 } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Check, ChevronDown } from "lucide-static";
-import { TW } from "../../shared/tailwindMixin";
+import { TW } from "@/shared/tailwindMixin";
 
 export interface SelectChangeEvent extends CustomEvent {
   detail: { value: string };
 }
 
+export interface SelectProperties {
+  value?: string;
+  name?: string;
+  disabled?: boolean;
+  required?: boolean;
+  open?: boolean;
+}
+
 @customElement("ui-select")
-export class Select extends TW(LitElement) {
+export class Select extends TW(LitElement) implements SelectProperties {
   static formAssociated = true;
   private internals: ElementInternals;
 
@@ -24,14 +32,13 @@ export class Select extends TW(LitElement) {
   @property({ type: Boolean }) disabled = false;
   @property({ type: Boolean }) required = false;
   @property({ type: Boolean, reflect: true }) open = false;
-  @property({ type: String, attribute: "aria-label", reflect: true }) ariaLabel:
-    | string
-    | null = null;
+  @property({ type: String, attribute: "aria-label", reflect: true })
+  ariaLabel: string | null = null;
   @property({ type: String, attribute: "aria-invalid", reflect: true })
   ariaInvalid: string | null = null;
 
   @query("ui-select-trigger") triggerElement?: HTMLElement;
-  @query("ui-popup") popupElement?: HTMLElement;
+  @query("ui-popover") popupElement?: HTMLElement;
 
   private clickAwayHandler = (e: MouseEvent) => {
     const popup = this.popupElement;
@@ -219,7 +226,7 @@ export class Select extends TW(LitElement) {
 
   override render() {
     return html`
-      <ui-popup
+      <ui-popover
         .active=${this.open}
         .anchor=${this.triggerElement}
         placement="bottom-start"
@@ -235,7 +242,7 @@ export class Select extends TW(LitElement) {
       >
         <slot name="trigger" slot="anchor"></slot>
         <slot name="content"></slot>
-      </ui-popup>
+      </ui-popover>
     `;
   }
 }

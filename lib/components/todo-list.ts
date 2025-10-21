@@ -6,13 +6,12 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Check, Plus, Square, Trash2 } from "lucide-static";
-import { inputStyles } from "../main";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
-import "./ui/Button";
-import "./ui/Card";
-import "./ui/Item";
+import "./ui/button/button";
+import "./ui/card/card";
+import "./ui/item/item";
 
 type TodoItem = {
   id: string;
@@ -137,7 +136,7 @@ export class TodoInput extends TW(AtomMixin(LitElement)) {
         <div class="flex w-full gap-2 max-w-xl flex-col sm:flex-row">
           <input
             type="text"
-            class="${cn(inputStyles, "flex-1")}"
+            class="flex-1"
             placeholder="Enter a new todo..."
             .value=${this.inputValue}
             @input=${this._handleInput}

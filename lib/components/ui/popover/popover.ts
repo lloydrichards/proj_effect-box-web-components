@@ -1,19 +1,20 @@
-import { html, LitElement, type PropertyValues, css } from "lit";
-import { customElement, property, query, state } from "lit/decorators.js";
 import {
   arrow,
   autoUpdate,
   computePosition,
   flip,
   offset,
-  shift,
   type Placement,
   type Strategy,
+  shift,
 } from "@floating-ui/dom";
-import { TW } from "../../shared/tailwindMixin";
+import { css, html, LitElement, type PropertyValues } from "lit";
+import { customElement, property, query, state } from "lit/decorators.js";
+import { TW } from "@/shared/tailwindMixin";
+import { cn } from "@/shared/utils";
 
-@customElement("ui-popup")
-export class Popup extends TW(LitElement) {
+@customElement("ui-popover")
+export class Popover extends TW(LitElement) {
   @property() placement: Placement = "top";
   @property({ type: Number }) distance = 0;
   @property({ type: Number }) skidding = 0;
@@ -79,6 +80,12 @@ export class Popup extends TW(LitElement) {
       this.anchorEl = root.getElementById(this.anchor);
     } else if (this.anchor instanceof Element) {
       this.anchorEl = this.anchor;
+    } else if (
+      this.anchor &&
+      typeof this.anchor === "object" &&
+      "getBoundingClientRect" in this.anchor
+    ) {
+      this.anchorEl = this.anchor;
     } else {
       const slot = this.renderRoot.querySelector<HTMLSlotElement>(
         'slot[name="anchor"]',
@@ -116,6 +123,18 @@ export class Popup extends TW(LitElement) {
         resolve();
       }
     });
+  }
+
+  show() {
+    this.active = true;
+  }
+
+  hide() {
+    this.active = false;
+  }
+
+  toggle() {
+    this.active = !this.active;
   }
 
   reposition() {
@@ -171,7 +190,7 @@ export class Popup extends TW(LitElement) {
       }
 
       this.dispatchEvent(
-        new CustomEvent("popup-reposition", {
+        new CustomEvent("popover-reposition", {
           detail: { placement, x, y },
           bubbles: true,
           composed: true,
@@ -184,12 +203,19 @@ export class Popup extends TW(LitElement) {
     return html`
       <slot name="anchor" @slotchange=${this.handleAnchorChange}></slot>
       <div
-        class="w-max z-50 ${this.active ? "" : "hidden"}"
+        class=${cn("w-max z-50", this.active ? "" : "hidden", this.className)}
         part="popup"
         data-placement=${this.currentPlacement}
       >
         <slot></slot>
-        ${this.arrow ? html`<div class="absolute w-2 h-2 rotate-45 bg-inherit -z-10" part="arrow"></div>` : ""}
+        ${
+          this.arrow
+            ? html`<div
+              class="absolute w-2 h-2 rotate-45 bg-inherit -z-10"
+              part="arrow"
+            ></div>`
+            : ""
+        }
       </div>
     `;
   }
@@ -197,11 +223,11 @@ export class Popup extends TW(LitElement) {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ui-popup": Popup;
+    "ui-popover": Popover;
   }
 
   interface HTMLElementEventMap {
-    "popup-reposition": CustomEvent<{
+    "popover-reposition": CustomEvent<{
       placement: Placement;
       x: number;
       y: number;

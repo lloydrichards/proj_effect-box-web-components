@@ -15,7 +15,7 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { RefreshCw } from "lucide-static";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
-import "./ui/Button";
+import "./ui/button/button";
 
 interface Cell {
   x: number;

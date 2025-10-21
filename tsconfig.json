@@ -20,6 +20,11 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
+    "paths": {
+      "@/*": ["./lib/*"],
+    },
+
+
     "plugins": [
       // ... other LSPs (if any) and as last
       {

@@ -1,11 +1,11 @@
-import { html, LitElement, type PropertyValues, css } from "lit";
-import { customElement, property, query, state } from "lit/decorators.js";
 import type { Placement } from "@floating-ui/dom";
 import { cva } from "class-variance-authority";
-import { TW } from "../../shared/tailwindMixin";
-import { cn } from "../../shared/utils";
-import type { Popup } from "./Popup";
-import "./Popup";
+import { css, html, LitElement, type PropertyValues } from "lit";
+import { customElement, property, query, state } from "lit/decorators.js";
+import { TW } from "@/shared/tailwindMixin";
+import { cn } from "@/shared/utils";
+import "../popover/popover";
+import type { Popover as PopupElement } from "../popover/popover";
 
 const tooltipVariants = cva(
   "max-w-80 z-50 overflow-hidden rounded-md border border-border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md",
@@ -21,8 +21,19 @@ const tooltipVariants = cva(
   },
 );
 
+export interface TooltipProperties {
+  content?: string;
+  placement?: Placement;
+  disabled?: boolean;
+  distance?: number;
+  open?: boolean;
+  skidding?: number;
+  trigger?: string;
+  hoist?: boolean;
+}
+
 @customElement("ui-tooltip")
-export class Tooltip extends TW(LitElement) {
+export class Tooltip extends TW(LitElement) implements TooltipProperties {
   @property() content = "";
   @property() placement: Placement = "top";
   @property({ type: Boolean, reflect: true }) disabled = false;
@@ -32,7 +43,7 @@ export class Tooltip extends TW(LitElement) {
   @property() trigger = "hover focus";
   @property({ type: Boolean }) hoist = false;
 
-  @query("ui-popup") private popup!: Popup;
+  @query("ui-popover") private popup!: PopupElement;
 
   @state() private currentPlacement: Placement = "top";
 
@@ -213,15 +224,15 @@ export class Tooltip extends TW(LitElement) {
       | "right";
 
     return html`
-      <ui-popup
+      <ui-popover
         placement=${this.placement}
-        distance=${this.distance}
-        skidding=${this.skidding}
+        .distance=${this.distance}
+        .skidding=${this.skidding}
         strategy=${this.hoist ? "fixed" : "absolute"}
         ?active=${this.open}
-        flip
-        shift
-        @popup-reposition=${this.handlePopupReposition}
+        .flip=${true}
+        .shift=${true}
+        @popover-reposition=${this.handlePopupReposition}
       >
         <slot slot="anchor" aria-describedby="tooltip"></slot>
 
@@ -238,7 +249,7 @@ export class Tooltip extends TW(LitElement) {
         >
           <slot name="content">${this.content}</slot>
         </div>
-      </ui-popup>
+      </ui-popover>
     `;
   }
 }

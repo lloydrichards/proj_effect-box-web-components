@@ -3,15 +3,13 @@ import { customElement, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { HelpCircle } from "lucide-static";
 import { TW } from "../shared/tailwindMixin";
-import { cn } from "../shared/utils";
-import "./ui/Button";
-import "./ui/Card";
-import "./ui/Field";
-import { inputStyles } from "./ui/Input";
-import "./ui/Select";
-import "./ui/Switch";
-import "./ui/Tabs";
-import "./ui/Tooltip";
+import "./ui/button/button";
+import "./ui/card/card";
+import "./ui/field/field";
+import "./ui/select/select";
+import "./ui/switch/switch";
+import "./ui/tabs/tabs";
+import "./ui/tooltip/tooltip";
 
 type FormData = {
   name: string;
@@ -129,7 +127,6 @@ export class RegistrationForm extends TW(LitElement) {
                       id="name"
                       name="name"
                       type="text"
-                      class=${cn(inputStyles)}
                       placeholder="John Doe"
                       aria-invalid=${!!this.errors.name}
                     />

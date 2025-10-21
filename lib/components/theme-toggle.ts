@@ -4,7 +4,7 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Moon, Sun } from "lucide-static";
 import { TW } from "../shared/tailwindMixin";
 import { type Theme, themeManager } from "../shared/theme-manager";
-import "./ui/Button";
+import "./ui/button/button";
 
 const TwLitElement = TW(LitElement);
 
