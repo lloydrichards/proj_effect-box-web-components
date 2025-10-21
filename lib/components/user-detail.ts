@@ -102,25 +102,23 @@ export class UserDetail extends TW(AtomMixin(LitElement)) {
               `,
               onSuccess: (user) => html`
                 <ui-item variant="outline" size="default">
-                  <ui-item-media variant="icon">
-                    <span class="[&_svg]:size-5">${unsafeSVG(User)}</span>
-                  </ui-item-media>
+                  <div slot="media" class="flex items-center justify-center text-muted-foreground [&_svg]:size-5">
+                    ${unsafeSVG(User)}
+                  </div>
                   
-                  <ui-item-content>
-                    <ui-item-title>${user.name}</ui-item-title>
-                    <ui-item-description>
-                      <span class="inline-flex items-center gap-1.5">
-                        <span class="[&_svg]:size-3.5">${unsafeSVG(Mail)}</span>
-                        ${user.email}
-                      </span>
-                    </ui-item-description>
-                  </ui-item-content>
+                  <h3 slot="title">${user.name}</h3>
+                  <p slot="description">
+                    <span class="inline-flex items-center gap-1.5">
+                      <span class="[&_svg]:size-3.5">${unsafeSVG(Mail)}</span>
+                      ${user.email}
+                    </span>
+                  </p>
+                  
+                  <div slot="footer" class="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>User ID: <span class="font-mono font-medium">${user.id}</span></span>
+                    <span>Loaded at ${new Date(user.loadedAt).toLocaleTimeString()}</span>
+                  </div>
                 </ui-item>
-                
-                <div class="mt-4 flex items-center justify-between text-xs text-muted-foreground px-1">
-                  <span>User ID: <span class="font-mono font-medium">${user.id}</span></span>
-                  <span>Loaded at ${new Date(user.loadedAt).toLocaleTimeString()}</span>
-                </div>
               `,
               onFailure: (error) => html`
                 <div class="text-center py-6">
