@@ -15,7 +15,6 @@ import { Lock } from "lucide-static";
 import { CryptoService } from "../services/Crypto";
 import { AtomMixin, atomState, matchResult } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
-import { cn } from "../shared/utils";
 import "./ui/button/button";
 
 class SecretError extends Data.TaggedError("SecretError")<{

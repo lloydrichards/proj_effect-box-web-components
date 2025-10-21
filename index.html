@@ -127,6 +127,16 @@
 
             <div class="grid-cell">
               <div class="cell-header">
+                <h3>Atom Counter</h3>
+                <ui-tooltip content="Counter using writable Result atom with error handling. Try decrementing below -3 to see error state. Demonstrates async state updates with loading indicators.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <atom-counter size="icon-lg"></atom-counter>
+            </div>
+
+            <div class="grid-cell">
+              <div class="cell-header">
                 <h3>Ansi Counter</h3>
                 <ui-tooltip content="Counter with ANSI color-coded output. Demonstrates Effect's console logging with styled terminal output.">
                   <i class="fa-solid fa-circle-info"></i>
@@ -135,34 +145,14 @@
               <ansi-counter size="icon-lg"></ansi-counter>
             </div>
 
-            <div class="grid-cell shared-atom-cell">
+            <div class="grid-cell">
               <div class="cell-header">
-                <h3>Global Registry Counter</h3>
-                <ui-tooltip content="Two instances sharing the same global atom state. Click either counter to see both update simultaneously.">
+                <h3>Registry Demo (Global vs Scoped)</h3>
+                <ui-tooltip content="Same status panel component with different registries. Global registry shares state across all instances, while scoped registry isolates state per instance.">
                   <i class="fa-solid fa-circle-info"></i>
                 </ui-tooltip>
               </div>
-              <atom-counter variant="outline">
-                <h4>Instance 1</h4>
-              </atom-counter>
-              <atom-counter variant="secondary">
-                <h4>Instance 2</h4>
-              </atom-counter>
-            </div>
-
-            <div class="grid-cell shared-atom-cell">
-              <div class="cell-header">
-                <h3>Scoped Registry Counter</h3>
-                <ui-tooltip content="Two instances with isolated scoped state. Each counter maintains its own independent state using scoped registries.">
-                  <i class="fa-solid fa-circle-info"></i>
-                </ui-tooltip>
-              </div>
-              <scoped-counter variant="outline">
-                <h4>Instance 1</h4>
-              </scoped-counter>
-              <scoped-counter variant="secondary">
-                <h4>Instance 2</h4>
-              </scoped-counter>
+              <registry-demo variant="outline"></registry-demo>
             </div>
 
             <div class="grid-cell">

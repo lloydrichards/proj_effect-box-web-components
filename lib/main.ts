@@ -9,7 +9,13 @@ export { MazeGenerator } from "./components/maze-generator";
 export { PromptTerminal, TextPrompt } from "./components/prompt-terminal";
 export { ReactiveElement } from "./components/reactive-element";
 export { RegistrationForm } from "./components/registration-form";
-export { ScopedCounter } from "./components/scoped-counter";
+export {
+  RegistryDemo,
+  GlobalStatusPanel,
+  ScopedStatusPanel,
+  GlobalCounterControls,
+  ScopedCounterControls,
+} from "./components/registry-demo";
 export { SimpleElement } from "./components/simple-element";
 export { ThemeToggle } from "./components/theme-toggle";
 export { ToastDemo } from "./components/toast-demo";
@@ -21,6 +27,8 @@ export {
   YahtzeePlayer,
   YahtzeeStatus,
 } from "./components/yahtzee-game";
+
+export { StatusPanel } from "./components/status-panel";
 
 export {
   AtomMixin,

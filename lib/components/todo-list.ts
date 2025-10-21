@@ -8,7 +8,6 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Check, Plus, Square, Trash2 } from "lucide-static";
 import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
-import { cn } from "../shared/utils";
 import "./ui/button/button";
 import "./ui/card/card";
 import "./ui/item/item";
