@@ -108,6 +108,7 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   width: 100%;
+  align-items: stretch;
   grid-auto-flow: dense;
 }
 
@@ -154,4 +155,33 @@ body {
 .dark .grid-cell {
   background: oklch(0.216 0.006 56.043);
   border: 1px solid oklch(1 0 0 / 10%);
+}
+
+.cell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.cell-header h3,
+.cell-header h4 {
+  margin: 0;
+  flex: 1;
+}
+
+.cell-header ui-tooltip {
+  flex-shrink: 0;
+  cursor: help;
+}
+
+.cell-header i {
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+  font-size: 1.125rem;
+}
+
+.cell-header ui-tooltip:hover i {
+  opacity: 1;
 }

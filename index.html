@@ -80,120 +80,243 @@
           and powered by Effect for state management and reactive programming.
         </p>
       </header>
-      <section class="grid">
-        <div class="grid-cell">
-          <simple-element variant="destructive" size="icon-lg">
-            <h3>Effect Box Counter</h3>
-          </simple-element>
-        </div>
-        <div class="grid-cell">
-          <atom-secrets>
-            <h3>Redacted Secrets</h3>
-          </atom-secrets>
-          <secret-encryptor
-            placeholder="Enter your secrets..."
-          ></secret-encryptor>
-        </div>
-        <div class="grid-cell">
-          <reactive-element size="icon-lg">
-            <h3>Reactive Element</h3>
-          </reactive-element>
-        </div>
-        <div class="grid-cell">
-          <ansi-counter size="icon-lg">
-            <h3>Ansi Counter</h3>
-          </ansi-counter>
-        </div>
-        <div class="grid-cell shared-atom-cell">
-          <atom-counter variant="outline">
-            <h3>Global Registry Counter - Instance 1</h3>
-          </atom-counter>
-          <atom-counter variant="secondary">
-            <h3>Global Registry Counter - Instance 2</h3>
-          </atom-counter>
-        </div>
-        <div class="grid-cell shared-atom-cell">
-          <scoped-counter variant="outline">
-            <h3>Scoped Registry Counter - Instance 1</h3>
-          </scoped-counter>
-          <scoped-counter variant="secondary">
-            <h3>Scoped Registry Counter - Instance 2</h3>
-          </scoped-counter>
-        </div>
-        <div class="grid-cell">
-          <atom-stream-counter>
-            <h3>Stream Counter</h3>
-          </atom-stream-counter>
-        </div>
-        <div class="grid-cell">
-          <user-detail userId="1">
-            <h3>User Detail (Atom.family Demo)</h3>
-          </user-detail>
-        </div>
-        <div class="grid-cell todo-cell">
-          <todo-input>
-            <h3>Todo List</h3>
-          </todo-input>
-          <todo-list></todo-list>
-        </div>
-        <div class="grid-cell">
-          <yahtzee-game>
-            <yahtzee-status slot="status"></yahtzee-status>
-            <yahtzee-player name="Player 1" playerIndex="0"></yahtzee-player>
-            <yahtzee-player name="Player 2" playerIndex="1"></yahtzee-player>
-          </yahtzee-game>
-        </div>
-        <div class="grid-cell">
-          <maze-generator speed="50">
-            <h3>Maze Generator</h3>
-          </maze-generator>
-        </div>
-        <div class="grid-cell">
-          <toast-demo>
-            <h3>Toast Notifications</h3>
-          </toast-demo>
-        </div>
-        <div class="grid-cell">
-          <registration-form>
-            <h3>User Registration Form</h3>
-          </registration-form>
-        </div>
-        <div class="grid-cell full-width-cell">
-          <h3>Database Configuration Setup</h3>
-          <prompt-terminal id="config-prompt">
-            <text-prompt
-              key="host"
-              message="What is your database host?"
-            ></text-prompt>
-            <text-prompt
-              key="port"
-              message="Which port should we use?"
-            ></text-prompt>
-            <text-prompt
-              key="database"
-              message="What is the database name?"
-            ></text-prompt>
-            <text-prompt
-              key="username"
-              message="Enter the username:"
-            ></text-prompt>
-            <text-prompt
-              key="pool_size"
-              message="How many connections in the pool?"
-            ></text-prompt>
-          </prompt-terminal>
-        </div>
-        <div class="grid-cell">
-          <ai-text-generator>
-            <h3>AI Text Generator</h3>
-          </ai-text-generator>
-        </div>
-        <div class="grid-cell">
-          <ai-chat>
-            <h3>AI Chat</h3>
-          </ai-chat>
-        </div>
-      </section>
+      <ui-tabs default-value="state" style="width: 100%; max-width: 1200px">
+        <ui-tabs-list style="margin-bottom: 2rem">
+          <ui-tabs-trigger value="state">State Management</ui-tabs-trigger>
+          <ui-tabs-trigger value="forms">Forms & Input</ui-tabs-trigger>
+          <ui-tabs-trigger value="interactive">Interactive & Games</ui-tabs-trigger>
+          <ui-tabs-trigger value="ai">AI Components</ui-tabs-trigger>
+        </ui-tabs-list>
+
+        <ui-tabs-content value="state">
+          <p style="margin-bottom: 1.5rem; opacity: 0.8">
+            Demonstrations of Effect-Atom state management patterns including
+            global state, scoped registries, streams, and reactive updates.
+          </p>
+          <section class="grid">
+            <div class="grid-cell">
+              <div class="cell-header">
+                <h3>Effect Box Counter</h3>
+                <ui-tooltip content="Click the plus button to increment. Demonstrates basic Effect integration with Lit components.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <simple-element variant="destructive" size="icon-lg"></simple-element>
+            </div>
+
+            <div class="grid-cell">
+              <div class="cell-header">
+                <h3>Redacted Secrets</h3>
+                <ui-tooltip content="Enter text to see it encrypted and redacted. Shows Effect's encryption capabilities with secure state management.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <atom-secrets></atom-secrets>
+              <secret-encryptor placeholder="Enter your secrets..."></secret-encryptor>
+            </div>
+
+            <div class="grid-cell">
+              <div class="cell-header">
+                <h3>Reactive Element</h3>
+                <ui-tooltip content="Increment the counter to see reactive property updates in real-time using Lit's reactive system.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <reactive-element size="icon-lg"></reactive-element>
+            </div>
+
+            <div class="grid-cell">
+              <div class="cell-header">
+                <h3>Ansi Counter</h3>
+                <ui-tooltip content="Counter with ANSI color-coded output. Demonstrates Effect's console logging with styled terminal output.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <ansi-counter size="icon-lg"></ansi-counter>
+            </div>
+
+            <div class="grid-cell shared-atom-cell">
+              <div class="cell-header">
+                <h3>Global Registry Counter</h3>
+                <ui-tooltip content="Two instances sharing the same global atom state. Click either counter to see both update simultaneously.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <atom-counter variant="outline">
+                <h4>Instance 1</h4>
+              </atom-counter>
+              <atom-counter variant="secondary">
+                <h4>Instance 2</h4>
+              </atom-counter>
+            </div>
+
+            <div class="grid-cell shared-atom-cell">
+              <div class="cell-header">
+                <h3>Scoped Registry Counter</h3>
+                <ui-tooltip content="Two instances with isolated scoped state. Each counter maintains its own independent state using scoped registries.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <scoped-counter variant="outline">
+                <h4>Instance 1</h4>
+              </scoped-counter>
+              <scoped-counter variant="secondary">
+                <h4>Instance 2</h4>
+              </scoped-counter>
+            </div>
+
+            <div class="grid-cell">
+              <div class="cell-header">
+                <h3>Stream Counter</h3>
+                <ui-tooltip content="Real-time streaming counter using Effect Streams. Watch as values flow through the stream automatically.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <atom-stream-counter></atom-stream-counter>
+            </div>
+
+            <div class="grid-cell">
+              <div class="cell-header">
+                <h3>User Detail (Atom.family)</h3>
+                <ui-tooltip content="Demonstrates Atom.family for parameterized state. Change the user ID to fetch different user data dynamically.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <user-detail userId="1"></user-detail>
+            </div>
+
+            <div class="grid-cell todo-cell">
+              <div class="cell-header">
+                <h3>Todo List</h3>
+                <ui-tooltip content="Full-featured todo list with add, complete, and delete operations. Shows complex state management with arrays and mutations.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <todo-input></todo-input>
+              <todo-list></todo-list>
+            </div>
+          </section>
+        </ui-tabs-content>
+
+        <ui-tabs-content value="forms">
+          <p style="margin-bottom: 1.5rem; opacity: 0.8">
+            Form components and input interactions showcasing validation,
+            terminal prompts, and multi-step workflows.
+          </p>
+          <section class="grid">
+            <div class="grid-cell">
+              <div class="cell-header">
+                <h3>User Registration Form</h3>
+                <ui-tooltip content="Try submitting with invalid data to see Effect-based form validation and error handling in action.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <registration-form></registration-form>
+            </div>
+
+            <div class="grid-cell full-width-cell">
+              <div class="cell-header">
+                <h3>Database Configuration Setup</h3>
+                <ui-tooltip content="Interactive terminal-style prompt system. Answer each question sequentially to build a configuration object.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <prompt-terminal id="config-prompt">
+                <text-prompt
+                  key="host"
+                  message="What is your database host?"
+                ></text-prompt>
+                <text-prompt
+                  key="port"
+                  message="Which port should we use?"
+                ></text-prompt>
+                <text-prompt
+                  key="database"
+                  message="What is the database name?"
+                ></text-prompt>
+                <text-prompt
+                  key="username"
+                  message="Enter the username:"
+                ></text-prompt>
+                <text-prompt
+                  key="pool_size"
+                  message="How many connections in the pool?"
+                ></text-prompt>
+              </prompt-terminal>
+            </div>
+
+            <div class="grid-cell">
+              <div class="cell-header">
+                <h3>Toast Notifications</h3>
+                <ui-tooltip content="Click to trigger different notification types. Demonstrates toast positioning, variants, and auto-dismiss functionality.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <toast-demo></toast-demo>
+            </div>
+          </section>
+        </ui-tabs-content>
+
+        <ui-tabs-content value="interactive">
+          <p style="margin-bottom: 1.5rem; opacity: 0.8">
+            Interactive games and visualizations built with Effect for game
+            logic and state transitions.
+          </p>
+          <section class="grid">
+            <div class="grid-cell">
+              <div class="cell-header">
+                <h3>Yahtzee Game</h3>
+                <ui-tooltip content="Play Yahtzee with two players! Roll dice, select combinations, and track scores. Shows complex game state management.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <yahtzee-game>
+                <yahtzee-status slot="status"></yahtzee-status>
+                <yahtzee-player name="Player 1" playerIndex="0"></yahtzee-player>
+                <yahtzee-player name="Player 2" playerIndex="1"></yahtzee-player>
+              </yahtzee-game>
+            </div>
+
+            <div class="grid-cell">
+              <div class="cell-header">
+                <h3>Maze Generator</h3>
+                <ui-tooltip content="Watch a maze generate using recursive backtracking algorithm. Adjust speed to see the generation process in action.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <maze-generator speed="50"></maze-generator>
+            </div>
+          </section>
+        </ui-tabs-content>
+
+        <ui-tabs-content value="ai">
+          <p style="margin-bottom: 1.5rem; opacity: 0.8">
+            AI-powered components demonstrating streaming responses and chat
+            interfaces with Effect-based async state.
+          </p>
+          <section class="grid">
+            <div class="grid-cell">
+              <div class="cell-header">
+                <h3>AI Text Generator</h3>
+                <ui-tooltip content="Enter a prompt and watch AI generate text in real-time. Demonstrates streaming API integration with Effect.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <ai-text-generator></ai-text-generator>
+            </div>
+
+            <div class="grid-cell">
+              <div class="cell-header">
+                <h3>AI Chat</h3>
+                <ui-tooltip content="Full conversational AI chat interface. Send messages and receive streaming responses with conversation history.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </ui-tooltip>
+              </div>
+              <ai-chat></ai-chat>
+            </div>
+          </section>
+        </ui-tabs-content>
+      </ui-tabs>
       <footer
         class="footer"
         style="
