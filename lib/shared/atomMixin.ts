@@ -1,12 +1,14 @@
-import { type Atom, Registry, Result } from "@effect-atom/atom";
 import * as Array from "effect/Array";
 import * as Cause from "effect/Cause";
-import * as Chunk from "effect/Chunk";
 import { pipe } from "effect/Function";
-import { globalValue } from "effect/GlobalValue";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Option from "effect/Option";
+import {
+  AsyncResult,
+  type Atom,
+  AtomRegistry,
+} from "effect/unstable/reactivity";
 import type { LitElement, TemplateResult } from "lit";
 import { state } from "lit/decorators.js";
 
@@ -30,27 +32,39 @@ declare global {
   };
 }
 
-const defaultGlobalRegistry: Registry.Registry = globalValue(
-  "@effect-box-web-components/atomMixin/registry",
-  () =>
-    Registry.make({
-      scheduleTask: (f) => queueMicrotask(f),
-      timeoutResolution: 1000,
-      defaultIdleTTL: 30_000,
-    }),
-);
+const registryCache = new WeakMap<object, AtomRegistry.AtomRegistry>();
+
+const getDefaultRegistry = (): AtomRegistry.AtomRegistry => {
+  const key = globalThis as object;
+  const existing = registryCache.get(key);
+  if (existing) return existing;
+
+  const created = AtomRegistry.make({
+    scheduleTask: (f: () => void) => {
+      queueMicrotask(f);
+      return () => undefined;
+    },
+    timeoutResolution: 1000,
+    defaultIdleTTL: 30_000,
+  });
+
+  registryCache.set(key, created);
+  return created;
+};
 
 export type MatchResultOptions<A, E> = {
   onInitial?: () => TemplateResult | string | null;
   onSuccess: (
     value: A,
-    result: Result.Success<A, E>,
+    result: AsyncResult.Success<A, E>,
   ) => TemplateResult | string | null;
   onFailure?: (
     error: E,
-    result: Result.Failure<A, E>,
+    result: AsyncResult.Failure<A, E>,
   ) => TemplateResult | string | null;
-  onWaiting?: (result: Result.Result<A, E>) => TemplateResult | string | null;
+  onWaiting?: (
+    result: AsyncResult.AsyncResult<A, E>,
+  ) => TemplateResult | string | null;
 };
 
 type AtomMetadataConstructor = {
@@ -70,7 +84,7 @@ export interface IAtomMixin {
     atom: Atom.Writable<R, W>,
   ): (value: W | ((prev: R) => W)) => void;
   useAtomPromise<A, E>(
-    atom: Atom.Atom<Result.Result<A, E>>,
+    atom: Atom.Atom<AsyncResult.AsyncResult<A, E>>,
     options?: { readonly suspendOnWaiting?: boolean },
   ): Promise<A>;
   useAtomRefresh<A>(atom: Atom.Atom<A>): () => void;
@@ -79,7 +93,7 @@ export interface IAtomMixin {
     options?: { readonly reactivityKeys?: readonly string[] },
   ): void;
   invalidate(keys: readonly string[]): void;
-  getAtomRegistry(): Registry.Registry;
+  getAtomRegistry(): AtomRegistry.AtomRegistry;
 }
 
 // biome-ignore lint/complexity/noBannedTypes: Function type needed for constructor property
@@ -87,9 +101,9 @@ const getAtomMetadata = (ctor: Function) => ctor as AtomMetadataConstructor;
 
 export const AtomMixin = <T extends Constructor<LitElement>>(
   superClass: T,
-  registry?: Registry.Registry,
+  registry?: AtomRegistry.AtomRegistry,
 ) => {
-  const globalRegistry = registry ?? defaultGlobalRegistry;
+  const globalRegistry = registry ?? getDefaultRegistry();
   abstract class AtomMixinClass extends superClass implements IAtomMixin {
     protected [ATOM_SUBSCRIPTIONS]: HashMap.HashMap<
       Atom.Atom<unknown>,
@@ -149,7 +163,7 @@ export const AtomMixin = <T extends Constructor<LitElement>>(
       };
 
       pipe(
-        Option.fromNullable(ctor[ATOM_PROPERTY_KEYS]),
+        Option.fromNullishOr(ctor[ATOM_PROPERTY_KEYS]),
         Option.map(
           Array.forEach(({ key, atom, reactivityKeys }) => {
             subscribeToAtom(
@@ -265,12 +279,12 @@ export const AtomMixin = <T extends Constructor<LitElement>>(
     }
 
     /**
-     * Convert a Result atom into a Promise that resolves with the success value.
+     * Convert an AsyncResult atom into a Promise that resolves with the success value.
      * Auto-subscribes the component to atom updates. The promise resolves when the
-     * Result becomes successful, or rejects when it fails.
+     * AsyncResult becomes successful, or rejects when it fails.
      */
     useAtomPromise<A, E>(
-      atom: Atom.Atom<Result.Result<A, E>>,
+      atom: Atom.Atom<AsyncResult.AsyncResult<A, E>>,
       options?: { readonly suspendOnWaiting?: boolean },
     ): Promise<A> {
       this._autoSubscribe(atom);
@@ -278,17 +292,14 @@ export const AtomMixin = <T extends Constructor<LitElement>>(
       const suspendOnWaiting = options?.suspendOnWaiting ?? false;
 
       return new Promise<A>((resolve, reject) => {
-        const checkAndResolve = (result: Result.Result<A, E>) => {
-          if (Result.isInitial(result)) return;
-          if (suspendOnWaiting && Result.isWaiting(result)) return;
+        const checkAndResolve = (result: AsyncResult.AsyncResult<A, E>) => {
+          if (AsyncResult.isInitial(result)) return;
+          if (suspendOnWaiting && AsyncResult.isWaiting(result)) return;
 
-          if (Result.isSuccess(result)) {
+          if (AsyncResult.isSuccess(result)) {
             resolve(result.value);
-          } else if (Result.isFailure(result)) {
-            const error = pipe(
-              Chunk.head(Cause.failures(result.cause)),
-              Option.getOrElse(() => result.cause as E),
-            );
+          } else if (AsyncResult.isFailure(result)) {
+            const error = this._getFailureError(result.cause);
             reject(error);
           }
         };
@@ -362,20 +373,27 @@ export const AtomMixin = <T extends Constructor<LitElement>>(
         pipe(
           atoms,
           Option.map((atomSet) => {
-            HashSet.forEach(atomSet, (atom) => {
+            for (const atom of atomSet) {
               registry.refresh(atom);
-            });
+            }
             return atomSet;
           }),
         );
       }
     }
 
+    private _getFailureError<E>(cause: Cause.Cause<E>): E {
+      return pipe(
+        Cause.findErrorOption(cause),
+        Option.getOrElse(() => cause as E),
+      );
+    }
+
     /**
      * Get direct access to the underlying Atom Registry.
      * Use this for advanced operations or when you need to work with the registry directly.
      */
-    getAtomRegistry(): Registry.Registry {
+    getAtomRegistry(): AtomRegistry.AtomRegistry {
       return globalRegistry;
     }
   }
@@ -440,36 +458,36 @@ export const atomState =
   };
 
 export const matchResult = <A, E>(
-  result: Result.Result<A, E>,
+  result: AsyncResult.AsyncResult<A, E>,
   options: MatchResultOptions<A, E>,
 ): TemplateResult | string | null =>
   pipe(
-    Option.fromNullable(
-      Result.isWaiting(result) && options.onWaiting
+    Option.fromNullishOr(
+      AsyncResult.isWaiting(result) && options.onWaiting
         ? options.onWaiting(result)
         : null,
     ),
     Option.orElse(() =>
       pipe(
-        Option.liftPredicate(result, (r) => Result.isInitial(r)),
-        Option.flatMap(() => Option.fromNullable(options.onInitial?.())),
+        Option.liftPredicate(result, (r) => AsyncResult.isInitial(r)),
+        Option.flatMap(() => Option.fromNullishOr(options.onInitial?.())),
       ),
     ),
     Option.orElse(() =>
       pipe(
-        Option.liftPredicate(result, (r) => Result.isSuccess(r)),
+        Option.liftPredicate(result, (r) => AsyncResult.isSuccess(r)),
         Option.map((r) => options.onSuccess(r.value, r)),
       ),
     ),
     Option.orElse(() =>
       pipe(
-        Option.liftPredicate(result, (r) => Result.isFailure(r)),
+        Option.liftPredicate(result, (r) => AsyncResult.isFailure(r)),
         Option.flatMap((r) =>
           pipe(
-            Option.fromNullable(options.onFailure),
+            Option.fromNullishOr(options.onFailure),
             Option.map((handler) => {
               const error = pipe(
-                Chunk.head(Cause.failures(r.cause)),
+                Cause.findErrorOption(r.cause),
                 Option.getOrElse(() => r.cause as E),
               );
               return handler(error, r);
