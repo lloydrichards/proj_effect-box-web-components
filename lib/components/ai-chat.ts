@@ -5,9 +5,9 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { Send, Trash2 } from "lucide-static";
 import { AiService, ApiKey } from "../services/AiService";
 import { AtomMixin, atomState } from "../shared/atomMixin";
-import { apiKeyStatusAtom, type ApiKeyStatus } from "./api-key-setup";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
+import { type ApiKeyStatus, apiKeyStatusAtom } from "./api-key-setup";
 import "./api-key-setup";
 import "./ui/button/button";
 import "./ui/card/card";
@@ -171,7 +171,9 @@ export class AiChat extends TW(AtomMixin(LitElement)) {
 
     try {
       const effect = Effect.gen(function* () {
-        const stream = yield* AiService.streamText(userMessage);
+        const stream = yield* AiService.useSync((d) =>
+          d.streamText(userMessage),
+        );
         let fullText = "";
 
         yield* Stream.runForEach(stream, (chunk) =>
@@ -185,7 +187,7 @@ export class AiChat extends TW(AtomMixin(LitElement)) {
         return fullText;
       }).pipe(
         Effect.provide(
-          AiService.Default.pipe(
+          AiService.layer.pipe(
             Layer.provide(Layer.succeed(ApiKey, this.apiKeyStatus.apiKey)),
           ),
         ),
