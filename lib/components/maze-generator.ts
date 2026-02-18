@@ -1,14 +1,6 @@
-import { Atom } from "@effect-atom/atom";
 import { cva, type VariantProps } from "class-variance-authority";
-import {
-  Array,
-  Duration,
-  Effect,
-  Option,
-  Random,
-  Schedule,
-  Stream,
-} from "effect";
+import { Array, Duration, Effect, Random, Schedule, Stream } from "effect";
+import { Atom } from "effect/unstable/reactivity";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
@@ -139,7 +131,7 @@ const mazeStreamAtom = Atom.family(({ height, width, speed }: MazeConfig) => {
   startCell.visited = true;
 
   return Atom.make((get) =>
-    Stream.unfoldEffect(initialStack, (stack) =>
+    Stream.unfold(initialStack, (stack: Cell[]) =>
       Effect.gen(function* () {
         if (stack.length === 0) {
           const completedMaze: Maze = {
@@ -152,7 +144,7 @@ const mazeStreamAtom = Atom.family(({ height, width, speed }: MazeConfig) => {
             completed: true,
           };
           get.set(currentMazeAtom, completedMaze);
-          return Option.none();
+          return undefined;
         }
 
         const current = stack[stack.length - 1];
@@ -181,7 +173,7 @@ const mazeStreamAtom = Atom.family(({ height, width, speed }: MazeConfig) => {
 
         get.set(currentMazeAtom, maze);
 
-        return Option.some([maze, [...stack]] as const);
+        return [maze, [...stack]] as const;
       }),
     ).pipe(Stream.schedule(Schedule.spaced(Duration.millis(speed)))),
   );
