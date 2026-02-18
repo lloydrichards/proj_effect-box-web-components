@@ -14,7 +14,7 @@ export default defineConfig({
     createHtmlPlugin({
       inject: {
         data: {
-          VITE_UMAMI_WEBSITE_ID: process.env.VITE_UMAMI_WEBSITE_ID || '',
+          VITE_UMAMI_WEBSITE_ID: process.env.VITE_UMAMI_WEBSITE_ID || "",
         },
       },
     }),
@@ -28,9 +28,9 @@ export default defineConfig({
     ? {
         copyPublicDir: false,
         lib: {
-          entry: resolve(__dirname, "lib/main.ts"),
-          name: "MyElement",
-          fileName: "my-element",
+          entry: resolve(__dirname, "lib/components/atom-counter.ts"),
+          name: "AtomCounter",
+          fileName: "atom-counter",
         },
         rollupOptions: {
           external: ["react", "react-dom", "react/jsx-runtime"],

@@ -1,5 +1,6 @@
-import { FetchHttpClient } from "@effect/platform";
 import { Effect, Layer, Stream } from "effect";
+import type * as Response from "effect/unstable/ai/Response";
+import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
@@ -123,23 +124,34 @@ export class AiTextGenerator extends TW(AtomMixin(LitElement)) {
       const component = this;
 
       const effect = Effect.gen(function* () {
-        const stream = yield* AiService.streamText(prompt);
+        const stream = yield* AiService.use((service) =>
+          Effect.succeed(service.streamText(prompt)),
+        );
         let fullText = "";
 
-        yield* Stream.runForEach(stream, (chunk) =>
-          Effect.sync(() => {
-            if (chunk.type === "text-delta") {
-              fullText += chunk.delta;
-              component._generatedText = fullText;
-              component.requestUpdate();
-            }
-          }),
+        yield* Stream.runForEach(
+          stream as Stream.Stream<
+            Response.StreamPart<Record<string, never>>,
+            unknown,
+            never
+          >,
+          (chunk) =>
+            Effect.sync(() => {
+              if (chunk.type === "text-delta") {
+                fullText += chunk.delta;
+                component._generatedText = fullText;
+                component.requestUpdate();
+              }
+            }),
         );
 
         return fullText;
       }).pipe(
-        Effect.provide(AiService.Default),
-        Effect.provide(Layer.succeed(ApiKey, this.apiKeyStatus.apiKey)),
+        Effect.provide(
+          AiService.layer.pipe(
+            Layer.provide(Layer.succeed(ApiKey, this.apiKeyStatus.apiKey)),
+          ),
+        ),
         Effect.provide(FetchHttpClient.layer),
       );
 

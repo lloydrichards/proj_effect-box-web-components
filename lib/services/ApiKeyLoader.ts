@@ -1,6 +1,6 @@
-import { KeyValueStore } from "@effect/platform";
 import { BrowserKeyValueStore } from "@effect/platform-browser";
-import { Data, Effect, Option, Redacted } from "effect";
+import { Data, Effect, Layer, Redacted, ServiceMap } from "effect";
+import * as KeyValueStore from "effect/unstable/persistence/KeyValueStore";
 import { CryptoService } from "./Crypto";
 
 const STORAGE_KEY = "effect-box:ai:apiKey";
@@ -58,14 +58,10 @@ const derivePasskeyString = (
     return passkey;
   });
 
-export class ApiKeyLoaderService extends Effect.Service<ApiKeyLoaderService>()(
+export class ApiKeyLoaderService extends ServiceMap.Service<ApiKeyLoaderService>()(
   "ApiKeyLoaderService",
   {
-    dependencies: [
-      BrowserKeyValueStore.layerLocalStorage,
-      CryptoService.Default,
-    ],
-    effect: Effect.gen(function* () {
+    make: Effect.gen(function* () {
       const kv = yield* KeyValueStore.KeyValueStore;
       const crypto = yield* CryptoService;
 
@@ -83,10 +79,8 @@ export class ApiKeyLoaderService extends Effect.Service<ApiKeyLoaderService>()(
 
       const getFailedAttempts = Effect.gen(function* () {
         const attemptsStr = yield* kv.get(ATTEMPT_KEY);
-        return Option.match(attemptsStr, {
-          onNone: () => 0,
-          onSome: (str) => parseInt(str, 10) || 0,
-        });
+        if (!attemptsStr) return 0;
+        return parseInt(attemptsStr, 10) || 0;
       });
 
       const incrementFailedAttempts = Effect.gen(function* () {
@@ -135,8 +129,8 @@ export class ApiKeyLoaderService extends Effect.Service<ApiKeyLoaderService>()(
           return Redacted.make(apiKey);
         }).pipe(
           Effect.mapError((error) => {
-            if (error._tag === "PasskeyError") return error;
-            if (error._tag === "StorageError") return error;
+            if (error instanceof PasskeyError) return error;
+            if (error instanceof StorageError) return error;
             return new StorageError({
               message: `Failed to save API key: ${String(error)}`,
             });
@@ -161,10 +155,7 @@ export class ApiKeyLoaderService extends Effect.Service<ApiKeyLoaderService>()(
           const encryptedApiKey = yield* kv.get(STORAGE_KEY);
           const storedPasskeyHash = yield* kv.get(PASSKEY_HASH_KEY);
 
-          if (
-            Option.isNone(encryptedApiKey) ||
-            Option.isNone(storedPasskeyHash)
-          ) {
+          if (!encryptedApiKey || !storedPasskeyHash) {
             return yield* Effect.fail(
               new StorageError({
                 message: "No stored API key found",
@@ -173,20 +164,26 @@ export class ApiKeyLoaderService extends Effect.Service<ApiKeyLoaderService>()(
           }
 
           // Validate passkey by comparing hashes
-          yield* derivePasskeyString(passkey, storedPasskeyHash.value).pipe(
+          yield* derivePasskeyString(passkey, storedPasskeyHash).pipe(
             Effect.tapError(() => incrementFailedAttempts),
             Effect.tap(() => resetFailedAttempts),
-            Effect.mapError(() => {
-              const currentAttempts = Effect.runSync(getFailedAttempts);
-              return new PasskeyError({
-                message: "Invalid passkey",
-                remainingAttempts: MAX_ATTEMPTS - currentAttempts,
-              });
-            }),
+            Effect.catch((error) =>
+              Effect.gen(function* () {
+                const attempts = yield* getFailedAttempts;
+                const message =
+                  error instanceof PasskeyError ? error.message : String(error);
+                return yield* Effect.fail(
+                  new PasskeyError({
+                    message,
+                    remainingAttempts: MAX_ATTEMPTS - attempts,
+                  }),
+                );
+              }),
+            ),
           );
 
           // Decrypt the API key using CryptoService
-          const apiKey = yield* crypto.decrypt(encryptedApiKey.value).pipe(
+          const apiKey = yield* crypto.decrypt(encryptedApiKey).pipe(
             Effect.mapError(
               (error) =>
                 new StorageError({
@@ -200,7 +197,7 @@ export class ApiKeyLoaderService extends Effect.Service<ApiKeyLoaderService>()(
 
       const hasStoredApiKey = Effect.gen(function* () {
         const apiKey = yield* kv.get(STORAGE_KEY);
-        return Option.isSome(apiKey);
+        return Boolean(apiKey);
       });
 
       const clearApiKey = clearAllData;
@@ -212,6 +209,10 @@ export class ApiKeyLoaderService extends Effect.Service<ApiKeyLoaderService>()(
         clearApiKey,
       } as const;
     }),
-    accessors: true,
   },
-) {}
+) {
+  static layer = Layer.effect(this, this.make).pipe(
+    Layer.provide(BrowserKeyValueStore.layerLocalStorage),
+    Layer.provide(CryptoService.layer),
+  );
+}

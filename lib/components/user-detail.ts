@@ -1,5 +1,4 @@
-import { Atom, Result } from "@effect-atom/atom";
-import { Data, Effect } from "effect";
+import { Data, Effect, Layer, ServiceMap } from "effect";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
@@ -9,15 +8,18 @@ import { TW } from "../shared/tailwindMixin";
 import "./ui/button/button";
 import "./ui/card/card";
 import "./ui/item/item";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 
 class UserError extends Data.TaggedError("UserError")<{ message: string }> {}
 
-class UserService extends Effect.Service<UserService>()("UserService", {
-  effect: Effect.gen(function* () {
+class UserService extends ServiceMap.Service<UserService>()("UserService", {
+  make: Effect.gen(function* () {
     const fetchUser = (id: string) =>
       Effect.gen(function* () {
         if (id === "error") {
-          return yield* new UserError({ message: "User not found" });
+          return yield* Effect.fail(
+            new UserError({ message: "User not found" }),
+          );
         }
 
         yield* Effect.sleep("500 millis");
@@ -32,9 +34,11 @@ class UserService extends Effect.Service<UserService>()("UserService", {
 
     return { fetchUser } as const;
   }),
-}) {}
+}) {
+  static layer = Layer.effect(this, this.make);
+}
 
-const userRuntime = Atom.runtime(UserService.Default);
+const userRuntime = Atom.runtime(UserService.layer);
 
 const userAtomFamily = Atom.family((userId: string) =>
   userRuntime
@@ -85,7 +89,7 @@ export class UserDetail extends TW(AtomMixin(LitElement)) {
                   const setCount = this.useAtomSet(refreshCountAtom);
                   setCount((c) => c + 1);
                 }}
-                ?disabled=${Result.isWaiting(userResult)}
+                ?disabled=${AsyncResult.isWaiting(userResult)}
                 aria-label="Refresh user data"
               >
                 ${unsafeSVG(RefreshCw)}

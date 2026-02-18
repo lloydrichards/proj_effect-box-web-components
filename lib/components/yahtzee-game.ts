@@ -1,5 +1,4 @@
-import { Atom } from "@effect-atom/atom";
-import { Data, Effect, Random } from "effect";
+import { Data, Effect, Layer, Random, ServiceMap } from "effect";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
@@ -17,6 +16,7 @@ import { AtomMixin, atomState } from "../shared/atomMixin";
 import { TW } from "../shared/tailwindMixin";
 import { cn } from "../shared/utils";
 import "./ui/button/button";
+import { Atom } from "effect/unstable/reactivity";
 
 type DiceValue = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -41,10 +41,10 @@ class YahtzeeError extends Data.TaggedError("YahtzeeError")<{
   message: string;
 }> {}
 
-class YahtzeeService extends Effect.Service<YahtzeeService>()(
+class YahtzeeService extends ServiceMap.Service<YahtzeeService>()(
   "YahtzeeService",
   {
-    effect: Effect.gen(function* () {
+    make: Effect.gen(function* () {
       const rollDice = (
         heldDice: readonly boolean[],
         currentDice: readonly DiceValue[],
@@ -150,7 +150,9 @@ class YahtzeeService extends Effect.Service<YahtzeeService>()(
       } as const;
     }),
   },
-) {}
+) {
+  static layer = Layer.effect(this, this.make);
+}
 
 const gameStateAtom = Atom.make<GameState>({
   players: [],
@@ -353,7 +355,9 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
       const player = currentState.players[playerIndex];
 
       if (!player || player.rollsRemaining <= 0) {
-        return yield* new YahtzeeError({ message: "No rolls remaining" });
+        return yield* Effect.fail(
+          new YahtzeeError({ message: "No rolls remaining" }),
+        );
       }
 
       const newDice = yield* service.rollDice(player.held, player.dice);
@@ -376,7 +380,7 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
       });
     });
 
-    Effect.runPromise(program.pipe(Effect.provide(YahtzeeService.Default)));
+    Effect.runPromise(program.pipe(Effect.provide(YahtzeeService.layer)));
   }
 
   private _endTurn() {
@@ -418,7 +422,7 @@ export class YahtzeePlayer extends TW(AtomMixin(LitElement)) {
       }
     });
 
-    Effect.runPromise(program.pipe(Effect.provide(YahtzeeService.Default)));
+    Effect.runPromise(program.pipe(Effect.provide(YahtzeeService.layer)));
   }
 }
 
@@ -488,7 +492,7 @@ export class YahtzeeGame extends TW(AtomMixin(LitElement)) {
         registry.set(gameStateAtom, newState);
       });
 
-      Effect.runPromise(program.pipe(Effect.provide(YahtzeeService.Default)));
+      Effect.runPromise(program.pipe(Effect.provide(YahtzeeService.layer)));
     }
   }
 
@@ -505,7 +509,7 @@ export class YahtzeeGame extends TW(AtomMixin(LitElement)) {
       registry.set(gameStateAtom, newState);
     });
 
-    Effect.runPromise(program.pipe(Effect.provide(YahtzeeService.Default)));
+    Effect.runPromise(program.pipe(Effect.provide(YahtzeeService.layer)));
   }
 }
 

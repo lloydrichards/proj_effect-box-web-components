@@ -220,9 +220,11 @@ export class PromptTerminal extends TwLitElement {
     ) {
       Effect.runPromise(
         this.generateEffect().pipe(
-          Effect.tap((htmlString) => {
-            this.content = htmlString;
-          }),
+          Effect.tap((htmlString) =>
+            Effect.sync(() => {
+              this.content = htmlString;
+            }),
+          ),
         ),
       );
     }
@@ -236,7 +238,7 @@ export class PromptTerminal extends TwLitElement {
     );
 
     const currentPart = pipe(
-      Option.fromNullable(this.terminalState.current),
+      Option.fromNullishOr(this.terminalState.current),
       Option.filter(() => !this.terminalState.showResults),
       Option.map((current) =>
         this.prompts[this.currentPromptIndex]?.renderActive({
@@ -249,8 +251,8 @@ export class PromptTerminal extends TwLitElement {
           errorMessage: this.error?.message,
         }),
       ),
+      Option.flatMap(Option.fromNullishOr),
       Option.toArray,
-      Array.filterMap(Option.fromNullable),
     );
 
     const resultsPart = this.terminalState.showResults
@@ -391,8 +393,10 @@ export class PromptTerminal extends TwLitElement {
       Match.when("Enter", () => {
         if (currentState.input.trim()) {
           const value = currentState.input;
-          const key = this.terminalState.current!.key;
-          const message = this.terminalState.current!.message;
+          const current = this.terminalState.current;
+          if (!current) return;
+          const key = current.key;
+          const message = current.message;
 
           this.terminalState = {
             ...this.terminalState,
@@ -483,10 +487,20 @@ export class PromptTerminal extends TwLitElement {
         this.error = null;
         this.terminalState = {
           ...this.terminalState,
-          current: {
-            ...this.terminalState.current!,
-            state: { ...this.terminalState.current!.state, input: newInput },
-          },
+          current: this.terminalState.current
+            ? {
+                ...this.terminalState.current,
+                state: {
+                  ...this.terminalState.current.state,
+                  input: newInput,
+                },
+              }
+            : {
+                key: "",
+                message: "",
+                state: { input: newInput, submitted: false },
+                maxLength,
+              },
         };
         this.cursorPosition = Math.min(this.cursorPosition, newInput.length);
       }),

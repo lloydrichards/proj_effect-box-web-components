@@ -1,4 +1,3 @@
-import { Atom, type Result } from "@effect-atom/atom";
 import {
   Config,
   ConfigProvider,
@@ -6,8 +5,12 @@ import {
   Data,
   Effect,
   Layer,
+  Option,
   Redacted,
 } from "effect";
+import { type AsyncResult, Atom } from "effect/unstable/reactivity";
+import * as Registry from "effect/unstable/reactivity/AtomRegistry";
+import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
@@ -23,9 +26,14 @@ class SecretError extends Data.TaggedError("SecretError")<{
 
 const decryptSecret = Effect.gen(function* () {
   const crypto = yield* CryptoService;
-  const encryptedKey = yield* Config.string("VITE_SECRET_API_KEY");
+  const encryptedKey = yield* Config.option(
+    Config.string("VITE_SECRET_API_KEY"),
+  );
+  if (Option.isNone(encryptedKey)) {
+    return Redacted.make("");
+  }
 
-  const decrypted = yield* crypto.decrypt(encryptedKey).pipe(
+  const decrypted = yield* crypto.decrypt(encryptedKey.value).pipe(
     Effect.mapError(
       (error) =>
         new SecretError({
@@ -37,11 +45,20 @@ const decryptSecret = Effect.gen(function* () {
   return Redacted.make(decrypted);
 });
 
-const secretRuntime = Atom.runtime(
-  CryptoService.Default.pipe(
+const secretRuntime = Atom.runtime((get) =>
+  CryptoService.layer.pipe(
     Layer.provide(
-      Layer.setConfigProvider(ConfigProvider.fromJson(import.meta.env)),
+      ConfigProvider.layer(ConfigProvider.fromUnknown(import.meta.env)),
     ),
+    Layer.provide(
+      Registry.layerOptions({
+        scheduleTask: (f) => {
+          get.addFinalizer(f);
+          return () => undefined;
+        },
+      }),
+    ),
+    Layer.provide(Reactivity.layer),
   ),
 );
 
@@ -60,7 +77,7 @@ const secretAtom = secretRuntime.atom(
  */
 @customElement("atom-secrets")
 export class AtomSecrets extends TW(AtomMixin(LitElement)) {
-  @atomState(secretAtom) declare secretResult: Result.Result<
+  @atomState(secretAtom) declare secretResult: AsyncResult.AsyncResult<
     boolean,
     SecretError
   >;
@@ -101,7 +118,7 @@ export class AtomSecrets extends TW(AtomMixin(LitElement)) {
   }
 }
 
-const encryptAtom = secretRuntime.fn((input: string) =>
+const encryptAtom = secretRuntime.fn((input: string, _get) =>
   Effect.gen(function* () {
     if (!input.trim()) {
       return yield* Effect.fail(
@@ -132,7 +149,7 @@ const encryptAtom = secretRuntime.fn((input: string) =>
 export class SecretEncryptor extends TW(AtomMixin(LitElement)) {
   @state() private inputValue = "";
   @atomState(encryptAtom, { reactivityKeys: ["encrypt"] })
-  declare encryptResult: Result.Result<string, SecretError>;
+  declare encryptResult: AsyncResult.AsyncResult<string, SecretError>;
   @property() placeholder = "Enter secret to encrypt...";
 
   private handleInput(e: Event) {
