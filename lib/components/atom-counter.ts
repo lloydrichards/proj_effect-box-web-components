@@ -1,5 +1,5 @@
-import { Atom, Result } from "@effect-atom/atom";
 import { Data, Effect } from "effect";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
@@ -16,17 +16,17 @@ class CountError extends Data.TaggedError("CountError")<{ message: string }> {}
  * Using Atom.fn creates a writable atom that can execute effects
  * This atom is global and can be shared across multiple components
  */
-const countAtom = Atom.fn(
-  (newValue: number) =>
-    Effect.gen(function* () {
-      if (newValue < -3) {
-        return yield* new CountError({ message: "Count must be at least -3" });
-      }
-      yield* Effect.sleep("100 millis");
-      yield* Effect.log("Counter updated to:", newValue);
-      return newValue;
-    }),
-  { initialValue: 0 },
+const countAtom = Atom.fn((newValue: number, _get) =>
+  Effect.gen(function* () {
+    if (newValue < -3) {
+      return yield* Effect.fail(
+        new CountError({ message: "Count must be at least -3" }),
+      );
+    }
+    yield* Effect.sleep("100 millis");
+    yield* Effect.log("Counter updated to:", newValue);
+    return newValue;
+  }),
 );
 
 /**
@@ -35,13 +35,14 @@ const countAtom = Atom.fn(
  */
 @customElement("atom-counter")
 export class AtomCounter extends TW(AtomMixin(LitElement)) {
-  @atomState(countAtom) declare countResult: Result.Result<number, CountError>;
+  @atomState(countAtom)
+  declare countResult: AsyncResult.AsyncResult<number, CountError>;
   @property() docsHint = "Both instances share the same global atom state";
   @property({ type: String }) variant: ButtonVariant = "default";
   @property({ type: String }) size: ButtonSize = "icon-lg";
 
   render() {
-    const isLoading = Result.isWaiting(this.countResult);
+    const isLoading = AsyncResult.isWaiting(this.countResult);
     return html`
       <div class="flex flex-col justify-center items-center gap-2 w-full">
         <slot></slot>
@@ -110,7 +111,7 @@ export class AtomCounter extends TW(AtomMixin(LitElement)) {
    */
   private _updateCount(delta: number) {
     const setCount = this.useAtomSet(countAtom);
-    const currentCount = Result.isSuccess(this.countResult)
+    const currentCount = AsyncResult.isSuccess(this.countResult)
       ? this.countResult.value
       : 0;
 

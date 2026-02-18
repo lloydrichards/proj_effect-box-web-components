@@ -1,12 +1,12 @@
-import { Array, Effect, Layer, pipe } from "effect";
+import { Array, Effect, Layer, pipe, ServiceMap } from "effect";
 import { Box } from "effect-boxes";
 
 const DEFAULT_COL_WIDTH = 15;
 
-class BoarderStyleService extends Effect.Service<BoarderStyleService>()(
+class BoarderStyleService extends ServiceMap.Service<BoarderStyleService>()(
   "BoarderStyleService",
   {
-    sync: () => ({
+    make: Effect.sync(() => ({
       top: {
         left: "╔",
         center: "═",
@@ -31,23 +31,26 @@ class BoarderStyleService extends Effect.Service<BoarderStyleService>()(
         right: "║",
         colSeparator: "║",
       },
-    }),
-    accessors: true,
+    })),
   },
-) {}
-class TableConfigService extends Effect.Service<TableConfigService>()(
+) {
+  static layer = Layer.effect(this, this.make);
+}
+class TableConfigService extends ServiceMap.Service<TableConfigService>()(
   "TableConfigService",
   {
-    sync: () => ({
+    make: Effect.sync(() => ({
       defaultColumnWidth: DEFAULT_COL_WIDTH,
       cellPadding: " ",
-    }),
-    accessors: true,
+    })),
   },
-) {}
+) {
+  static layer = Layer.effect(this, this.make);
+}
 
 const Separator = Effect.fn(function* (colWidths: readonly number[]) {
-  const style = yield* BoarderStyleService.middle;
+  const styleService = yield* BoarderStyleService;
+  const style = styleService.middle;
   return pipe(
     colWidths,
     Array.map((width) => Box.text(style.center.repeat(width + 2))),
@@ -58,7 +61,8 @@ const Separator = Effect.fn(function* (colWidths: readonly number[]) {
 });
 
 const TopBorder = Effect.fn(function* (colWidths: readonly number[]) {
-  const style = yield* BoarderStyleService.top;
+  const styleService = yield* BoarderStyleService;
+  const style = styleService.top;
   return pipe(
     colWidths,
     Array.map((width) => Box.text(style.center.repeat(width + 2))),
@@ -69,7 +73,8 @@ const TopBorder = Effect.fn(function* (colWidths: readonly number[]) {
 });
 
 const BottomBorder = Effect.fn(function* (colWidths: readonly number[]) {
-  const style = yield* BoarderStyleService.bottom;
+  const styleService = yield* BoarderStyleService;
+  const style = styleService.bottom;
   return pipe(
     colWidths,
     Array.map((width) => Box.text(style.center.repeat(width + 2))),
@@ -94,7 +99,8 @@ const DataCell = (data: string, width: number) =>
   );
 
 const TableRow = Effect.fn(function* (cells: readonly Box.Box[]) {
-  const style = yield* BoarderStyleService.data;
+  const styleService = yield* BoarderStyleService;
+  const style = styleService.data;
   return pipe(
     cells,
     Box.punctuateH(Box.left, Box.text(style.colSeparator)),
@@ -138,8 +144,8 @@ const TableAssembly = (
 ): Box.Box => pipe([headerRow, separator, ...dataRows], Box.vcat(Box.left));
 
 export const TableServiceLayer = Layer.merge(
-  TableConfigService.Default,
-  BoarderStyleService.Default,
+  TableConfigService.layer,
+  BoarderStyleService.layer,
 );
 
 export const createSimpleTable = Effect.fn(function* (
@@ -200,63 +206,57 @@ export const processTable = createTable(
 ).pipe(Effect.provide(TableServiceLayer));
 
 // Alternative ornate border style with decorative elements
-export const OrnateBorderStyleLayer = Layer.succeed(
-  BoarderStyleService,
-  new BoarderStyleService({
-    top: {
-      left: "╭",
-      center: "─",
-      right: "╮",
-      colSeparator: "┬",
-    },
-    middle: {
-      left: "├",
-      center: "─",
-      right: "┤",
-      colSeparator: "┼",
-    },
-    bottom: {
-      left: "╰",
-      center: "─",
-      right: "╯",
-      colSeparator: "┴",
-    },
-    data: {
-      left: "│",
-      center: " ",
-      right: "│",
-      colSeparator: "│",
-    },
-  }),
-);
+export const OrnateBorderStyleLayer = Layer.succeed(BoarderStyleService, {
+  top: {
+    left: "╭",
+    center: "─",
+    right: "╮",
+    colSeparator: "┬",
+  },
+  middle: {
+    left: "├",
+    center: "─",
+    right: "┤",
+    colSeparator: "┼",
+  },
+  bottom: {
+    left: "╰",
+    center: "─",
+    right: "╯",
+    colSeparator: "┴",
+  },
+  data: {
+    left: "│",
+    center: " ",
+    right: "│",
+    colSeparator: "│",
+  },
+});
 
 // Retro ASCII style border (keeping original for reference)
-export const CustomBorderStyleLayer = Layer.succeed(
-  BoarderStyleService,
-  new BoarderStyleService({
-    top: {
-      left: "+",
-      center: "-",
-      right: "+",
-      colSeparator: "+",
-    },
-    middle: {
-      left: "+",
-      center: "-",
-      right: "+",
-      colSeparator: "+",
-    },
-    bottom: {
-      left: "+",
-      center: "-",
-      right: "+",
-      colSeparator: "+",
-    },
-    data: {
-      left: "|",
-      center: " ",
-      right: "|",
-      colSeparator: "|",
-    },
-  }),
-);
+export const CustomBorderStyleLayer = Layer.succeed(BoarderStyleService, {
+  top: {
+    left: "+",
+    center: "-",
+    right: "+",
+    colSeparator: "+",
+  },
+  middle: {
+    left: "+",
+    center: "-",
+    right: "+",
+    colSeparator: "+",
+  },
+  bottom: {
+    left: "+",
+    center: "-",
+    right: "+",
+    colSeparator: "+",
+  },
+  data: {
+    left: "|",
+    center: " ",
+    right: "|",
+    colSeparator: "|",
+  },
+});

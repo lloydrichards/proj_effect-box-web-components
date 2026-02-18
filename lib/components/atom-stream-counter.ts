@@ -1,5 +1,5 @@
-import { Atom } from "@effect-atom/atom";
 import { Data, Duration, Effect, Schedule, Stream } from "effect";
+import { Atom } from "effect/unstable/reactivity";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";

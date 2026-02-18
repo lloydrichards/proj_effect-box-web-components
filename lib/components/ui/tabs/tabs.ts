@@ -114,8 +114,8 @@ export class TabsList extends TW(LitElement) {
     const triggers = this.triggers.filter((t) => !t.disabled);
     if (triggers.length === 0) return;
 
-    const currentIndex = triggers.findIndex(
-      (t) => t === this.shadowRoot?.activeElement,
+    const currentIndex = triggers.indexOf(
+      this.shadowRoot?.activeElement as TabsTrigger,
     );
     if (currentIndex === -1) return;
 

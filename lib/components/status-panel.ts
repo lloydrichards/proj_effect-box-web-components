@@ -1,5 +1,5 @@
-import type { Result } from "@effect-atom/atom";
 import { Data } from "effect";
+import type { AsyncResult } from "effect/unstable/reactivity";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { matchResult } from "../shared/atomMixin";
@@ -17,7 +17,10 @@ export class StatusPanel extends TW(LitElement) {
     }
   `;
 
-  @property({ type: Object }) countResult?: Result.Result<number, CountError>;
+  @property({ type: Object }) countResult?: AsyncResult.AsyncResult<
+    number,
+    CountError
+  >;
   @property({ type: String }) label = "Counter";
   @property({ type: String }) variant: "default" | "accent" = "default";
   @property({ type: String }) registryType: "global" | "scoped" = "global";

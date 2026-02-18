@@ -1,5 +1,4 @@
-import { Atom } from "@effect-atom/atom";
-import { Effect, Ref } from "effect";
+import { Cause, Effect, Layer, Ref, ServiceMap } from "effect";
 import * as Array from "effect/Array";
 import { pipe } from "effect/Function";
 import { html, LitElement } from "lit";
@@ -11,6 +10,7 @@ import { TW } from "../shared/tailwindMixin";
 import "./ui/button/button";
 import "./ui/card/card";
 import "./ui/item/item";
+import { Atom } from "effect/unstable/reactivity";
 
 type TodoItem = {
   id: string;
@@ -18,8 +18,8 @@ type TodoItem = {
   completed: boolean;
 };
 
-class TodoService extends Effect.Service<TodoService>()("TodoService", {
-  effect: Effect.gen(function* () {
+class TodoService extends ServiceMap.Service<TodoService>()("TodoService", {
+  make: Effect.gen(function* () {
     const todos = yield* Ref.make<TodoItem[]>([]);
 
     const addTodo = (text: string) =>
@@ -61,9 +61,11 @@ class TodoService extends Effect.Service<TodoService>()("TodoService", {
       getTodos,
     } as const;
   }),
-}) {}
+}) {
+  static layer = Layer.effect(this, this.make);
+}
 
-const todosRuntime = Atom.runtime(TodoService.Default);
+const todosRuntime = Atom.runtime(TodoService.layer);
 
 const todosResultAtom = todosRuntime
   .atom(
@@ -93,9 +95,16 @@ const addTodoEffect = todosRuntime.fn(
 export const addTodoErrorAtom = Atom.make((get) => {
   const result = get(addTodoEffect);
   if (result._tag === "Failure") {
-    const error = result.cause;
-    if (error._tag === "Fail" && error.error._tag === "MaxTodosReached") {
-      return error.error.message;
+    for (const reason of result.cause.reasons) {
+      if (Cause.isFailReason(reason)) {
+        const error = reason.error;
+        if (typeof error === "object" && error && "_tag" in error) {
+          const tagged = error as { _tag?: string; message?: string };
+          if (tagged._tag === "MaxTodosReached") {
+            return tagged.message ?? null;
+          }
+        }
+      }
     }
   }
   return null;
