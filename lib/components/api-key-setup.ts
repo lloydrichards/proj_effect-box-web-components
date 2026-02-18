@@ -1,6 +1,7 @@
-import { BrowserKeyValueStore } from "@effect/platform-browser";
-import { Atom, type Result } from "@effect-atom/atom";
 import { Effect, Layer, type Redacted } from "effect";
+import { type AsyncResult, Atom } from "effect/unstable/reactivity";
+import * as Registry from "effect/unstable/reactivity/AtomRegistry";
+import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
@@ -19,9 +20,17 @@ export type ApiKeyStatus =
   | { type: "unlocked"; apiKey: Redacted.Redacted<string> }
   | { type: "error"; message: string; remainingAttempts?: number };
 
-const apiKeyRuntime = Atom.runtime(
-  ApiKeyLoaderService.Default.pipe(
-    Layer.provide(BrowserKeyValueStore.layerLocalStorage),
+const apiKeyRuntime = Atom.runtime((get) =>
+  ApiKeyLoaderService.layer.pipe(
+    Layer.provide(
+      Registry.layerOptions({
+        scheduleTask: (f) => {
+          get.addFinalizer(f);
+          return () => undefined;
+        },
+      }),
+    ),
+    Layer.provide(Reactivity.layer),
   ),
 );
 // Make the status atom writable
@@ -30,42 +39,52 @@ export const apiKeyStatusAtom = Atom.make<ApiKeyStatus>({
   type: "not-configured",
 });
 
-export const saveApiKeyFn = apiKeyRuntime.fn(
-  (params: { apiKey: string; passkey: string }) =>
-    Effect.gen(function* () {
-      const service = yield* ApiKeyLoaderService;
-      const apiKey = yield* service.saveApiKey(params.apiKey, params.passkey);
-      return { type: "unlocked", apiKey } as ApiKeyStatus;
-    }).pipe(
-      Effect.mapError(
-        (error): ApiKeyStatus => ({
+export const saveApiKeyFn = apiKeyRuntime.fn<{
+  apiKey: string;
+  passkey: string;
+}>()((params) =>
+  Effect.gen(function* () {
+    const service = yield* ApiKeyLoaderService;
+    const apiKey = yield* service.saveApiKey(params.apiKey, params.passkey);
+    return { type: "unlocked", apiKey } as ApiKeyStatus;
+  }).pipe(
+    Effect.mapError((error): ApiKeyStatus => {
+      if (error instanceof Error) {
+        return {
           type: "error",
           message: error.message,
-          remainingAttempts:
-            error._tag === "PasskeyError" ? error.remainingAttempts : undefined,
-        }),
-      ),
-    ),
+        };
+      }
+      return {
+        type: "error",
+        message: String(error),
+      };
+    }),
+  ),
 );
 
-export const unlockApiKeyFn = apiKeyRuntime.fn((passkey: string) =>
+export const unlockApiKeyFn = apiKeyRuntime.fn<string>()((passkey) =>
   Effect.gen(function* () {
     const service = yield* ApiKeyLoaderService;
     const apiKey = yield* service.loadApiKey(passkey);
     return { type: "unlocked", apiKey } as ApiKeyStatus;
   }).pipe(
-    Effect.mapError(
-      (error): ApiKeyStatus => ({
+    Effect.mapError((error): ApiKeyStatus => {
+      if (error instanceof Error) {
+        return {
+          type: "error",
+          message: error.message,
+        };
+      }
+      return {
         type: "error",
-        message: error.message,
-        remainingAttempts:
-          error._tag === "PasskeyError" ? error.remainingAttempts : undefined,
-      }),
-    ),
+        message: String(error),
+      };
+    }),
   ),
 );
 
-export const clearApiKeyFn = apiKeyRuntime.fn(() =>
+export const clearApiKeyFn = apiKeyRuntime.fn<void>()(() =>
   Effect.gen(function* () {
     const service = yield* ApiKeyLoaderService;
     yield* service.clearApiKey;
@@ -73,7 +92,7 @@ export const clearApiKeyFn = apiKeyRuntime.fn(() =>
   }),
 );
 
-export const checkApiKeyStatusFn = apiKeyRuntime.fn(() =>
+export const checkApiKeyStatusFn = apiKeyRuntime.fn<void>()(() =>
   Effect.gen(function* () {
     const service = yield* ApiKeyLoaderService;
     const hasKey = yield* service.hasStoredApiKey;
@@ -90,9 +109,9 @@ export const checkApiKeyStatusFn = apiKeyRuntime.fn(() =>
 export class ApiKeySetup extends TW(AtomMixin(LitElement)) {
   @atomState(apiKeyStatusAtom) declare status: ApiKeyStatus;
   @atomState(saveApiKeyFn, { reactivityKeys: ["api-key"] })
-  declare saveResult: Result.Result<ApiKeyStatus>;
+  declare saveResult: AsyncResult.AsyncResult<ApiKeyStatus>;
   @atomState(unlockApiKeyFn, { reactivityKeys: ["api-key"] })
-  declare unlockResult: Result.Result<ApiKeyStatus>;
+  declare unlockResult: AsyncResult.AsyncResult<ApiKeyStatus>;
 
   @state() private _apiKey = "";
   @state() private _passkey = "";

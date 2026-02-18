@@ -1,5 +1,9 @@
-import { Atom, Registry, Result } from "@effect-atom/atom";
 import { Data, Effect } from "effect";
+import {
+  AsyncResult,
+  Atom,
+  AtomRegistry as Registry,
+} from "effect/unstable/reactivity";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
@@ -12,41 +16,44 @@ import type { ButtonSize, ButtonVariant } from "./ui/button/button";
 
 class CountError extends Data.TaggedError("CountError")<{ message: string }> {}
 
-export const globalCountAtom = Atom.fn(
-  (newValue: number) =>
-    Effect.gen(function* () {
-      if (newValue < -3) {
-        return yield* new CountError({ message: "Count must be at least -3" });
-      }
-      yield* Effect.sleep("100 millis");
-      yield* Effect.log("Global counter updated to:", newValue);
-      return newValue;
-    }),
-  { initialValue: 0 },
+export const globalCountAtom = Atom.fn((newValue: number, _get) =>
+  Effect.gen(function* () {
+    if (newValue < -3) {
+      return yield* Effect.fail(
+        new CountError({ message: "Count must be at least -3" }),
+      );
+    }
+    yield* Effect.sleep("100 millis");
+    yield* Effect.log("Global counter updated to:", newValue);
+    return newValue;
+  }),
 );
 
 const scopedRegistry = Registry.make({
-  scheduleTask: (f) => queueMicrotask(f),
+  scheduleTask: (f) => {
+    queueMicrotask(f);
+    return () => undefined;
+  },
   timeoutResolution: 1000,
   defaultIdleTTL: 30_000,
 });
 
-const scopedCountAtom = Atom.fn(
-  (newValue: number) =>
-    Effect.gen(function* () {
-      if (newValue < -3) {
-        return yield* new CountError({ message: "Count must be at least -3" });
-      }
-      yield* Effect.sleep("100 millis");
-      yield* Effect.log("Scoped counter updated to:", newValue);
-      return newValue;
-    }),
-  { initialValue: 0 },
+const scopedCountAtom = Atom.fn((newValue: number, _get) =>
+  Effect.gen(function* () {
+    if (newValue < -3) {
+      return yield* Effect.fail(
+        new CountError({ message: "Count must be at least -3" }),
+      );
+    }
+    yield* Effect.sleep("100 millis");
+    yield* Effect.log("Scoped counter updated to:", newValue);
+    return newValue;
+  }),
 );
 
 @customElement("global-status-panel")
 export class GlobalStatusPanel extends TW(AtomMixin(LitElement)) {
-  @atomState(globalCountAtom) declare countResult: Result.Result<
+  @atomState(globalCountAtom) declare countResult: AsyncResult.AsyncResult<
     number,
     CountError
   >;
@@ -68,7 +75,7 @@ export class GlobalStatusPanel extends TW(AtomMixin(LitElement)) {
 export class ScopedStatusPanel extends TW(
   AtomMixin(LitElement, scopedRegistry),
 ) {
-  @atomState(scopedCountAtom) declare countResult: Result.Result<
+  @atomState(scopedCountAtom) declare countResult: AsyncResult.AsyncResult<
     number,
     CountError
   >;
@@ -88,7 +95,7 @@ export class ScopedStatusPanel extends TW(
 
 @customElement("global-counter-controls")
 export class GlobalCounterControls extends TW(AtomMixin(LitElement)) {
-  @atomState(globalCountAtom) declare countResult: Result.Result<
+  @atomState(globalCountAtom) declare countResult: AsyncResult.AsyncResult<
     number,
     CountError
   >;
@@ -97,7 +104,7 @@ export class GlobalCounterControls extends TW(AtomMixin(LitElement)) {
   @property({ type: String }) size: ButtonSize = "icon-lg";
 
   render() {
-    const isLoading = Result.isWaiting(this.countResult);
+    const isLoading = AsyncResult.isWaiting(this.countResult);
 
     return html`
       <div class="flex gap-2 sm:gap-4">
@@ -133,7 +140,7 @@ export class GlobalCounterControls extends TW(AtomMixin(LitElement)) {
 
   private _updateCount(delta: number) {
     const setCount = this.useAtomSet(globalCountAtom);
-    const currentValue = Result.isSuccess(this.countResult)
+    const currentValue = AsyncResult.isSuccess(this.countResult)
       ? this.countResult.value
       : 0;
     setCount(currentValue + delta);
@@ -144,7 +151,7 @@ export class GlobalCounterControls extends TW(AtomMixin(LitElement)) {
 export class ScopedCounterControls extends TW(
   AtomMixin(LitElement, scopedRegistry),
 ) {
-  @atomState(scopedCountAtom) declare countResult: Result.Result<
+  @atomState(scopedCountAtom) declare countResult: AsyncResult.AsyncResult<
     number,
     CountError
   >;
@@ -153,7 +160,7 @@ export class ScopedCounterControls extends TW(
   @property({ type: String }) size: ButtonSize = "icon-lg";
 
   render() {
-    const isLoading = Result.isWaiting(this.countResult);
+    const isLoading = AsyncResult.isWaiting(this.countResult);
 
     return html`
       <div class="flex gap-2 sm:gap-4">
@@ -189,7 +196,7 @@ export class ScopedCounterControls extends TW(
 
   private _updateCount(delta: number) {
     const setCount = this.useAtomSet(scopedCountAtom);
-    const currentValue = Result.isSuccess(this.countResult)
+    const currentValue = AsyncResult.isSuccess(this.countResult)
       ? this.countResult.value
       : 0;
     setCount(currentValue + delta);
