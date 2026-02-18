@@ -1,31 +1,27 @@
-import { LanguageModel } from "@effect/ai/LanguageModel";
-import type * as Prompt from "@effect/ai/Prompt";
 import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai";
-import { Context, Data, Effect, Layer, Redacted } from "effect";
-import { FetchHttpClient } from "@effect/platform";
+import { Data, Effect, Layer, type Redacted, ServiceMap } from "effect";
+import * as LanguageModel from "effect/unstable/ai/LanguageModel";
+import type * as Prompt from "effect/unstable/ai/Prompt";
+import { FetchHttpClient } from "effect/unstable/http";
 
 class AiGenerationError extends Data.TaggedError("AiGenerationError")<{
   message: string;
   cause?: unknown;
 }> {}
 
-export class ApiKey extends Context.Tag("ApiKey")<
-  ApiKey,
-  Redacted.Redacted<string>
->() {}
-
-const Gpt4o = OpenAiLanguageModel.model("gpt-4o");
+export const ApiKey = ServiceMap.Service<Redacted.Redacted<string>>("ApiKey");
 
 const makeOpenAiLayer = (apiKey: Redacted.Redacted<string>) =>
-  Layer.provide(Gpt4o, OpenAiClient.layer({ apiKey }));
+  OpenAiLanguageModel.layer({ model: "gpt-4o" }).pipe(
+    Layer.provide(OpenAiClient.layer({ apiKey })),
+  );
 
-export class AiService extends Effect.Service<AiService>()("AiService", {
-  dependencies: [FetchHttpClient.layer],
-  effect: Effect.gen(function* () {
+export class AiService extends ServiceMap.Service<AiService>()("AiService", {
+  make: Effect.gen(function* () {
     const apiKey = yield* ApiKey;
-    const model = yield* LanguageModel.pipe(
-      Effect.provide(makeOpenAiLayer(apiKey)),
-    );
+    const model = yield* Effect.gen(function* () {
+      return yield* LanguageModel.LanguageModel;
+    }).pipe(Effect.provide(makeOpenAiLayer(apiKey)));
 
     const generateText = (prompt: Prompt.RawInput) =>
       Effect.gen(function* () {
@@ -46,5 +42,8 @@ export class AiService extends Effect.Service<AiService>()("AiService", {
 
     return { generateText, streamText } as const;
   }),
-  accessors: true,
-}) {}
+}) {
+  static layer = Layer.effect(this, this.make).pipe(
+    Layer.provide(FetchHttpClient.layer),
+  );
+}

@@ -1,4 +1,4 @@
-import { Config, Data, Effect } from "effect";
+import { Config, Data, Effect, Layer, ServiceMap } from "effect";
 
 const ALGORITHM = "AES-GCM";
 const KEY_LENGTH = 256;
@@ -46,10 +46,10 @@ const base64ToBytes = (base64: string) =>
     Uint8Array.from(atob(base64), (m) => m.codePointAt(0) as number),
   );
 
-export class CryptoService extends Effect.Service<CryptoService>()(
+export class CryptoService extends ServiceMap.Service<CryptoService>()(
   "CryptoService",
   {
-    effect: Effect.gen(function* () {
+    make: Effect.gen(function* () {
       const encryptionKey = yield* Config.string("VITE_ENCRYPTION_KEY");
 
       const encrypt = Effect.fn(function* (plaintext: string) {
@@ -141,4 +141,6 @@ export class CryptoService extends Effect.Service<CryptoService>()(
       } as const;
     }),
   },
-) {}
+) {
+  static layer = Layer.effect(this, this.make);
+}
