@@ -27,9 +27,11 @@ export class AnsiCounter extends TwLitElement {
     if (changedProperties.has("count")) {
       Effect.runPromise(
         this.generateEffect().pipe(
-          Effect.tap((htmlString) => {
-            this.content = htmlString;
-          }),
+          Effect.tap((htmlString) =>
+            Effect.sync(() => {
+              this.content = htmlString;
+            }),
+          ),
         ),
       );
     }
